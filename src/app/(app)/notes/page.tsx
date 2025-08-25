@@ -13,7 +13,7 @@ import { Note } from "@/lib/stores/notes-store";
 
 
 export default function NotesPage() {
-  const { notes, deleteNote, updateNote, isLoading } = useNotesStore();
+  const { notes, deleteNote, updateNote, fetchNotes, isLoading } = useNotesStore();
   const [isEditorOpen, setIsEditorOpen] = useState(false);
   const [editingNote, setEditingNote] = useState<Note | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
@@ -52,7 +52,10 @@ export default function NotesPage() {
   const pinnedNotes = filteredNotes.filter(note => note.isPinned);
   const regularNotes = filteredNotes.filter(note => !note.isPinned);
 
-  // Notes are now managed locally, no need to fetch
+  // Fetch notes from Supabase on component mount
+  useEffect(() => {
+    fetchNotes();
+  }, [fetchNotes]);
 
   const handleEdit = (note: Note) => {
     setEditingNote(note);

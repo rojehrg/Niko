@@ -1,14 +1,15 @@
 "use client";
 
+import { useEffect } from "react";
 import { BookOpen, Briefcase, StickyNote } from "lucide-react";
 import { useFlashcardStore } from "@/lib/stores/flashcard-store";
 import { useNotesStore } from "@/lib/stores/notes-store";
 import { useJobsStore } from "@/lib/stores/jobs-store";
 
 export default function DashboardPage() {
-  const { flashcards } = useFlashcardStore();
-  const { notes } = useNotesStore();
-  const { jobs } = useJobsStore();
+  const { flashcards, fetchFlashcards, fetchSets } = useFlashcardStore();
+  const { notes, fetchNotes } = useNotesStore();
+  const { jobs, fetchJobs } = useJobsStore();
   
   // Calculate job stats manually since getStats might not exist
   const jobStats = {
@@ -18,6 +19,14 @@ export default function DashboardPage() {
     offer: jobs.filter(job => job.status === 'offer').length,
     rejected: jobs.filter(job => job.status === 'rejected').length
   };
+
+  // Fetch data from Supabase on component mount
+  useEffect(() => {
+    fetchNotes();
+    fetchFlashcards();
+    fetchSets();
+    fetchJobs();
+  }, [fetchNotes, fetchFlashcards, fetchSets, fetchJobs]);
   
   return (
     <div className="min-h-screen p-8">
