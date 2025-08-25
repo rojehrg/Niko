@@ -18,7 +18,7 @@ import {
   Trash2 as TrashIcon
 } from 'lucide-react'
 import { useJobsStore, Job } from '@/lib/stores/jobs-store'
-import { JobForm } from '@/components/jobs/job-form'
+import JobForm from '@/components/jobs/job-form'
 
 export default function JobsPage() {
   const { 
@@ -335,15 +335,18 @@ export default function JobsPage() {
 
       {/* Job Form Modal */}
       {isFormOpen && (
-        <JobForm
-          isOpen={isFormOpen}
-          job={editingJob}
-          onSave={handleSaveJob}
-          onClose={() => {
-            setIsFormOpen(false)
-            setEditingJob(null)
-          }}
-        />
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50 overflow-y-auto">
+          <div className="w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <JobForm
+              onSubmit={handleSaveJob}
+              onCancel={() => {
+                setIsFormOpen(false)
+                setEditingJob(null)
+              }}
+              initialData={editingJob || undefined}
+            />
+          </div>
+        </div>
       )}
     </div>
   )

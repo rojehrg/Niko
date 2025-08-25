@@ -1,217 +1,184 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { X, Save, Plus } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import { X } from "lucide-react";
 import { Job } from "@/lib/stores/jobs-store";
 
 interface JobFormProps {
-  isOpen: boolean;
-  onClose: () => void;
-  job?: Job | null;
-  onSave: (jobData: Omit<Job, 'id' | 'lastUpdated'>) => void;
+  onSubmit: (job: Omit<Job, 'id'>) => void;
+  onCancel: () => void;
+  initialData?: Partial<Job>;
 }
 
-const STATUS_OPTIONS = [
-  { value: 'saved', label: 'Saved', color: 'bg-blue-100 text-blue-800' },
-  { value: 'applied', label: 'Applied', color: 'bg-blue-100 text-blue-800' },
-  { value: 'interview', label: 'Interview', color: 'bg-orange-100 text-orange-800' },
-  { value: 'offer', label: 'Offer', color: 'bg-green-100 text-green-800' },
-  { value: 'rejected', label: 'Rejected', color: 'bg-red-100 text-red-800' },
-];
-
-export function JobForm({ isOpen, onClose, job, onSave }: JobFormProps) {
+export default function JobForm({ onSubmit, onCancel, initialData }: JobFormProps) {
   const [formData, setFormData] = useState({
-    company: '',
-    position: '',
-    location: '',
-    status: 'saved' as Job['status'],
-    notes: '',
-    url: '',
+    company: initialData?.company || '',
+    position: initialData?.position || '',
+    location: initialData?.location || '',
+    status: initialData?.status || 'saved' as Job['status'],
+    notes: initialData?.notes || '',
+    url: initialData?.url || ''
   });
-  // Remove unused tag state
-
-  // Prevent background scrolling when modal is open
-  useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = 'unset';
-    }
-
-    return () => {
-      document.body.style.overflow = 'unset';
-    };
-  }, [isOpen]);
-
-  useEffect(() => {
-    if (job) {
-      setFormData({
-        company: job.company,
-        position: job.position,
-        location: job.location,
-        status: job.status,
-        notes: job.notes || '',
-        url: job.url || '',
-      });
-    } else {
-      setFormData({
-        company: '',
-        position: '',
-        location: '',
-        status: 'saved' as Job['status'],
-        notes: '',
-        url: '',
-      });
-    }
-  }, [job]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Set default values for empty fields
+    // Set default values for empty fields to ensure the form can always be submitted
     const jobData = {
-      ...formData,
       company: formData.company || 'Unknown Company',
       position: formData.position || 'Unknown Position',
       location: formData.location || 'Remote',
+      status: formData.status || 'saved',
+      notes: formData.notes || '',
+      url: formData.url || ''
     };
     
-    onSave(jobData);
-    onClose();
+    onSubmit(jobData);
+    
+    // Automatically close the form after submission
+    onCancel();
   };
 
-  if (!isOpen) return null;
+  const handleChange = (field: keyof typeof formData, value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const STATUS_OPTIONS = [
+    { value: 'saved', label: 'Saved' },
+    { value: 'applied', label: 'Applied' },
+    { value: 'interview', label: 'Interview' },
+    { value: 'offer', label: 'Offer' },
+    { value: 'rejected', label: 'Rejected' }
+  ];
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50 overflow-hidden">
-      <Card className="w-full max-w-3xl max-h-[90vh] overflow-hidden bg-[var(--background)] border-[var(--border)] shadow-xl">
-        <CardHeader className="bg-[var(--background)] border-b border-[var(--border)]">
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle className="text-xl text-[var(--foreground)]">
-                {job ? 'Edit Job Application' : 'Add New Job Application'}
-              </CardTitle>
-              <CardDescription className="text-[var(--foreground-secondary)] mt-1">
-                Fill in as much or as little as you want. All fields are optional.
-              </CardDescription>
-            </div>
-            <Button
-              variant="ghost"
-              onClick={onClose}
-              className="text-[var(--foreground-tertiary)] hover:text-[var(--foreground)] hover:bg-[var(--hover)]"
-            >
-              <X className="h-5 w-5" />
-            </Button>
-          </div>
+    <div className="w-full">
+      <Card className="border border-[var(--border)] shadow-lg bg-[var(--background)] rounded-xl">
+        <CardHeader className="pb-6 border-b border-[var(--border)] bg-[var(--background-secondary)] rounded-t-xl">
+          <CardTitle className="text-2xl font-bold text-[var(--foreground)]">
+            {initialData ? 'Edit Job Application' : 'Add New Job Application'}
+          </CardTitle>
+          <p className="text-[var(--foreground-secondary)] mt-2">
+            Track your job applications and stay organized in your career search
+          </p>
         </CardHeader>
-
+        
         <form onSubmit={handleSubmit}>
-          <CardContent className="p-6 space-y-6 max-h-[60vh] overflow-y-auto scrollbar-thin scrollbar-thumb-[var(--border)] scrollbar-track-transparent">
-            {/* Job Details Section */}
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-[var(--foreground)] border-b border-[var(--border)] pb-2">
-                Job Details
-              </h3>
-              <div className="grid gap-4 md:grid-cols-2">
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-[var(--foreground)]">Company <span className="text-[var(--foreground-tertiary)]">(optional)</span></label>
-                  <Input
-                    value={formData.company}
-                    onChange={(e) => setFormData(prev => ({ ...prev, company: e.target.value }))}
-                    placeholder="Company name (optional)"
-                    className="border-[var(--border)] bg-[var(--background)] text-[var(--foreground)] focus:ring-2 focus:ring-[var(--primary)] focus:border-[var(--primary)] transition-all duration-200"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-[var(--foreground)]">Position <span className="text-[var(--foreground-tertiary)]">(optional)</span></label>
-                  <Input
-                    value={formData.position}
-                    onChange={(e) => setFormData(prev => ({ ...prev, position: e.target.value }))}
-                    placeholder="Job title (optional)"
-                    className="border-[var(--border)] bg-[var(--background)] text-[var(--foreground)] focus:ring-2 focus:ring-[var(--primary)] focus:border-[var(--primary)] transition-all duration-200"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-[var(--foreground)]">Location <span className="text-[var(--foreground-tertiary)]">(optional)</span></label>
-                  <Input
-                    value={formData.location}
-                    onChange={(e) => setFormData(prev => ({ ...prev, location: e.target.value }))}
-                    placeholder="City, State or Remote (optional)"
-                    className="border-[var(--border)] bg-[var(--background)] text-[var(--foreground)] focus:ring-2 focus:ring-[var(--primary)] focus:border-[var(--primary)] transition-all duration-200"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-[var(--foreground)]">Status</label>
-                  <select
-                    value={formData.status}
-                    onChange={(e) => setFormData(prev => ({ ...prev, status: e.target.value as Job['status'] }))}
-                    className="w-full px-3 py-2 border border-[var(--border)] bg-[var(--background)] text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:border-[var(--primary)] transition-all duration-200 rounded-md"
-                  >
-                    {STATUS_OPTIONS.map(option => (
-                      <option key={option.value} value={option.value}>
-                        {option.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-[var(--foreground)]">Application URL <span className="text-[var(--foreground-tertiary)]">(optional)</span></label>
-                  <Input
-                    value={formData.url}
-                    onChange={(e) => setFormData(prev => ({ ...prev, url: e.target.value }))}
-                    placeholder="https://... (optional)"
-                    className="border-[var(--border)] bg-[var(--border)] bg-[var(--background)] text-[var(--foreground)] focus:ring-2 focus:ring-[var(--primary)] focus:border-[var(--primary)] transition-all duration-200"
-                  />
-                </div>
+          <CardContent className="p-8 space-y-8">
+            
+            {/* Company & Position Section */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-3">
+                <Label htmlFor="company" className="text-sm font-semibold text-[var(--foreground)]">
+                  Company Name
+                </Label>
+                <Input
+                  id="company"
+                  value={formData.company}
+                  onChange={(e) => handleChange('company', e.target.value)}
+                  placeholder="Enter company name"
+                  className="h-12 border-[var(--border)] bg-[var(--background)] text-[var(--foreground)] focus:ring-2 focus:ring-[var(--primary)] focus:border-[var(--primary)] transition-all duration-200 rounded-lg"
+                />
+              </div>
+              
+              <div className="space-y-3">
+                <Label htmlFor="position" className="text-sm font-semibold text-[var(--foreground)]">
+                  Job Position
+                </Label>
+                <Input
+                  id="position"
+                  value={formData.position}
+                  onChange={(e) => handleChange('position', e.target.value)}
+                  placeholder="Enter job title"
+                  className="h-12 border-[var(--border)] bg-[var(--background)] text-[var(--foreground)] focus:ring-2 focus:ring-[var(--primary)] focus:border-[var(--primary)] transition-all duration-200 rounded-lg"
+                />
               </div>
             </div>
 
-            {/* Notes Section */}
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-[var(--foreground)] border-b border-[var(--border)] pb-2">
-                Notes <span className="text-[var(--foreground-tertiary)]">(optional)</span>
-              </h3>
-              <Textarea
-                value={formData.notes}
-                onChange={(e) => setFormData(prev => ({ ...prev, notes: e.target.value }))}
-                placeholder="Add any additional notes about this application..."
-                rows={4}
-                className="border-[var(--border)] bg-[var(--background)] text-[var(--foreground)] resize-none focus:ring-2 focus:ring-[var(--primary)] focus:border-[var(--primary)] transition-all duration-200"
+            {/* Location & Status Section */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-3">
+                <Label htmlFor="location" className="text-sm font-semibold text-[var(--foreground)]">
+                  Location
+                </Label>
+                <Input
+                  id="location"
+                  value={formData.location}
+                  onChange={(e) => handleChange('location', e.target.value)}
+                  placeholder="City, State or Remote"
+                  className="h-12 border-[var(--border)] bg-[var(--background)] text-[var(--foreground)] focus:ring-2 focus:ring-[var(--primary)] focus:border-[var(--primary)] transition-all duration-200 rounded-lg"
+                />
+              </div>
+              
+              <div className="space-y-3">
+                <Label htmlFor="status" className="text-sm font-semibold text-[var(--foreground)]">
+                  Application Status
+                </Label>
+                <select
+                  value={formData.status}
+                  onChange={(e) => handleChange('status', e.target.value)}
+                  className="h-12 w-full px-4 py-2 border border-[var(--border)] rounded-lg bg-[var(--background)] text-[var(--foreground)] focus:ring-2 focus:ring-[var(--primary)] focus:border-[var(--primary)] focus:outline-none transition-all duration-200"
+                >
+                  {STATUS_OPTIONS.map((status) => (
+                    <option key={status.value} value={status.value}>
+                      {status.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            {/* URL Section */}
+            <div className="space-y-3">
+              <Label htmlFor="url" className="text-sm font-semibold text-[var(--foreground)]">
+                Job Posting URL
+              </Label>
+              <Input
+                id="url"
+                value={formData.url}
+                onChange={(e) => handleChange('url', e.target.value)}
+                placeholder="https://..."
+                className="h-12 border-[var(--border)] bg-[var(--background)] text-[var(--foreground)] focus:ring-2 focus:ring-[var(--primary)] focus:border-[var(--primary)] transition-all duration-200 rounded-lg"
               />
             </div>
-          </CardContent>
-          
-          {/* Form Actions */}
-          <div className="flex items-center justify-between p-6 border-t border-[var(--border)] bg-[var(--background)]">
-            <div className="text-sm text-[var(--foreground-secondary)]">
-              All fields are optional - add what you know now, update later!
+
+            {/* Notes Section */}
+            <div className="space-y-3">
+              <Label htmlFor="notes" className="text-sm font-semibold text-[var(--foreground)]">
+                Notes & Observations
+              </Label>
+              <Textarea
+                id="notes"
+                value={formData.notes}
+                onChange={(e) => handleChange('notes', e.target.value)}
+                placeholder="Add any notes about the company, role, or your application process..."
+                className="min-h-28 border-[var(--border)] bg-[var(--background)] text-[var(--foreground)] focus:ring-2 focus:ring-[var(--primary)] focus:border-[var(--primary)] resize-none transition-all duration-200 rounded-lg"
+              />
             </div>
-            <div className="flex items-center gap-3">
+
+            {/* Action Buttons */}
+            <div className="flex items-center justify-end gap-4 pt-8 border-t border-[var(--border)]">
               <Button
                 type="button"
                 variant="outline"
-                onClick={onClose}
-                className="border-[var(--border)] text-[var(--foreground)] hover:bg-[var(--hover)] px-6 transition-all duration-200"
+                onClick={onCancel}
+                className="h-12 px-8 border-[var(--border)] text-[var(--foreground)] hover:bg-[var(--hover)] transition-all duration-200 rounded-lg"
               >
                 Cancel
               </Button>
               <Button
                 type="submit"
-                className="bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white px-8 py-2 shadow-sm hover:shadow-md transition-all duration-200 transform hover:scale-105 rounded-lg"
+                className="h-12 px-10 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105 rounded-lg"
               >
-                <Save className="mr-2 h-4 w-4" />
-                {job ? 'Update Application' : 'Add Application'}
+                {initialData ? 'Update Job' : 'Add Job'}
               </Button>
             </div>
-          </div>
+          </CardContent>
         </form>
       </Card>
     </div>

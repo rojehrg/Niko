@@ -10,6 +10,7 @@ import { useState, useRef, useEffect } from "react";
 import { ChevronLeft } from "lucide-react";
 import { MusicPlayer } from "@/components/music/music-player";
 import { MusicToggle } from "@/components/music/music-toggle";
+import SpotifyPlayer from "@/components/music/spotify-player";
 
 // Holiday Countdown Component
 function HolidayCountdown({ 
@@ -219,6 +220,55 @@ export default function AppLayout({
   });
   const [isBunnyMovementReady, setIsBunnyMovementReady] = useState(false);
   
+  // Get time-based sky theme
+  const getSkyTheme = () => {
+    const hour = new Date().getHours();
+    
+    if (hour >= 6 && hour < 12) {
+      // Morning: Bright blue sky with warm sun
+      return {
+        background: 'from-blue-200 via-blue-100 to-green-200 dark:from-blue-800/40 dark:via-blue-700/30 dark:to-green-800/40',
+        sun: '☀️',
+        clouds: '☁️',
+        mood: 'morning'
+      };
+    } else if (hour >= 12 && hour < 17) {
+      // Afternoon: Bright blue sky with full sun
+      return {
+        background: 'from-blue-300 via-blue-200 to-green-300 dark:from-blue-700/50 dark:via-blue-600/40 dark:to-green-700/50',
+        sun: '☀️',
+        clouds: '☁️',
+        mood: 'afternoon'
+      };
+    } else if (hour >= 17 && hour < 20) {
+      // Evening: Golden hour with warm colors
+      return {
+        background: 'from-orange-200 via-yellow-200 to-green-200 dark:from-orange-800/40 dark:via-yellow-800/30 dark:to-green-800/40',
+        sun: '🌅',
+        clouds: '☁️',
+        mood: 'evening'
+      };
+    } else if (hour >= 20 || hour < 6) {
+      // Night: Dark sky with stars and moon
+      return {
+        background: 'from-indigo-900 via-purple-800 to-green-900 dark:from-indigo-950 dark:via-purple-900 dark:to-green-950',
+        sun: '🌙',
+        clouds: '☁️',
+        mood: 'night'
+      };
+    }
+    
+    // Default fallback
+    return {
+      background: 'from-blue-200 via-blue-100 to-green-200 dark:from-blue-800/40 dark:via-blue-700/30 dark:to-green-800/40',
+      sun: '☀️',
+      clouds: '☁️',
+      mood: 'default'
+    };
+  };
+  
+  const skyTheme = getSkyTheme();
+  
   // Random bunny movement across the entire sidebar
   useEffect(() => {
     if (!isBunnyMovementReady) {
@@ -338,6 +388,16 @@ export default function AppLayout({
     <div className="flex h-screen relative">
       {/* Floating Background Emojis */}
       <FloatingEmojis />
+      
+      {/* Spotify Music Player Modal */}
+      {isMusicPlayerVisible && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+          <div className="w-full max-w-lg max-h-[90vh] overflow-y-auto">
+            <SpotifyPlayer />
+          </div>
+        </div>
+      )}
+      
       {/* Sidebar */}
       <aside 
         className={`fixed left-0 top-0 h-full bg-[var(--background)] border-r border-[var(--border)] z-40 
@@ -347,27 +407,10 @@ export default function AppLayout({
       >
 
 
-        {/* Minimal Collapse Toggle Button - In Sidebar */}
-        <div className="flex justify-center mb-6 pt-4">
-          <button
-            onClick={toggleSidebar}
-            className="group flex items-center gap-2 px-3 py-2 text-sm text-[var(--foreground-secondary)] hover:text-[var(--foreground)] bg-[var(--background-secondary)] border border-[var(--border)] rounded-md hover:bg-[var(--hover)] transition-all duration-200 hover:shadow-sm"
-            title={isSidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
-          >
-            <div className={`transform transition-all duration-300 ${isSidebarCollapsed ? 'rotate-180' : 'rotate-0'}`}>
-              <ChevronLeft className="w-4 h-4" />
-            </div>
-            {!isSidebarCollapsed && (
-              <span className="text-xs font-medium">
-                {isSidebarCollapsed ? 'Expand' : 'Collapse'}
-              </span>
-            )}
-          </button>
-        </div>
-
         <div className={`flex flex-col flex-grow pt-6 pb-4 transition-all duration-500 ease-out
           ${isSidebarCollapsed ? 'overflow-hidden' : 'overflow-y-auto'}`}>
-          {/* Logo/Brand */}
+          
+          {/* Logo/Brand - Top section */}
           <div className={`flex items-center flex-shrink-0 px-6 mb-8 transition-all duration-500 ease-out
             ${isSidebarCollapsed ? 'justify-center px-2' : ''}`}>
             <div className="flex items-center space-x-3">
@@ -393,16 +436,16 @@ export default function AppLayout({
             </div>
           </div>
           
-          {/* Navigation */}
-          <div className={`flex-1 transition-all duration-500 ease-out -mt-2
+          {/* Main Navigation - Core app navigation */}
+          <div className={`flex-1 transition-all duration-500 ease-out mb-8
             ${isSidebarCollapsed ? 'px-2' : 'px-6'}`}>
             <Navigation isCollapsed={isSidebarCollapsed} />
           </div>
           
-          {/* Bottom Section */}
-          <div className={`pt-4 border-t border-[var(--border)] mt-auto transition-all duration-500 ease-out
+          {/* Utility Controls - Theme and Music */}
+          <div className={`mb-6 transition-all duration-500 ease-out
             ${isSidebarCollapsed ? 'px-2' : 'px-6'}`}>
-            <div className={`flex items-center justify-center gap-2 mb-3 transition-all duration-500 ease-out
+            <div className={`flex items-center justify-center gap-3 transition-all duration-500 ease-out
               ${isSidebarCollapsed ? 'flex-col w-full' : ''}`}>
               <ThemeToggle />
               <MusicToggle 
@@ -410,47 +453,80 @@ export default function AppLayout({
                 onClick={() => setIsMusicPlayerVisible(!isMusicPlayerVisible)}
               />
             </div>
-            
-            {/* Holiday Countdown */}
-            {!isSidebarCollapsed && (
-              <div className={`transition-all duration-500 ease-out
-                ${isSidebarCollapsed ? 'opacity-0 scale-95 translate-y-2' : 'opacity-100 scale-100 translate-y-0'}`}>
-                <div className="mb-4 p-3 bg-[var(--hover)] rounded-lg">
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="text-xs font-medium text-[var(--foreground)]">
-                      🎉 Holiday Countdown
-                    </div>
-                    <button
-                      onClick={handleAddHoliday}
-                      className="text-xs text-[var(--foreground-tertiary)] hover:text-[var(--foreground)] p-1 hover:bg-[var(--active)] rounded transition-colors"
-                      title="Add holiday"
-                    >
-                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                      </svg>
-                    </button>
+          </div>
+          
+          {/* Fun Features Section - Holidays and Bunnies */}
+          {!isSidebarCollapsed && (
+            <div className={`transition-all duration-500 ease-out mb-6
+              ${isSidebarCollapsed ? 'px-2' : 'px-6'}`}>
+              
+              {/* Holiday Countdown */}
+              <div className="mb-6 p-4 bg-[var(--hover)] rounded-xl border border-[var(--border)]">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="text-sm font-semibold text-[var(--foreground)]">
+                    🎉 Holiday Countdown
                   </div>
-                  <div className="space-y-2">
-                    {holidays.map((holiday) => (
-                      <HolidayCountdown 
-                        key={holiday.id}
-                        holiday={holiday}
-                        onEdit={handleEditHoliday}
-                        onDelete={handleDeleteHoliday}
-                      />
-                    ))}
-                  </div>
+                  <button
+                    onClick={handleAddHoliday}
+                    className="text-xs text-[var(--foreground-tertiary)] hover:text-[var(--foreground)] p-1.5 hover:bg-[var(--active)] rounded-lg transition-colors"
+                    title="Add holiday"
+                  >
+                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                    </svg>
+                  </button>
+                </div>
+                <div className="space-y-2.5">
+                  {holidays.map((holiday) => (
+                    <HolidayCountdown 
+                      key={holiday.id}
+                      holiday={holiday}
+                      onEdit={handleEditHoliday}
+                      onDelete={handleDeleteHoliday}
+                    />
+                  ))}
                 </div>
               </div>
-            )}
-            
-            {/* Animated Bunnies */}
-            {!isSidebarCollapsed && (
-              <div className="relative h-20 overflow-hidden mt-4">
+              
+              {/* Animated Bunnies */}
+              <div className={`relative h-24 overflow-hidden bg-gradient-to-b ${skyTheme.background} rounded-xl border border-[var(--border)] p-4`}>
+                
+                {/* Sky Elements */}
+                <div className="absolute top-1 left-2 text-lg opacity-60 animate-pulse">{skyTheme.clouds}</div>
+                <div className="absolute top-2 right-3 text-sm opacity-50 animate-pulse" style={{ animationDelay: '1s' }}>{skyTheme.clouds}</div>
+                <div className="absolute top-3 left-8 text-base opacity-40 animate-pulse" style={{ animationDelay: '2s' }}>{skyTheme.clouds}</div>
+                
+                {/* Sun/Moon */}
+                <div className="absolute top-1 right-1 text-lg animate-pulse">{skyTheme.sun}</div>
+                
+                {/* Stars for night time */}
+                {skyTheme.mood === 'night' && (
+                  <>
+                    <div className="absolute top-2 left-6 text-xs opacity-80 animate-pulse">⭐</div>
+                    <div className="absolute top-3 right-6 text-xs opacity-60 animate-pulse" style={{ animationDelay: '0.5s' }}>⭐</div>
+                    <div className="absolute top-1 left-10 text-xs opacity-70 animate-pulse" style={{ animationDelay: '1.5s' }}>⭐</div>
+                    <div className="absolute top-4 right-1 text-xs opacity-50 animate-pulse" style={{ animationDelay: '2.5s' }}>⭐</div>
+                  </>
+                )}
+                
+                {/* Grass and Ground */}
+                <div className="absolute bottom-0 left-0 right-0 h-6 bg-gradient-to-t from-green-300 via-green-200 to-green-100 dark:from-green-700 dark:via-green-600 dark:to-green-500"></div>
+                
+                {/* Flowers and Plants */}
+                <div className="absolute bottom-2 left-3 text-xs">🌸</div>
+                <div className="absolute bottom-2 right-4 text-xs">🌻</div>
+                <div className="absolute bottom-2 left-12 text-xs">🌷</div>
+                <div className="absolute bottom-3 right-8 text-xs">🌱</div>
+                <div className="absolute bottom-3 left-6 text-xs">🌿</div>
+                
+                {/* Small decorative elements */}
+                <div className="absolute bottom-4 left-8 text-xs opacity-70">✨</div>
+                <div className="absolute bottom-4 right-2 text-xs opacity-70">✨</div>
+                
                 {/* White Bunny */}
                 <button
                   onClick={(e) => feedBunny('white', e)}
-                  className="absolute cursor-pointer hover:scale-110 transition-all duration-200" 
+                  className="absolute cursor-pointer hover:scale-110 transition-all duration-200 z-10" 
                   style={{ 
                     left: isBunnyMovementReady ? `${bunnyPositions.white.x}px` : '32px',
                     bottom: isBunnyMovementReady ? `${bunnyPositions.white.y}px` : '16px'
@@ -463,12 +539,12 @@ export default function AppLayout({
                 {/* Brown Bunny */}
                 <button
                   onClick={(e) => feedBunny('brown', e)}
-                  className="absolute cursor-pointer hover:scale-110 transition-all duration-200" 
+                  className="absolute cursor-pointer hover:scale-110 transition-all duration-200 z-10" 
                   style={{ 
                     left: isBunnyMovementReady ? `${bunnyPositions.brown.x}px` : '64px',
                     bottom: isBunnyMovementReady ? `${bunnyPositions.brown.y}px` : '12px'
                   }}
-                  title="Feed the brown bunny! ��"
+                  title="Feed the brown bunny! 🥕"
                 >
                   <div className="text-2xl filter sepia brightness-75 contrast-125 drop-shadow-[0_0_2px_rgba(0,0,0,0.3)] dark:drop-shadow-[0_0_2px_rgba(255,255,255,0.3)] animate-bounce" style={{ animationDelay: '1s' }}>🐰</div>
                 </button>
@@ -480,7 +556,7 @@ export default function AppLayout({
                 {bunnyTreats.map((treat) => (
                   <div
                     key={treat.id}
-                    className="absolute pointer-events-none animate-bounce"
+                    className="absolute pointer-events-none animate-bounce z-20"
                     style={{
                       left: treat.x - 20,
                       top: treat.y,
@@ -496,7 +572,28 @@ export default function AppLayout({
                   </div>
                 ))}
               </div>
-            )}
+            </div>
+          )}
+          
+          {/* Collapse Toggle - Bottom section */}
+          <div className={`mt-auto pt-4 border-t border-[var(--border)] transition-all duration-500 ease-out
+            ${isSidebarCollapsed ? 'px-2' : 'px-6'}`}>
+            <div className="flex justify-center">
+              <button
+                onClick={toggleSidebar}
+                className="group flex items-center gap-2 px-3 py-2 text-sm text-[var(--foreground-secondary)] hover:text-[var(--foreground)] bg-[var(--background-secondary)] border border-[var(--border)] rounded-lg hover:bg-[var(--hover)] transition-all duration-200 hover:shadow-sm"
+                title={isSidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+              >
+                <div className={`transform transition-all duration-300 ${isSidebarCollapsed ? 'rotate-180' : 'rotate-0'}`}>
+                  <ChevronLeft className="w-4 h-4" />
+                </div>
+                {!isSidebarCollapsed && (
+                  <span className="text-xs font-medium">
+                    {isSidebarCollapsed ? 'Expand' : 'Collapse'}
+                  </span>
+                )}
+              </button>
+            </div>
           </div>
         </div>
       </aside>
