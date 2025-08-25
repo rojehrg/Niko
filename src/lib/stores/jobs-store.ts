@@ -6,15 +6,9 @@ export interface Job {
   company: string;
   position: string;
   location: string;
-  jobType: 'full-time' | 'part-time' | 'contract' | 'internship' | 'freelance';
-  status: 'saved' | 'applied' | 'screen' | 'interview' | 'offer' | 'rejected' | 'withdrawn';
-  salary?: string;
+  status: 'saved' | 'applied' | 'interview' | 'offer' | 'rejected';
   notes?: string;
   url?: string;
-  contactPerson?: string;
-  contactEmail?: string;
-  tags: string[];
-  isFavorite: boolean;
 }
 
 interface JobsState {
@@ -61,15 +55,9 @@ export const useJobsStore = create<JobsState>((set, get) => ({
         company: job.company,
         position: job.position,
         location: job.location,
-        jobType: job.job_type,
         status: job.status,
-        salary: job.salary,
         notes: job.notes,
         url: job.url,
-        contactPerson: job.contact_person,
-        contactEmail: job.contact_email,
-        tags: job.tags || [],
-        isFavorite: job.is_favorite || false,
       })) || [];
 
       set({ jobs, isLoading: false });
@@ -88,15 +76,9 @@ export const useJobsStore = create<JobsState>((set, get) => ({
           company: jobData.company,
           position: jobData.position,
           location: jobData.location,
-          job_type: jobData.jobType,
           status: jobData.status,
-          salary: jobData.salary,
           notes: jobData.notes,
           url: jobData.url,
-          contact_person: jobData.contactPerson,
-          contact_email: jobData.contactEmail,
-          tags: jobData.tags,
-          is_favorite: jobData.isFavorite,
         }])
         .select()
         .single();

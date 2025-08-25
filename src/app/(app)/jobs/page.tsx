@@ -60,8 +60,9 @@ export default function JobsPage() {
     
     switch (sortBy) {
       case 'date':
-        aValue = new Date(a.lastUpdated || Date.now());
-        bValue = new Date(b.lastUpdated || Date.now());
+        // Use company name as fallback since we don't have lastUpdated
+        aValue = (a.company || '').toLowerCase();
+        bValue = (b.company || '').toLowerCase();
         break;
       case 'company':
         aValue = (a.company || '').toLowerCase();
@@ -76,8 +77,8 @@ export default function JobsPage() {
         bValue = b.status;
         break;
       default:
-        aValue = a.lastUpdated;
-        bValue = b.lastUpdated;
+        aValue = (a.company || '').toLowerCase();
+        bValue = (b.company || '').toLowerCase();
     }
     
     if (sortOrder === 'asc') {
@@ -114,8 +115,8 @@ export default function JobsPage() {
   };
 
   const formatSalary = (job: Job) => {
-    if (job.salaryMin && job.salaryMax) {
-      return `$${job.salaryMin.toLocaleString()} - $${job.salaryMax.toLocaleString()}`;
+    if (job.salary) {
+      return job.salary;
     }
     return '-';
   };

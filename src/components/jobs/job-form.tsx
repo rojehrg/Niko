@@ -18,19 +18,9 @@ interface JobFormProps {
 const STATUS_OPTIONS = [
   { value: 'saved', label: 'Saved', color: 'bg-blue-100 text-blue-800' },
   { value: 'applied', label: 'Applied', color: 'bg-blue-100 text-blue-800' },
-  { value: 'screen', label: 'Screen', color: 'bg-yellow-100 text-yellow-800' },
   { value: 'interview', label: 'Interview', color: 'bg-orange-100 text-orange-800' },
   { value: 'offer', label: 'Offer', color: 'bg-green-100 text-green-800' },
   { value: 'rejected', label: 'Rejected', color: 'bg-red-100 text-red-800' },
-  { value: 'withdrawn', label: 'Withdrawn', color: 'bg-gray-100 text-gray-800' },
-];
-
-const JOB_TYPE_OPTIONS = [
-  { value: 'full-time', label: 'Full-Time' },
-  { value: 'part-time', label: 'Part-Time' },
-  { value: 'contract', label: 'Contract' },
-  { value: 'internship', label: 'Internship' },
-  { value: 'freelance', label: 'Freelance' },
 ];
 
 export function JobForm({ isOpen, onClose, job, onSave }: JobFormProps) {
@@ -38,17 +28,11 @@ export function JobForm({ isOpen, onClose, job, onSave }: JobFormProps) {
     company: '',
     position: '',
     location: '',
-    jobType: 'full-time' as Job['jobType'],
     status: 'saved' as Job['status'],
-    salary: '',
     notes: '',
     url: '',
-    contactPerson: '',
-    contactEmail: '',
-    tags: [] as string[],
-    isFavorite: false,
   });
-  const [newTag, setNewTag] = useState('');
+  // Remove unused tag state
 
   // Prevent background scrolling when modal is open
   useEffect(() => {
@@ -69,30 +53,18 @@ export function JobForm({ isOpen, onClose, job, onSave }: JobFormProps) {
         company: job.company,
         position: job.position,
         location: job.location,
-        jobType: job.jobType,
         status: job.status,
-        salary: job.salary || '',
         notes: job.notes || '',
         url: job.url || '',
-        contactPerson: job.contactPerson || '',
-        contactEmail: job.contactEmail || '',
-        tags: job.tags,
-        isFavorite: job.isFavorite,
       });
     } else {
       setFormData({
         company: '',
         position: '',
         location: '',
-        jobType: 'full-time' as Job['jobType'],
         status: 'saved' as Job['status'],
-        salary: '',
         notes: '',
         url: '',
-        contactPerson: '',
-        contactEmail: '',
-        tags: [],
-        isFavorite: false,
       });
     }
   }, [job]);
@@ -110,17 +82,6 @@ export function JobForm({ isOpen, onClose, job, onSave }: JobFormProps) {
     
     onSave(jobData);
     onClose();
-  };
-
-  const handleAddTag = () => {
-    if (newTag.trim() && !formData.tags.includes(newTag.trim())) {
-      setFormData(prev => ({ ...prev, tags: [...prev.tags, newTag.trim()] }));
-      setNewTag('');
-    }
-  };
-
-  const handleRemoveTag = (tagToRemove: string) => {
-    setFormData(prev => ({ ...prev, tags: prev.tags.filter(tag => tag !== tagToRemove) }));
   };
 
   if (!isOpen) return null;
@@ -187,21 +148,6 @@ export function JobForm({ isOpen, onClose, job, onSave }: JobFormProps) {
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-[var(--foreground)]">Job Type</label>
-                  <select
-                    value={formData.jobType}
-                    onChange={(e) => setFormData(prev => ({ ...prev, jobType: e.target.value as Job['jobType'] }))}
-                    className="w-full px-3 py-2 border border-[var(--border)] rounded-md bg-[var(--background)] text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:border-[var(--primary)] transition-all duration-200"
-                  >
-                    {JOB_TYPE_OPTIONS.map(option => (
-                      <option key={option.value} value={option.value}>
-                        {option.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div className="space-y-2">
                   <label className="text-sm font-medium text-[var(--foreground)]">Status</label>
                   <select
                     value={formData.status}
@@ -217,97 +163,14 @@ export function JobForm({ isOpen, onClose, job, onSave }: JobFormProps) {
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-[var(--foreground)]">Salary <span className="text-[var(--foreground-tertiary)]">(optional)</span></label>
-                  <Input
-                    value={formData.salary}
-                    onChange={(e) => setFormData(prev => ({ ...prev, salary: e.target.value }))}
-                    placeholder="e.g., $80,000 - $100,000 (optional)"
-                    className="border-[var(--border)] bg-[var(--background)] text-[var(--foreground)] focus:ring-2 focus:ring-[var(--primary)] focus:border-[var(--primary)] transition-all duration-200"
-                  />
-                </div>
-
-                <div className="space-y-2">
                   <label className="text-sm font-medium text-[var(--foreground)]">Application URL <span className="text-[var(--foreground-tertiary)]">(optional)</span></label>
                   <Input
                     value={formData.url}
                     onChange={(e) => setFormData(prev => ({ ...prev, url: e.target.value }))}
                     placeholder="https://... (optional)"
-                    className="border-[var(--border)] bg-[var(--background)] text-[var(--foreground)] focus:ring-2 focus:ring-[var(--primary)] focus:border-[var(--primary)] transition-all duration-200"
+                    className="border-[var(--border)] bg-[var(--border)] bg-[var(--background)] text-[var(--foreground)] focus:ring-2 focus:ring-[var(--primary)] focus:border-[var(--primary)] transition-all duration-200"
                   />
                 </div>
-              </div>
-            </div>
-
-            {/* Contact Information Section */}
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-[var(--foreground)] border-b border-[var(--border)] pb-2">
-                Contact Information
-              </h3>
-              <div className="grid gap-4 md:grid-cols-2">
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-[var(--foreground)]">Contact Person <span className="text-[var(--foreground-tertiary)]">(optional)</span></label>
-                  <Input
-                    value={formData.contactPerson}
-                    onChange={(e) => setFormData(prev => ({ ...prev, contactPerson: e.target.value }))}
-                    placeholder="Hiring manager name (optional)"
-                    className="border-[var(--border)] bg-[var(--background)] text-[var(--foreground)] focus:ring-2 focus:ring-[var(--primary)] focus:border-[var(--primary)] transition-all duration-200"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-[var(--foreground)]">Contact Email <span className="text-[var(--foreground-tertiary)]">(optional)</span></label>
-                  <Input
-                    value={formData.contactEmail}
-                    onChange={(e) => setFormData(prev => ({ ...prev, contactEmail: e.target.value }))}
-                    placeholder="email@company.com (optional)"
-                    className="border-[var(--border)] bg-[var(--background)] text-[var(--foreground)] focus:ring-2 focus:ring-[var(--primary)] focus:border-[var(--primary)] transition-all duration-200"
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Tags Section */}
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-[var(--foreground)] border-b border-[var(--border)] pb-2">
-                Tags <span className="text-[var(--foreground-tertiary)]">(optional)</span>
-              </h3>
-              <div className="space-y-3">
-                <div className="flex gap-2">
-                  <Input
-                    value={newTag}
-                    onChange={(e) => setNewTag(e.target.value)}
-                    onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddTag())}
-                    placeholder="Add a tag..."
-                    className="flex-1 border-[var(--border)] bg-[var(--background)] text-[var(--foreground)] focus:ring-2 focus:ring-[var(--primary)] focus:border-[var(--primary)] transition-all duration-200"
-                  />
-                  <Button
-                    type="button"
-                    onClick={handleAddTag}
-                    size="sm"
-                    className="bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white transition-all duration-200"
-                  >
-                    <Plus className="h-4 w-4" />
-                  </Button>
-                </div>
-                {formData.tags.length > 0 && (
-                  <div className="flex gap-2 flex-wrap">
-                    {formData.tags.map((tag) => (
-                      <span
-                        key={tag}
-                        className="inline-flex items-center gap-1 px-3 py-1 bg-[var(--hover)] rounded-full text-sm text-[var(--foreground)] border border-[var(--border)] hover:border-[var(--primary)] transition-all duration-200"
-                      >
-                        #{tag}
-                        <button
-                          type="button"
-                          onClick={() => handleRemoveTag(tag)}
-                          className="hover:text-red-600 transition-colors duration-200"
-                        >
-                          <X className="h-3 w-3" />
-                        </button>
-                      </span>
-                    ))}
-                  </div>
-                )}
               </div>
             </div>
 
