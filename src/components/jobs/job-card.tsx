@@ -2,18 +2,16 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Heart, MapPin, Edit, Trash2, MoreHorizontal } from "lucide-react";
+import { MapPin, Edit, Trash2, MoreHorizontal } from "lucide-react";
 import { Job } from "@/lib/stores/jobs-store";
 
 interface JobCardProps {
   job: Job;
   onEdit: (job: Job) => void;
   onDelete: (id: string) => void;
-  onStatusChange: (id: string, status: Job['status']) => void;
-  onToggleFavorite: (id: string) => void;
 }
 
-export function JobCard({ job, onEdit, onDelete, onStatusChange, onToggleFavorite }: JobCardProps) {
+export function JobCard({ job, onEdit, onDelete }: JobCardProps) {
   const [showActions, setShowActions] = useState(false);
 
 
@@ -46,9 +44,7 @@ export function JobCard({ job, onEdit, onDelete, onStatusChange, onToggleFavorit
               <h3 className="font-medium text-[var(--foreground)] truncate">
                 {job.position || 'Untitled Position'}
               </h3>
-              {job.isFavorite && (
-                <Heart className="h-4 w-4 text-red-500 fill-current flex-shrink-0" />
-              )}
+
             </div>
             <p className="text-sm text-[var(--foreground-secondary)] truncate">
               {job.company || 'Unknown Company'}
@@ -79,16 +75,7 @@ export function JobCard({ job, onEdit, onDelete, onStatusChange, onToggleFavorit
                 <Edit className="h-3 w-3 mr-2 inline" />
                 Edit
               </button>
-              <button
-                onClick={() => {
-                  onToggleFavorite(job.id);
-                  setShowActions(false);
-                }}
-                className="w-full px-3 py-2 text-left text-sm text-[var(--foreground)] hover:bg-[var(--hover)]"
-              >
-                <Heart className="h-3 w-3 mr-2 inline" />
-                {job.isFavorite ? 'Unfavorite' : 'Favorite'}
-              </button>
+
               <button
                 onClick={() => {
                   onDelete(job.id);
@@ -109,7 +96,6 @@ export function JobCard({ job, onEdit, onDelete, onStatusChange, onToggleFavorit
         <span className={`px-2 py-1 text-xs font-medium rounded-full ${
           job.status === 'saved' ? 'bg-gray-100 text-gray-700' :
           job.status === 'applied' ? 'bg-blue-100 text-blue-700' :
-          job.status === 'screen' ? 'bg-yellow-100 text-yellow-700' :
           job.status === 'interview' ? 'bg-orange-100 text-orange-700' :
           job.status === 'offer' ? 'bg-green-100 text-green-700' :
           'bg-red-100 text-red-700'
@@ -125,32 +111,7 @@ export function JobCard({ job, onEdit, onDelete, onStatusChange, onToggleFavorit
         )}
       </div>
 
-      {/* Quick Details */}
-      <div className="space-y-1">
-        {job.salary && (
-          <p className="text-xs text-[var(--foreground-secondary)]">
-            {job.salary}
-          </p>
-        )}
-        
-        {job.tags.length > 0 && (
-          <div className="flex flex-wrap gap-1">
-            {job.tags.slice(0, 2).map((tag) => (
-              <span
-                key={tag}
-                className="px-1.5 py-0.5 bg-[var(--hover)] text-xs text-[var(--foreground-tertiary)] rounded"
-              >
-                {tag}
-              </span>
-            ))}
-            {job.tags.length > 2 && (
-              <span className="text-xs text-[var(--foreground-tertiary)]">
-                +{job.tags.length - 2}
-              </span>
-            )}
-          </div>
-        )}
-      </div>
+
     </div>
   );
 }
