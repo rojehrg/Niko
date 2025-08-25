@@ -13,10 +13,7 @@ import {
   X, 
   Building, 
   CheckCircle, 
-  Calendar, 
-  DollarSign, 
   MapPin, 
-  Star,
   Edit as EditIcon,
   Trash2 as TrashIcon
 } from 'lucide-react'
@@ -28,15 +25,14 @@ export default function JobsPage() {
     jobs, 
     addJob, 
     updateJob, 
-    deleteJob, 
-    toggleFavorite 
+    deleteJob
   } = useJobsStore()
 
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [editingJob, setEditingJob] = useState<Job | null>(null)
   const [searchTerm, setSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] = useState<Job['status'] | 'all'>('all')
-  const [sortBy, setSortBy] = useState<'date' | 'company' | 'position' | 'status'>('date')
+  const [sortBy, setSortBy] = useState<'company' | 'position' | 'status'>('company')
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc')
   const [showSearch, setShowSearch] = useState(false)
   const [showFilter, setShowFilter] = useState(false)
@@ -59,11 +55,6 @@ export default function JobsPage() {
     let aValue: string | number | Date, bValue: string | number | Date;
     
     switch (sortBy) {
-      case 'date':
-        // Use company name as fallback since we don't have lastUpdated
-        aValue = (a.company || '').toLowerCase();
-        bValue = (b.company || '').toLowerCase();
-        break;
       case 'company':
         aValue = (a.company || '').toLowerCase();
         bValue = (b.company || '').toLowerCase();
@@ -88,7 +79,7 @@ export default function JobsPage() {
     }
   });
 
-  const handleSaveJob = (jobData: Omit<Job, 'id' | 'lastUpdated'>) => {
+  const handleSaveJob = (jobData: Omit<Job, 'id'>) => {
     if (editingJob) {
       updateJob(editingJob.id, jobData);
     } else {
@@ -114,12 +105,7 @@ export default function JobsPage() {
     }
   };
 
-  const formatSalary = (job: Job) => {
-    if (job.salary) {
-      return job.salary;
-    }
-    return '-';
-  };
+
 
   return (
     <div className="min-h-screen">
@@ -174,7 +160,7 @@ export default function JobsPage() {
                 <div className="absolute right-0 top-full mt-2 w-48 bg-[var(--background)] border border-[var(--border)] rounded-lg shadow-lg z-10">
                   <div className="p-2">
                     <div className="text-xs font-medium text-[var(--foreground-secondary)] mb-2 px-2">Status</div>
-                    {['all', 'saved', 'applied', 'screen', 'interview', 'offer', 'rejected'].map((status) => (
+                    {['all', 'saved', 'applied', 'interview', 'offer', 'rejected'].map((status) => (
                       <button
                         key={status}
                         onClick={() => { setStatusFilter(status as Job['status'] | 'all'); setShowFilter(false); }}
@@ -207,14 +193,13 @@ export default function JobsPage() {
                   <div className="p-2">
                     <div className="text-xs font-medium text-[var(--foreground-secondary)] mb-2 px-2">Sort by</div>
                     {[
-                      { value: 'date', label: 'Date Applied' },
                       { value: 'company', label: 'Company' },
                       { value: 'position', label: 'Position' },
                       { value: 'status', label: 'Status' }
                     ].map((option) => (
                       <button
                         key={option.value}
-                        onClick={() => { setSortBy(option.value as 'date' | 'company' | 'position' | 'status'); setShowSort(false); }}
+                        onClick={() => { setSortBy(option.value as 'company' | 'position' | 'status'); setShowSort(false); }}
                         className={`w-full text-left px-3 py-2 rounded text-sm hover:bg-[var(--hover)] ${
                           sortBy === option.value ? 'bg-[var(--primary)] text-white' : 'text-[var(--foreground)]'
                         }`}
@@ -297,26 +282,8 @@ export default function JobsPage() {
                     </th>
                     <th className="text-left py-3 px-4 text-sm font-medium text-[var(--foreground-secondary)] w-[120px]">
                       <div className="flex items-center gap-2">
-                        <Calendar className="w-4 h-4" />
-                        Date Applied
-                      </div>
-                    </th>
-                    <th className="text-left py-3 px-4 text-sm font-medium text-[var(--foreground-secondary)] w-[150px]">
-                      <div className="flex items-center gap-2">
-                        <DollarSign className="w-4 h-4" />
-                        Salary
-                      </div>
-                    </th>
-                    <th className="text-left py-3 px-4 text-sm font-medium text-[var(--foreground-secondary)] w-[120px]">
-                      <div className="flex items-center gap-2">
                         <MapPin className="w-4 h-4" />
                         Location
-                      </div>
-                    </th>
-                    <th className="text-left py-3 px-4 text-sm font-medium text-[var(--foreground-secondary)] w-[100px]">
-                      <div className="flex items-center gap-2">
-                        <Star className="w-4 h-4" />
-                        Favorite
                       </div>
                     </th>
                     <th className="text-left py-3 px-4 text-sm font-medium text-[var(--foreground-secondary)] w-[120px]">
@@ -339,23 +306,7 @@ export default function JobsPage() {
                         </span>
                       </td>
                       <td className="py-3 px-4 text-sm text-[var(--foreground-secondary)]">
-                        {job.appliedDate ? new Date(job.appliedDate).toLocaleDateString() : '-'}
-                      </td>
-                      <td className="py-3 px-4 text-sm text-[var(--foreground-secondary)]">
-                        {formatSalary(job)}
-                      </td>
-                      <td className="py-3 px-4 text-sm text-[var(--foreground-secondary)]">
                         {job.location || '-'}
-                      </td>
-                      <td className="py-3 px-4">
-                        <button
-                          onClick={() => toggleFavorite(job.id)}
-                          className={`p-1 rounded hover:bg-[var(--hover)] transition-colors ${
-                            job.isFavorite ? 'text-yellow-500' : 'text-[var(--foreground-secondary)]'
-                          }`}
-                        >
-                          <Star className={`w-4 h-4 ${job.isFavorite ? 'fill-current' : ''}`} />
-                        </button>
                       </td>
                       <td className="py-3 px-4">
                         <div className="flex items-center gap-2">
