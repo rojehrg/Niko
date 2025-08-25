@@ -1,26 +1,840 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Notion Color Palette - Light Theme - Eye-Friendly */
+  --background: #f6f5f4;
+  --background-secondary: #f0efed;
+  --background-tertiary: #e8e7e5;
+  
+  --foreground: #2d2c29;
+  --foreground-secondary: #5a5856;
+  --foreground-tertiary: #8a8886;
+  
+  /* Borders - Softer, warmer tones */
+  --border: #e1e0de;
+  --border-secondary: #d1d0ce;
+  --border-hover: #c5c4c2;
+  
+  /* Accent Colors - Softer, more cohesive palette */
+  --accent-blue: #2563eb;
+  --accent-purple: #8b5cf6;
+  --accent-orange: #f59e0b;
+  --accent-green: #10b981;
+  --accent-red: #ef4444;
+  --accent-yellow: #f59e0b;
+  
+  /* Primary Action Color */
+  --primary: #2563eb;
+  --primary-hover: #1d4ed8;
+  
+  /* Interactive States - Warmer, softer */
+  --hover: #ecebe9;
+  --active: #e4e3e1;
+  --selected: #e3f2fd;
+  
+  /* Icon Backgrounds - Softer, warmer */
+  --icon-bg-blue: #e8f2ff;
+  --icon-bg-purple: #f4e8ff;
+  --icon-bg-orange: #fff8e8;
+  --icon-bg-green: #e8f8e8;
+  
+  /* Shadows - Softer, warmer */
+  --shadow-sm: 0 1px 2px 0 rgba(45, 44, 41, 0.04);
+  --shadow-md: 0 4px 6px -1px rgba(45, 44, 41, 0.08), 0 2px 4px -1px rgba(45, 44, 41, 0.05);
+  --shadow-lg: 0 10px 15px -3px rgba(45, 44, 41, 0.08), 0 4px 6px -2px rgba(45, 44, 41, 0.05);
+  --shadow-xl: 0 20px 25px -5px rgba(45, 44, 41, 0.08), 0 10px 10px -5px rgba(45, 44, 41, 0.04);
+  
+  /* Typography */
+  --font-inter: var(--font-inter);
+  
+  /* Spacing */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+  --space-2xl: 48px;
+  --space-3xl: 64px;
+  
+  /* Transitions */
+  --transition-fast: 150ms ease-out;
+  --transition-normal: 200ms ease-out;
+  --transition-slow: 300ms ease-out;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+/* Dark Theme - Cursor Style */
+[data-theme="dark"] {
+  --background: #1e1e1e;
+  --background-secondary: #252526;
+  --background-tertiary: #2d2d30;
+  
+  --foreground: #ffffff;
+  --foreground-secondary: #e0e0e0;
+  --foreground-tertiary: #b0b0b0;
+  
+  --border: #3c3c3c;
+  --border-secondary: #4a4a4a;
+  --border-hover: #5a5a5a;
+  
+  --hover: #2a2d2e;
+  --active: #37373d;
+  --selected: #094771;
+  
+  /* Icon Backgrounds - Dark - Brighter for better visibility */
+  --icon-bg-blue: #1e3a8a;
+  --icon-bg-purple: #5b21b6;
+  --icon-bg-orange: #ea580c;
+  --icon-bg-green: #16a34a;
+  
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -1px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -2px rgba(0, 0, 0, 0.3);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.4), 0 10px 10px -5px rgba(0, 0, 0, 0.3);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+/* Removed automatic dark mode media query to allow manual theme control */
+
+/* Base Styles */
+* {
+  box-sizing: border-box;
+}
+
+/* Flashcard 3D Flip Animation */
+.transform-style-preserve-3d {
+  transform-style: preserve-3d;
+}
+
+.backface-hidden {
+  backface-visibility: hidden;
+}
+
+.rotate-y-180 {
+  transform: rotateY(180deg);
+}
+
+/* Smooth Sidebar Transitions */
+.sidebar-transition {
+  transition: all 500ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.sidebar-collapse-enter {
+  opacity: 0;
+  transform: translateX(-20px) scale(0.95);
+}
+
+.sidebar-collapse-enter-active {
+  opacity: 1;
+  transform: translateX(0) scale(1);
+  transition: all 500ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.sidebar-collapse-exit {
+  opacity: 1;
+  transform: translateX(0) scale(1);
+}
+
+.sidebar-collapse-exit-active {
+  opacity: 0;
+  transform: translateX(-20px) scale(0.95);
+  transition: all 500ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Staggered Animation Delays */
+.animate-stagger-1 { animation-delay: 0ms; }
+.animate-stagger-2 { animation-delay: 50ms; }
+.animate-stagger-3 { animation-delay: 100ms; }
+.animate-stagger-4 { animation-delay: 150ms; }
+.animate-stagger-5 { animation-delay: 200ms; }
+
+/* Morphing Transitions */
+.morph-transition {
+  transition: all 500ms cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.morph-scale {
+  transform: scale(1);
+  transition: transform 500ms cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.morph-scale:hover {
+  transform: scale(1.05);
+}
+
+/* Smooth Width Transitions */
+.width-transition {
+  transition: width 500ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Custom Animations */
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
   }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.animate-shimmer {
+  animation: shimmer 1.5s ease-in-out infinite;
+}
+
+/* Enhanced button hover effects */
+.group:hover .group-hover\:animate-shimmer {
+  animation: shimmer 1.5s ease-in-out infinite;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Typography */
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 600;
+  line-height: 1.25;
+  margin: 0;
+}
+
+h1 { font-size: 32px; }
+h2 { font-size: 24px; }
+h3 { font-size: 20px; }
+h4 { font-size: 18px; }
+h5 { font-size: 16px; }
+h6 { font-size: 14px; }
+
+p {
+  margin: 0 0 var(--space-md) 0;
+  line-height: 1.6;
+}
+
+/* Utility Classes */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.line-clamp-4 {
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Enhanced Notion-style animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideIn {
+  from { transform: translateX(-20px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes scaleIn {
+  from { transform: scale(0.95); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+@keyframes bounce-gentle {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-2px); }
+}
+
+@keyframes bunny-hop {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  25% { transform: translateY(-8px) rotate(-5deg); }
+  50% { transform: translateY(-12px) rotate(0deg); }
+  75% { transform: translateY(-8px) rotate(5deg); }
+}
+
+@keyframes bunny-wiggle {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(-3deg); }
+  75% { transform: rotate(3deg); }
+}
+
+@keyframes bunny-trail {
+  0% { opacity: 0.3; transform: scaleX(0.8); }
+  50% { opacity: 0.6; transform: scaleX(1.2); }
+  100% { opacity: 0.3; transform: scaleX(0.8); }
+}
+
+@keyframes glow {
+  0%, 100% { box-shadow: 0 0 5px rgba(59, 130, 246, 0.2); }
+  50% { box-shadow: 0 0 20px rgba(59, 130, 246, 0.4), 0 0 30px rgba(59, 130, 246, 0.2); }
+}
+
+@keyframes letter-ripple {
+  0%, 100% { 
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% { 
+    transform: scale(1.1);
+    opacity: 0.8;
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn var(--transition-normal) ease-out;
+}
+
+.animate-slide-in {
+  animation: slideIn var(--transition-normal) ease-out;
+}
+
+.animate-scale-in {
+  animation: scaleIn var(--transition-normal) ease-out;
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+.animate-pulse-subtle {
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.animate-bounce-gentle {
+  animation: bounce-gentle 1s ease-in-out infinite;
+}
+
+.animate-bunny-hop {
+  animation: bunny-hop 2s ease-in-out infinite;
+}
+
+.animate-bunny-wiggle {
+  animation: bunny-wiggle 1.5s ease-in-out infinite;
+}
+
+.animate-bunny-trail {
+  animation: bunny-trail 3s ease-in-out infinite;
+}
+
+.animate-glow {
+  animation: glow 2s ease-in-out infinite;
+}
+
+.animate-sparkle {
+  animation: letter-ripple 0.6s ease-in-out infinite;
+}
+
+.animate-sparkle:nth-child(1) { animation-delay: 0s; }
+.animate-sparkle:nth-child(2) { animation-delay: 0.1s; }
+.animate-sparkle:nth-child(3) { animation-delay: 0.2s; }
+.animate-sparkle:nth-child(4) { animation-delay: 0.3s; }
+.animate-sparkle:nth-child(5) { animation-delay: 0.4s; }
+.animate-sparkle:nth-child(6) { animation-delay: 0.5s; }
+.animate-sparkle:nth-child(7) { animation-delay: 0.6s; }
+.animate-sparkle:nth-child(8) { animation-delay: 0.7s; }
+.animate-sparkle:nth-child(9) { animation-delay: 0.8s; }
+.animate-sparkle:nth-child(10) { animation-delay: 0.9s; }
+.animate-sparkle:nth-child(11) { animation-delay: 1s; }
+.animate-sparkle:nth-child(12) { animation-delay: 1.1s; }
+.animate-sparkle:nth-child(13) { animation-delay: 1.2s; }
+.animate-sparkle:nth-child(14) { animation-delay: 1.3s; }
+.animate-sparkle:nth-child(15) { animation-delay: 1.4s; }
+.animate-sparkle:nth-child(16) { animation-delay: 1.5s; }
+.animate-sparkle:nth-child(17) { animation-delay: 1.6s; }
+.animate-sparkle:nth-child(18) { animation-delay: 1.7s; }
+.animate-sparkle:nth-child(19) { animation-delay: 1.8s; }
+.animate-sparkle:nth-child(20) { animation-delay: 1.9s; }
+
+/* Shimmer effect for loading states */
+.shimmer {
+  position: relative;
+  overflow: hidden;
+}
+
+.shimmer::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
+  animation: shimmer 2s infinite;
+}
+
+/* Enhanced Hover Effects */
+.hover-lift {
+  transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.hover-lift:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+.hover-scale {
+  transition: transform 0.2s ease;
+}
+
+.hover-scale:hover {
+  transform: scale(1.02);
+}
+
+/* Interactive button states */
+.btn-interactive {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.btn-interactive::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition: width 0.3s ease, height 0.3s ease;
+}
+
+.btn-interactive:hover::before {
+  width: 300px;
+  height: 300px;
+}
+
+/* Loading dots */
+.loading-dots {
+  display: inline-flex;
+  gap: 4px;
+}
+
+.loading-dots > div {
+  width: 4px;
+  height: 4px;
+  background: var(--foreground-tertiary);
+  border-radius: 50%;
+  animation: bounce-gentle 1.4s ease-in-out infinite both;
+}
+
+.loading-dots > div:nth-child(1) { animation-delay: -0.32s; }
+.loading-dots > div:nth-child(2) { animation-delay: -0.16s; }
+.loading-dots > div:nth-child(3) { animation-delay: 0s; }
+
+/* Notion-style focus states */
+.focus-ring {
+  outline: 2px solid var(--accent-blue);
+  outline-offset: 2px;
+}
+
+/* Notion-style scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--background-secondary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--border-hover);
+}
+
+/* Selection styles */
+::selection {
+  background: var(--selected);
+  color: var(--foreground);
+}
+
+/* Premium Saffron Theme Toggle */
+.toggle-container {
+  perspective: 1200px;
+  position: relative;
+}
+
+.toggle-container input {
+  display: none; /* Hide default checkbox */
+}
+
+.toggle-button {
+  position: relative;
+  width: 80px;
+  height: 40px;
+  background: linear-gradient(
+    145deg,
+    #3f3f5a,
+    #4a4a75
+  ); /* Dark base with subtle saffron tint */
+  border-radius: 20px;
+  box-shadow: 
+                /* Neumorphic outer shadows */
+    6px 6px 12px rgba(0, 0, 0, 0.4),
+    -6px -6px 12px rgba(255, 165, 0, 0.1),
+    /* Saffron-tinted highlight */ /* Skeuomorphic inset */ inset 0 2px 4px
+      rgba(255, 255, 255, 0.1),
+    inset 0 -2px 4px rgba(0, 0, 0, 0.5);
+  cursor: pointer;
+  transition: all 0.5s cubic-bezier(0.77, 0, 0, 0.175, 1); /* Smooth, snappy */
+  transform-style: preserve-3d;
+}
+
+/* Inner track for texture */
+.toggle-button::after {
+  content: "";
+  position: absolute;
+  width: 72px;
+  height: 32px;
+  background: linear-gradient(
+    145deg,
+    rgba(255, 140, 0, 0.1),
+    rgba(0, 0, 0, 0.3)
+  );
+  border-radius: 16px;
+  top: 4px;
+  left: 4px;
+  box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.5);
+  transition: all 0.5s cubic-bezier(0.77, 0, 0, 0.175, 1);
+  pointer-events: none;
+}
+
+/* Knob */
+.toggle-button::before {
+  content: "";
+  position: absolute;
+  width: 36px;
+  height: 36px;
+  background: radial-gradient(
+    circle at 40% 30%,
+    #ff8c00,
+    #cc7000
+  ); /* Saffron orange */
+  border-radius: 50%;
+  top: 2px;
+  left: 2px;
+  box-shadow: 
+                /* Neumorphic knob shadows */
+    3px 3px 6px rgba(0, 0, 0, 0.5),
+    -3px -3px 6px rgba(255, 179, 71, 0.3),
+    /* Golden highlight */ /* Skeuomorphic highlights */ inset 0 -1px 2px rgba(0, 0, 0, 0.6),
+    inset 0 1px 2px rgba(255, 255, 255, 0.4);
+  transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55); /* Elastic bounce */
+  transform: translateZ(10px) scale(1);
+  z-index: 2;
+}
+
+/* Glow effect for knob */
+.toggle-button .glow {
+  position: absolute;
+  width: 36px;
+  height: 36px;
+  background: radial-gradient(
+    circle,
+    rgba(255, 140, 0, 0.5),
+    transparent
+  ); /* Saffron glow */
+  border-radius: 50%;
+  top: 2px;
+  left: 2px;
+  opacity: 0;
+  transition: all 0.3s ease;
+  transform: translateZ(8px);
+  pointer-events: none;
+}
+
+/* Checked state */
+.toggle-container input:checked ~ .toggle-button {
+  background: linear-gradient(145deg, #4a3f2a, #5a4f3a); /* Warm saffron base */
+  box-shadow:
+    6px 6px 12px rgba(0, 0, 0, 0.4),
+    -6px -6px 12px rgba(255, 179, 71, 0.2),
+    /* Golden tint */ inset 0 2px 4px rgba(255, 255, 255, 0.1),
+    inset 0 -2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.toggle-container input:checked ~ .toggle-button::before {
+  left: 42px;
+  background: radial-gradient(
+    circle at 40% 30%,
+    #ffb347,
+    #ff8c00
+  ); /* Golden saffron */
+  transform: translateZ(10px) rotate(720deg) scale(1.05); /* Spin and pulse */
+  box-shadow:
+    3px 3px 6px rgba(0, 0, 0, 0.5),
+    -3px -3px 6px rgba(255, 255, 255, 0.2),
+    inset 0 -1px 2px rgba(0, 0, 0, 0.6),
+    inset 0 1px 2px rgba(255, 255, 255, 0.4);
+}
+
+.toggle-container input:checked ~ .toggle-button::after {
+  background: linear-gradient(
+    145deg,
+    rgba(255, 179, 71, 0.2),
+    rgba(0, 0, 0, 0.2)
+  );
+  box-shadow: inset 0 0 10px rgba(255, 140, 0, 0.3); /* Saffron glow */
+}
+
+.toggle-container input:checked ~ .toggle-button .glow {
+  background: radial-gradient(
+    circle,
+    rgba(255, 179, 71, 0.5),
+    transparent
+  ); /* Golden glow */
+  left: 42px;
+  opacity: 0.7;
+}
+
+/* Hover effect */
+.toggle-button:hover {
+  box-shadow:
+    8px 8px 16px rgba(0, 0, 0, 0.5),
+    -8px -8px 16px rgba(255, 140, 0, 0.2); /* Saffron accent */
+  transform: translateZ(3px);
+}
+
+.toggle-button:hover::before {
+  transform: translateZ(18px) scale(1.02);
+}
+
+/* Active (click) effect */
+.toggle-button:active::before {
+  transform: translateZ(10px) scale(0.95);
+  box-shadow:
+    3px 3px 6px rgba(0, 0, 0, 0.5),
+    -3px -3px 6px rgba(255, 179, 71, 0.2);
+}
+
+/* Micro-interaction animations */
+@keyframes pulse-glow {
+  0%,
+  100% {
+    opacity: 0.5;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.1);
+  }
+}
+
+@keyframes track-vibrate {
+  0%,
+  100% {
+    transform: translateZ(0);
+  }
+  50% {
+    transform: translateZ(2px);
+  }
+}
+
+.toggle-container input:checked ~ .toggle-button .glow {
+  animation: pulse-glow 1.5s infinite ease-in-out;
+}
+
+.toggle-button {
+  animation: track-vibrate 0.1s ease-in-out 0.2s 2; /* Haptic feedback */
+}
+
+/* Light flare effect */
+.flare {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.9), transparent);
+  border-radius: 50%;
+  top: 9px;
+  left: 9px;
+  opacity: 0;
+  transition: all 0.3s ease;
+  pointer-events: none;
+}
+
+.toggle-container input:checked ~ .toggle-button .flare {
+  left: 46px;
+  opacity: 0.7;
+}
+
+/* Subtle track glow animation */
+@keyframes track-glow {
+  0%,
+  100% {
+    box-shadow: inset 0 0 8px rgba(255, 140, 0, 0.2);
+  }
+  50% {
+    box-shadow: inset 0 0 12px rgba(255, 140, 0, 0.4);
+  }
+}
+
+.toggle-container input:checked ~ .toggle-button::after {
+  animation: track-glow 2s infinite ease-in-out;
+}
+
+/* Notion-style button base */
+.btn-notion {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-sm) var(--space-md);
+  font-size: 14px;
+  font-weight: 500;
+  border-radius: 3px;
+  border: 1px solid var(--border);
+  background: var(--background);
+  color: var(--foreground);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  text-decoration: none;
+  user-select: none;
+}
+
+.btn-notion:hover {
+  background: var(--hover);
+  border-color: var(--border-hover);
+}
+
+.btn-notion:active {
+  background: var(--active);
+}
+
+.btn-notion:focus {
+  outline: none;
+  border-color: var(--accent-blue);
+  box-shadow: 0 0 0 2px rgba(46, 117, 204, 0.2);
+}
+
+/* Notion-style input base */
+.input-notion {
+  width: 100%;
+  padding: var(--space-sm) var(--space-md);
+  font-size: 14px;
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  background: var(--background);
+  color: var(--foreground);
+  transition: all var(--transition-fast);
+}
+
+.input-notion:hover {
+  border-color: var(--border-hover);
+}
+
+.input-notion:focus {
+  outline: none;
+  border-color: var(--accent-blue);
+  box-shadow: 0 0 0 2px rgba(46, 117, 204, 0.2);
+}
+
+/* Notion-style card base */
+.card-notion {
+  background: var(--background);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition-fast);
+}
+
+.card-notion:hover {
+  box-shadow: var(--shadow-md);
+  border-color: var(--border-hover);
+}
+
+/* Interactive Collapse Button Animations */
+@keyframes button-breathe {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+@keyframes button-rotate-bounce {
+  0% { transform: rotate(0deg); }
+  25% { transform: rotate(-10deg) scale(1.1); }
+  50% { transform: rotate(0deg) scale(1.05); }
+  75% { transform: rotate(10deg) scale(1.1); }
+  100% { transform: rotate(0deg) scale(1); }
+}
+
+@keyframes chevron-dance {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-1px); }
+  75% { transform: translateX(1px); }
+}
+
+@keyframes glow-pulse {
+  0%, 100% { 
+    box-shadow: 0 0 10px rgba(99, 102, 241, 0.3),
+                0 0 20px rgba(99, 102, 241, 0.1);
+  }
+  50% { 
+    box-shadow: 0 0 20px rgba(99, 102, 241, 0.6),
+                0 0 40px rgba(99, 102, 241, 0.3);
+  }
+}
+
+@keyframes magnetic-pull {
+  0% { transform: translate(0, 0); }
+  100% { transform: translate(-2px, -2px); }
+}
+
+.animate-button-breathe {
+  animation: button-breathe 3s ease-in-out infinite;
+}
+
+.animate-button-rotate-bounce {
+  animation: button-rotate-bounce 0.6s ease-in-out;
+}
+
+.animate-chevron-dance {
+  animation: chevron-dance 0.8s ease-in-out infinite;
+}
+
+.animate-glow-pulse {
+  animation: glow-pulse 2s ease-in-out infinite;
+}
+
+.animate-magnetic-pull {
+  animation: magnetic-pull 0.3s ease-out forwards;
 }
