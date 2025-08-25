@@ -1,5 +1,4 @@
 import { create } from 'zustand';
-import { NotesService } from '@/lib/services/notes-service';
 
 export interface Note {
   id: string;
@@ -15,94 +14,57 @@ export interface Note {
 interface NotesStore {
   notes: Note[];
   isLoading: boolean;
-  addNote: (note: Omit<Note, 'id' | 'createdAt' | 'updatedAt'>) => Promise<void>;
-  updateNote: (id: string, updates: Partial<Note>) => Promise<void>;
-  deleteNote: (id: string) => Promise<void>;
-  togglePin: (id: string) => Promise<void>;
+  addNote: (note: Omit<Note, 'id' | 'createdAt' | 'updatedAt'>) => void;
+  updateNote: (id: string, updates: Partial<Note>) => void;
+  deleteNote: (id: string) => void;
+  togglePin: (id: string) => void;
   getNote: (id: string) => Note | undefined;
-  fetchNotes: () => Promise<void>;
 }
 
 export const useNotesStore = create<NotesStore>((set, get) => ({
   notes: [],
   isLoading: false,
   
-  fetchNotes: async () => {
-    set({ isLoading: true });
-    try {
-      const notes = await NotesService.getNotes();
-      set({ notes, isLoading: false });
-    } catch (error) {
-      console.error('Failed to fetch notes:', error);
-      set({ isLoading: false });
-    }
+  addNote: (noteData) => {
+    const newNote: Note = {
+      id: Date.now().toString(),
+      ...noteData,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+    
+    set((state) => ({
+      notes: [newNote, ...state.notes],
+    }));
   },
   
-  addNote: async (noteData) => {
-    set({ isLoading: true });
-    try {
-      const newNote = await NotesService.createNote(noteData);
-      set((state) => ({
-        notes: [newNote, ...state.notes],
-        isLoading: false,
-      }));
-    } catch (error) {
-      console.error('Failed to add note:', error);
-      set({ isLoading: false });
-      throw error;
-    }
+  updateNote: (id: string, updates: Partial<Note>) => {
+    set((state) => ({
+      notes: state.notes.map((note) =>
+        note.id === id 
+          ? { ...note, ...updates, updatedAt: new Date() }
+          : note
+      ),
+    }));
   },
   
-  updateNote: async (id: string, updates: Partial<Note>) => {
-    set({ isLoading: true });
-    try {
-      const updatedNote = await NotesService.updateNote(id, updates);
-      set((state) => ({
-        notes: state.notes.map((note) =>
-          note.id === id ? updatedNote : note
-        ),
-        isLoading: false,
-      }));
-    } catch (error) {
-      console.error('Failed to update note:', error);
-      set({ isLoading: false });
-      throw error;
-    }
+  deleteNote: (id: string) => {
+    set((state) => ({
+      notes: state.notes.filter((note) => note.id !== id),
+    }));
   },
   
-  deleteNote: async (id: string) => {
-    set({ isLoading: true });
-    try {
-      await NotesService.deleteNote(id);
-      set((state) => ({
-        notes: state.notes.filter((note) => note.id !== id),
-        isLoading: false,
-      }));
-    } catch (error) {
-      console.error('Failed to delete note:', error);
-      set({ isLoading: false });
-      throw error;
-    }
-  },
-  
-  togglePin: async (id: string) => {
-    set({ isLoading: true });
-    try {
-      const updatedNote = await NotesService.togglePin(id, !get().notes.find(n => n.id === id)?.isPinned);
-      set((state) => ({
-        notes: state.notes.map((note) =>
-          note.id === id ? updatedNote : note
-        ),
-        isLoading: false,
-      }));
-    } catch (error) {
-      console.error('Failed to toggle pin:', error);
-      set({ isLoading: false });
-      throw error;
-    }
+  togglePin: (id: string) => {
+    set((state) => ({
+      notes: state.notes.map((note) =>
+        note.id === id 
+          ? { ...note, isPinned: !note.isPinned, updatedAt: new Date() }
+          : note
+      ),
+    }));
   },
   
   getNote: (id: string) => {
-    return get().notes.find((note) => note.id === id);
+    return get().notes.find(note => note.id === id);
   },
 }));

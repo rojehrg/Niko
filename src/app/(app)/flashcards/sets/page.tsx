@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { ArrowLeft, Plus, Edit, Trash2, BookOpen, Settings } from "lucide-react";
+import { ArrowLeft, Plus, Edit, Trash2, BookOpen } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useFlashcardStore, FlashcardSet } from "@/lib/stores/flashcard-store";

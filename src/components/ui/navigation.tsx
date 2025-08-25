@@ -1,15 +1,14 @@
 "use client";
 
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { cn } from "@/lib/utils";
 import { 
-  Home, 
   BookOpen, 
+  StickyNote, 
   Briefcase, 
-  StickyNote,
-  User
-} from "lucide-react";
+  Home
+} from 'lucide-react'
+import Link from 'next/link'
+import { usePathname } from 'next/navigation'
+import { cn } from '@/lib/utils'
 
 const navigation = [
   { name: "Dashboard", href: "/dashboard", icon: Home },

@@ -7,7 +7,6 @@ import { FloatingEmojis } from "@/components/ui/floating-emojis";
 import { WelcomeScreen } from "@/components/welcome/welcome-screen";
 import { useWelcomeStore } from "@/lib/stores/welcome-store";
 import { useState, useRef, useEffect } from "react";
-import { Home, Upload } from "lucide-react";
 import { ChevronLeft } from "lucide-react";
 import { MusicPlayer } from "@/components/music/music-player";
 import { MusicToggle } from "@/components/music/music-toggle";
@@ -28,7 +27,7 @@ function HolidayCountdown({
 
   useEffect(() => {
     setIsClient(true);
-  }, []);
+  }, [isClient]);
 
   useEffect(() => {
     if (!isClient) return;
@@ -132,7 +131,7 @@ export default function AppLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const { hasSeenWelcome, setHasSeenWelcome, resetToWelcome } = useWelcomeStore();
+  const { hasSeenWelcome, setHasSeenWelcome } = useWelcomeStore();
 
   const [customLogo, setCustomLogo] = useState<string | null>(null);
   const [isMounted, setIsMounted] = useState(false);
@@ -222,11 +221,12 @@ export default function AppLayout({
   
   // Random bunny movement across the entire sidebar
   useEffect(() => {
-    setIsBunnyMovementReady(true);
+    if (!isBunnyMovementReady) {
+      setIsBunnyMovementReady(true);
+      return;
+    }
     
-    if (!isBunnyMovementReady) return;
-    
-    const moveBunnies = () => {
+    const interval = setInterval(() => {
       setBunnyPositions(prev => {
         const newPositions = { ...prev };
         
@@ -265,9 +265,8 @@ export default function AppLayout({
         
         return newPositions;
       });
-    };
+    }, 80); // Faster movement
     
-    const interval = setInterval(moveBunnies, 80); // Faster movement
     return () => clearInterval(interval);
   }, [isBunnyMovementReady]);
 
@@ -301,12 +300,7 @@ export default function AppLayout({
     }
   };
 
-  const resetLogo = () => {
-    setCustomLogo(null);
-    if (typeof window !== 'undefined') {
-      localStorage.removeItem('niko-custom-logo');
-    }
-  };
+
 
   const toggleSidebar = () => {
     if (isAnimating) return; // Prevent rapid toggling during animation
@@ -329,10 +323,7 @@ export default function AppLayout({
     );
   }
 
-  // Add error boundary for debugging
-  const handleError = (error: Error, errorInfo: React.ErrorInfo) => {
-    console.error('Layout Error:', error, errorInfo);
-  };
+
 
   try {
     if (!hasSeenWelcome) {

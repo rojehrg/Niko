@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { StickyNote, Plus, Search, Filter, SortAsc, Pin, Sparkles, TrendingUp, Clock, Tag } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { StickyNote, Plus, Search, Pin } from "lucide-react";
 import { useNotesStore } from "@/lib/stores/notes-store";
 import { NoteEditor } from "@/components/notes/note-editor";
 import { NoteCard } from "@/components/notes/note-card";
@@ -13,7 +13,7 @@ import { Note } from "@/lib/stores/notes-store";
 
 
 export default function NotesPage() {
-  const { notes, deleteNote, updateNote, fetchNotes, isLoading } = useNotesStore();
+  const { notes, deleteNote, updateNote, isLoading } = useNotesStore();
   const [isEditorOpen, setIsEditorOpen] = useState(false);
   const [editingNote, setEditingNote] = useState<Note | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
@@ -52,10 +52,7 @@ export default function NotesPage() {
   const pinnedNotes = filteredNotes.filter(note => note.isPinned);
   const regularNotes = filteredNotes.filter(note => !note.isPinned);
 
-  // Fetch notes on component mount
-  useEffect(() => {
-    fetchNotes();
-  }, [fetchNotes]);
+  // Notes are now managed locally, no need to fetch
 
   const handleEdit = (note: Note) => {
     setEditingNote(note);
@@ -83,24 +80,9 @@ export default function NotesPage() {
     setEditingNote(null);
   };
 
-  const handleSaveNote = (noteData: Omit<Note, 'id' | 'createdAt' | 'updatedAt'>) => {
-    if (editingNote) {
-      updateNote(editingNote.id, noteData);
-    }
-    handleCloseEditor();
-  };
 
-  const totalTags = new Set(notes.flatMap(note => note.tags)).size;
-  const recentNotes = notes.filter(note => {
-    try {
-      const createdAt = note.createdAt instanceof Date ? note.createdAt : new Date(note.createdAt);
-      const daysSinceCreation = (Date.now() - createdAt.getTime()) / (1000 * 60 * 60 * 24);
-      return daysSinceCreation <= 7;
-    } catch (error) {
-      console.error('Error filtering recent notes:', error);
-      return false;
-    }
-  });
+
+
 
   return (
     <div className="min-h-screen p-6 max-w-7xl mx-auto">
@@ -158,7 +140,7 @@ export default function NotesPage() {
           <Card className="bg-[var(--background)] border-[var(--border)] shadow-sm">
             <CardContent className="text-center py-16">
               <div className="inline-flex items-center justify-center w-20 h-20 bg-[var(--hover)] rounded-full mb-6">
-                <StickyNote className="h-10 w-10 text-[var(--foreground-tertiary)]" />
+                <StickyNote className="h-10 w-10 text-[var(--foreground-secondary)]" />
               </div>
               <h3 className="text-2xl font-semibold text-[var(--foreground)] mb-2">
                 {searchQuery ? "No notes found" : "No notes yet"}

@@ -130,34 +130,31 @@ const STUDY_TRACKS: Track[] = [
 ];
 
 export function MusicPlayer({ isVisible, onToggle }: MusicPlayerProps) {
-  const [tracks] = useState<Track[]>(STUDY_TRACKS);
-  const [currentTrack, setCurrentTrack] = useState<Track | null>(STUDY_TRACKS[0]);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [currentTime, setCurrentTime] = useState(0);
-  const [duration, setDuration] = useState(0);
-  const [volume, setVolume] = useState(0.7);
-  const [isLoading, setIsLoading] = useState(false);
-  const [isShuffled, setIsShuffled] = useState(false);
-  const [isRepeating, setIsRepeating] = useState(false);
   const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
-  const [selectedCategory, setSelectedCategory] = useState<string>('All');
-  
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [volume, setVolume] = useState(0.7);
+  const [progress, setProgress] = useState(0);
+  const [isShuffled, setIsShuffled] = useState(false);
+  const [isLooped, setIsLooped] = useState(false);
+  const [showPlaylist, setShowPlaylist] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState('All');
+  const [searchTerm, setSearchTerm] = useState('');
   const audioRef = useRef<HTMLAudioElement>(null);
-
+  
   const categories = ['All', 'Nature', 'Focus', 'Ambient', 'Disco', 'Peruvian'];
   
   const filteredTracks = selectedCategory === 'All' 
-    ? tracks 
-    : tracks.filter(track => track.category === selectedCategory);
+    ? STUDY_TRACKS 
+    : STUDY_TRACKS.filter(track => track.category === selectedCategory);
 
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio) return;
 
-    const updateTime = () => setCurrentTime(audio.currentTime);
-    const updateDuration = () => setDuration(audio.duration);
+    const updateTime = () => setProgress(audio.currentTime);
+    const updateDuration = () => setProgress(audio.duration);
     const handleEnd = () => {
-      if (isRepeating) {
+      if (isLooped) {
         audio.currentTime = 0;
         audio.play();
       } else {
@@ -174,11 +171,11 @@ export function MusicPlayer({ isVisible, onToggle }: MusicPlayerProps) {
       audio.removeEventListener('loadedmetadata', updateDuration);
       audio.removeEventListener('ended', handleEnd);
     };
-  }, [currentTrack, isRepeating]);
+  }, [currentTrackIndex, isLooped]);
 
   const togglePlay = async () => {
     const audio = audioRef.current;
-    if (!audio || !currentTrack) return;
+    if (!audio) return;
 
     if (isPlaying) {
       audio.pause();
@@ -204,8 +201,7 @@ export function MusicPlayer({ isVisible, onToggle }: MusicPlayerProps) {
     }
     
     setCurrentTrackIndex(nextIndex);
-    setCurrentTrack(filteredTracks[nextIndex]);
-    setIsPlaying(false);
+    setProgress(0); // Reset progress when changing track
   };
 
   const handlePrevious = () => {
@@ -213,17 +209,16 @@ export function MusicPlayer({ isVisible, onToggle }: MusicPlayerProps) {
     
     const prevIndex = currentTrackIndex === 0 ? filteredTracks.length - 1 : currentTrackIndex - 1;
     setCurrentTrackIndex(prevIndex);
-    setCurrentTrack(filteredTracks[prevIndex]);
-    setIsPlaying(false);
+    setProgress(0); // Reset progress when changing track
   };
 
   const handleSeek = (e: React.ChangeEvent<HTMLInputElement>) => {
     const audio = audioRef.current;
     if (!audio) return;
     
-    const newTime = (parseFloat(e.target.value) / 100) * duration;
+    const newTime = (parseFloat(e.target.value) / 100) * progress;
     audio.currentTime = newTime;
-    setCurrentTime(newTime);
+    setProgress(newTime);
   };
 
   const handleVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -280,7 +275,7 @@ export function MusicPlayer({ isVisible, onToggle }: MusicPlayerProps) {
       </div>
 
       {/* Current Track Info */}
-      {currentTrack && (
+      {filteredTracks[currentTrackIndex] && (
         <div className="p-4 border-b border-[var(--border)]">
           <div className="flex items-center gap-3">
             <div className="w-12 h-12 bg-[var(--background-secondary)] rounded-lg flex items-center justify-center">
@@ -288,13 +283,13 @@ export function MusicPlayer({ isVisible, onToggle }: MusicPlayerProps) {
             </div>
             <div className="flex-1 min-w-0">
               <h3 className="text-sm font-medium text-[var(--foreground)] truncate">
-                {currentTrack.name}
+                {filteredTracks[currentTrackIndex].name}
               </h3>
               <p className="text-xs text-[var(--foreground-secondary)] truncate">
-                {currentTrack.artist}
+                {filteredTracks[currentTrackIndex].artist}
               </p>
               <span className="inline-block px-2 py-0.5 bg-[var(--background-tertiary)] text-xs text-[var(--foreground-tertiary)] rounded mt-1">
-                {currentTrack.category}
+                {filteredTracks[currentTrackIndex].category}
               </span>
             </div>
           </div>
@@ -309,13 +304,13 @@ export function MusicPlayer({ isVisible, onToggle }: MusicPlayerProps) {
             type="range"
             min="0"
             max="100"
-            value={duration ? (currentTime / duration) * 100 : 0}
+            value={progress ? (progress / 100) * 100 : 0}
             onChange={handleSeek}
             className="w-full h-1 bg-[var(--border)] rounded-full appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:bg-[var(--primary)] [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:cursor-pointer"
           />
           <div className="flex justify-between text-xs text-[var(--foreground-tertiary)] mt-1">
-            <span>{formatTime(currentTime)}</span>
-            <span>{formatTime(duration)}</span>
+            <span>{formatTime(progress)}</span>
+            <span>{filteredTracks[currentTrackIndex]?.duration || '0:00'}</span>
           </div>
         </div>
 
@@ -343,13 +338,11 @@ export function MusicPlayer({ isVisible, onToggle }: MusicPlayerProps) {
           
           <button
             onClick={togglePlay}
-            disabled={!currentTrack || isLoading}
+            disabled={!filteredTracks[currentTrackIndex]}
             className="p-3 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             title={isPlaying ? "Pause" : "Play"}
           >
-            {isLoading ? (
-              <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-            ) : isPlaying ? (
+            {isPlaying ? (
               <Pause className="w-5 h-5" />
             ) : (
               <Play className="w-5 h-5" />
@@ -365,9 +358,9 @@ export function MusicPlayer({ isVisible, onToggle }: MusicPlayerProps) {
           </button>
           
           <button
-            onClick={() => setIsRepeating(!isRepeating)}
+            onClick={() => setIsLooped(!isLooped)}
             className={`p-2 rounded-lg transition-colors ${
-              isRepeating 
+              isLooped 
                 ? 'text-[var(--primary)] bg-[var(--selected)]' 
                 : 'text-[var(--foreground-secondary)] hover:text-[var(--foreground)] hover:bg-[var(--hover)]'
             }`}
@@ -392,11 +385,10 @@ export function MusicPlayer({ isVisible, onToggle }: MusicPlayerProps) {
       </div>
 
       {/* Audio Element */}
-      {currentTrack?.audio && (
+      {filteredTracks[currentTrackIndex]?.audio && (
         <audio
           ref={audioRef}
-          src={currentTrack.audio}
-          volume={volume}
+          src={filteredTracks[currentTrackIndex].audio}
           preload="metadata"
         />
       )}

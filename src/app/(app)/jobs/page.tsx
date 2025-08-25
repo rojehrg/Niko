@@ -1,76 +1,62 @@
 "use client";
 
+import { useState } from 'react'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 import { 
   Briefcase, 
   Plus, 
-  CheckCircle, 
   Search, 
   Filter, 
-  SortAsc,
-  ChevronDown,
-  MoreHorizontal,
-  ExternalLink,
-  Calendar,
-  MapPin,
-  DollarSign,
-  FileText,
-  Building,
-  X
-} from "lucide-react";
-import { useState, useEffect, useRef } from "react";
-import { useJobsStore } from "@/lib/stores/jobs-store";
-import { JobForm } from "@/components/jobs/job-form";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Job } from "@/lib/stores/jobs-store";
+  SortAsc, 
+  SortDesc, 
+  X, 
+  Building, 
+  CheckCircle, 
+  Calendar, 
+  DollarSign, 
+  MapPin, 
+  Star,
+  Edit as EditIcon,
+  Trash2 as TrashIcon
+} from 'lucide-react'
+import { useJobsStore, Job } from '@/lib/stores/jobs-store'
+import { JobForm } from '@/components/jobs/job-form'
 
 export default function JobsPage() {
-  const { jobs, addJob, updateJob, deleteJob, updateStatus, toggleFavorite, getStats } = useJobsStore();
-  const [isFormOpen, setIsFormOpen] = useState(false);
-  const [editingJob, setEditingJob] = useState<Job | null>(null);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [statusFilter, setStatusFilter] = useState<Job['status'] | 'all'>('all');
-  const [sortBy, setSortBy] = useState<'date' | 'company' | 'position' | 'status'>('date');
-  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
-  const [showSearch, setShowSearch] = useState(false);
-  const [showFilters, setShowFilters] = useState(false);
-  const [showSort, setShowSort] = useState(false);
+  const { 
+    jobs, 
+    addJob, 
+    updateJob, 
+    deleteJob, 
+    toggleFavorite 
+  } = useJobsStore()
 
-  // Close dropdowns when clicking outside
-  const closeDropdowns = () => {
-    setShowFilters(false);
-    setShowSort(false);
-  };
+  const [isFormOpen, setIsFormOpen] = useState(false)
+  const [editingJob, setEditingJob] = useState<Job | null>(null)
+  const [searchTerm, setSearchTerm] = useState('')
+  const [statusFilter, setStatusFilter] = useState<Job['status'] | 'all'>('all')
+  const [sortBy, setSortBy] = useState<'date' | 'company' | 'position' | 'status'>('date')
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc')
+  const [showSearch, setShowSearch] = useState(false)
+  const [showFilter, setShowFilter] = useState(false)
+  const [showSort, setShowSort] = useState(false)
 
-  // Handle clicking outside dropdowns
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (showFilters || showSort) {
-        closeDropdowns();
-      }
-    };
-
-    document.addEventListener('click', handleClickOutside);
-    return () => {
-      document.removeEventListener('click', handleClickOutside);
-    };
-  }, [showFilters, showSort]);
-  
   // Filter jobs based on search and status
   const filteredJobs = jobs.filter(job => {
-    const matchesSearch = 
-      (job.company || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (job.position || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (job.location || '').toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesSearch = searchTerm === '' || 
+      job.company.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      job.position.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      job.location.toLowerCase().includes(searchTerm.toLowerCase())
     
-    const matchesStatus = statusFilter === 'all' || job.status === statusFilter;
+    const matchesStatus = statusFilter === 'all' || job.status === statusFilter
     
-    return matchesSearch && matchesStatus;
-  });
+    return matchesSearch && matchesStatus
+  })
 
   // Sort filtered jobs
   const sortedJobs = [...filteredJobs].sort((a, b) => {
-    let aValue: any, bValue: any;
+    let aValue: string | number | Date, bValue: string | number | Date;
     
     switch (sortBy) {
       case 'date':
@@ -115,20 +101,6 @@ export default function JobsPage() {
     setIsFormOpen(true);
   };
 
-  const handleDelete = (id: string) => {
-    if (confirm("Are you sure you want to delete this job application?")) {
-      deleteJob(id);
-    }
-  };
-
-  const handleStatusChange = (id: string, status: Job['status']) => {
-    updateStatus(id, status);
-  };
-
-  const handleToggleFavorite = (id: string) => {
-    toggleFavorite(id);
-  };
-
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'saved': return 'bg-[var(--background-secondary)] text-[var(--foreground-secondary)] border-[var(--border)]';
@@ -168,57 +140,48 @@ export default function JobsPage() {
             {showSearch && (
               <div className="flex items-center gap-2">
                 <Input
+                  type="text"
                   placeholder="Search jobs..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-64 border-[var(--border)] bg-[var(--background)] text-[var(--foreground)] focus:ring-2 focus:ring-[var(--primary)]"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-64 bg-[var(--background)] border-[var(--border)] text-[var(--foreground)] placeholder:text-[var(--foreground-secondary)]"
                 />
                 <Button
                   variant="ghost"
                   size="sm"
                   onClick={() => setShowSearch(false)}
-                  className="text-[var(--foreground-tertiary)] hover:text-[var(--foreground)]"
+                  className="text-[var(--foreground-secondary)] hover:text-[var(--foreground)]"
                 >
                   <X className="w-4 h-4" />
                 </Button>
               </div>
             )}
-            
-            {/* Filter Dropdown */}
+
+            {/* Filter Button */}
             <div className="relative">
               <Button 
                 variant="ghost" 
                 size="sm" 
-                onClick={(e) => { e.stopPropagation(); setShowFilters(!showFilters); }}
-                className={`text-[var(--foreground-secondary)] hover:text-[var(--foreground)] hover:bg-[var(--hover)] px-4 py-2 ${
-                  statusFilter !== 'all' ? 'bg-[var(--primary)] text-white' : ''
-                }`}
+                onClick={() => setShowFilter(!showFilter)}
+                className="text-[var(--foreground-secondary)] hover:text-[var(--foreground)] hover:bg-[var(--hover)] px-4 py-2"
               >
                 <Filter className="w-4 h-4 mr-2" />
                 Filter
-                {statusFilter !== 'all' && <span className="ml-1 text-xs">({statusFilter})</span>}
               </Button>
               
-              {showFilters && (
-                <div className="absolute top-full left-0 mt-2 w-48 bg-[var(--background)] border border-[var(--border)] rounded-lg shadow-lg z-10" onClick={(e) => e.stopPropagation()}>
+              {showFilter && (
+                <div className="absolute right-0 top-full mt-2 w-48 bg-[var(--background)] border border-[var(--border)] rounded-lg shadow-lg z-10">
                   <div className="p-2">
-                    <button
-                      onClick={() => { setStatusFilter('all'); setShowFilters(false); }}
-                      className={`w-full text-left px-3 py-2 rounded text-sm hover:bg-[var(--hover)] ${
-                        statusFilter === 'all' ? 'bg-[var(--primary)] text-white' : 'text-[var(--foreground)]'
-                      }`}
-                    >
-                      All Statuses
-                    </button>
-                    {['saved', 'applied', 'screen', 'interview', 'offer', 'rejected', 'withdrawn'].map((status) => (
+                    <div className="text-xs font-medium text-[var(--foreground-secondary)] mb-2 px-2">Status</div>
+                    {['all', 'saved', 'applied', 'screen', 'interview', 'offer', 'rejected'].map((status) => (
                       <button
                         key={status}
-                        onClick={() => { setStatusFilter(status as Job['status']); setShowFilters(false); }}
+                        onClick={() => { setStatusFilter(status as Job['status'] | 'all'); setShowFilter(false); }}
                         className={`w-full text-left px-3 py-2 rounded text-sm hover:bg-[var(--hover)] ${
                           statusFilter === status ? 'bg-[var(--primary)] text-white' : 'text-[var(--foreground)]'
                         }`}
                       >
-                        {status.charAt(0).toUpperCase() + status.slice(1)}
+                        {status === 'all' ? 'All Statuses' : status.charAt(0).toUpperCase() + status.slice(1)}
                       </button>
                     ))}
                   </div>
@@ -226,31 +189,31 @@ export default function JobsPage() {
               )}
             </div>
             
-            {/* Sort Dropdown */}
+            {/* Sort Button */}
             <div className="relative">
               <Button 
                 variant="ghost" 
                 size="sm" 
-                onClick={(e) => { e.stopPropagation(); setShowSort(!showSort); }}
+                onClick={() => setShowSort(!showSort)}
                 className="text-[var(--foreground-secondary)] hover:text-[var(--foreground)] hover:bg-[var(--hover)] px-4 py-2"
               >
-                <SortAsc className={`w-4 h-4 mr-2 transition-transform ${sortOrder === 'desc' ? 'rotate-180' : ''}`} />
+                {sortOrder === 'asc' ? <SortAsc className="w-4 h-4 mr-2" /> : <SortDesc className="w-4 h-4 mr-2" />}
                 Sort
-                <span className="ml-1 text-xs text-[var(--foreground-tertiary)]">({sortBy})</span>
               </Button>
               
               {showSort && (
-                <div className="absolute top-full left-0 mt-2 w-48 bg-[var(--background)] border border-[var(--border)] rounded-lg shadow-lg z-10" onClick={(e) => e.stopPropagation()}>
+                <div className="absolute right-0 top-full mt-2 w-48 bg-[var(--background)] border border-[var(--border)] rounded-lg shadow-lg z-10">
                   <div className="p-2">
+                    <div className="text-xs font-medium text-[var(--foreground-secondary)] mb-2 px-2">Sort by</div>
                     {[
-                      { value: 'date', label: 'Date' },
+                      { value: 'date', label: 'Date Applied' },
                       { value: 'company', label: 'Company' },
                       { value: 'position', label: 'Position' },
                       { value: 'status', label: 'Status' }
                     ].map((option) => (
                       <button
                         key={option.value}
-                        onClick={() => { setSortBy(option.value as any); setShowSort(false); }}
+                        onClick={() => { setSortBy(option.value as 'date' | 'company' | 'position' | 'status'); setShowSort(false); }}
                         className={`w-full text-left px-3 py-2 rounded text-sm hover:bg-[var(--hover)] ${
                           sortBy === option.value ? 'bg-[var(--primary)] text-white' : 'text-[var(--foreground)]'
                         }`}
@@ -349,139 +312,68 @@ export default function JobsPage() {
                         Location
                       </div>
                     </th>
-                    <th className="text-left py-3 px-4 text-sm font-medium text-[var(--foreground-secondary)] w-[140px]">
+                    <th className="text-left py-3 px-4 text-sm font-medium text-[var(--foreground-secondary)] w-[100px]">
                       <div className="flex items-center gap-2">
-                        <MapPin className="w-4 h-4" />
-                        Contact
+                        <Star className="w-4 h-4" />
+                        Favorite
                       </div>
                     </th>
-                    <th className="text-left py-3 px-4 text-sm font-medium text-[var(--foreground-secondary)] w-[200px]">
-                      <div className="flex items-center gap-2">
-                        <FileText className="w-4 h-4" />
-                        Notes
-                      </div>
-                    </th>
-                    <th className="text-left py-3 px-4 text-sm font-medium text-[var(--foreground-secondary)] w-[60px]">
-                      <div className="flex items-center gap-2">
-                        <ExternalLink className="w-4 h-4" />
-                      </div>
+                    <th className="text-left py-3 px-4 text-sm font-medium text-[var(--foreground-secondary)] w-[120px]">
+                      Actions
                     </th>
                   </tr>
                 </thead>
-
                 <tbody>
-                  {sortedJobs.map((job, index) => (
-                    <tr 
-                      key={job.id} 
-                      className="border-b border-[var(--border)] hover:bg-[var(--hover)] transition-colors group cursor-pointer"
-                      onClick={() => handleEdit(job)}
-                    >
-                      {/* Company */}
-                      <td className="py-3 px-4 border-r border-[var(--border)]">
-                        <div className="flex items-center gap-2">
-                          <div className="w-6 h-6 bg-gray-100 rounded flex items-center justify-center flex-shrink-0">
-                            <Building className="w-3 h-3 text-gray-600" />
-                          </div>
-                          <span className="font-medium text-[var(--foreground)] truncate">{job.company || 'Unknown Company'}</span>
-                        </div>
-                      </td>
-
-                      {/* Position */}
-                      <td className="py-3 px-4 border-r border-[var(--border)]">
-                        <span className="text-[var(--foreground)] truncate">{job.position || 'Unknown Position'}</span>
-                      </td>
-
-                      {/* Status */}
-                      <td className="py-3 px-4 border-r border-[var(--border)]">
-                        <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium border ${getStatusColor(job.status || 'saved')}`}>
-                          {job.status === 'saved' && '○ Not Started'}
-                          {job.status === 'applied' && '● Applied'}
-                          {job.status === 'screen' && '● Screen'}
-                          {job.status === 'interview' && '● Interview Scheduled'}
-                          {job.status === 'offer' && '● Offer'}
-                          {job.status === 'rejected' && '● Rejected'}
-                        </span>
-                      </td>
-
-                      {/* Date Applied */}
-                      <td className="py-3 px-4 border-r border-[var(--border)]">
-                        <span className="text-[var(--foreground-secondary)] text-sm">
-                          {job.appliedDate ? new Date(job.appliedDate).toLocaleDateString('en-US', { 
-                            month: 'short', 
-                            day: 'numeric', 
-                            year: 'numeric' 
-                          }) : '-'}
-                        </span>
-                      </td>
-
-                      {/* Salary Range */}
-                      <td className="py-3 px-4 border-r border-[var(--border)]">
-                        <span className="text-[var(--foreground)] text-sm">
-                          {formatSalary(job)}
-                        </span>
-                      </td>
-
-                      {/* Location */}
-                      <td className="py-3 px-4 border-r border-[var(--border)]">
-                        <span className="text-[var(--foreground-secondary)] text-sm truncate">
-                          {job.location || 'Remote'}
-                        </span>
-                      </td>
-
-                      {/* Contact Person */}
-                      <td className="py-3 px-4 border-r border-[var(--border)]">
-                        <span className="text-[var(--foreground-secondary)] text-sm truncate">
-                          {job.contactPerson || job.contactEmail || 'HR Department'}
-                        </span>
-                      </td>
-
-                      {/* Notes */}
-                      <td className="py-3 px-4 border-r border-[var(--border)]">
-                        <span className="text-[var(--foreground-secondary)] text-sm truncate">
-                          {job.notes ? job.notes.substring(0, 30) + (job.notes.length > 30 ? '...' : '') : 'Add notes...'}
-                        </span>
-                      </td>
-
-                      {/* Actions */}
+                  {sortedJobs.map((job) => (
+                    <tr key={job.id} className="border-b border-[var(--border)] hover:bg-[var(--hover)] transition-colors">
                       <td className="py-3 px-4">
-                        <div className="flex items-center gap-1">
-                          {job.applicationUrl || job.url ? (
-                            <a 
-                              href={job.applicationUrl || job.url} 
-                              target="_blank" 
-                              rel="noopener noreferrer"
-                              className="text-[var(--primary)] hover:bg-[var(--hover)] p-1 rounded"
-                              onClick={(e) => e.stopPropagation()}
-                            >
-                              <ExternalLink className="w-4 h-4" />
-                            </a>
-                          ) : null}
-                          <button 
-                            className="opacity-0 group-hover:opacity-100 transition-opacity text-[var(--foreground-tertiary)] hover:bg-[var(--hover)] p-1 rounded"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              // Add more options menu
-                            }}
+                        <div className="font-medium text-[var(--foreground)]">{job.company}</div>
+                      </td>
+                      <td className="py-3 px-4">
+                        <div className="font-medium text-[var(--foreground)]">{job.position}</div>
+                      </td>
+                      <td className="py-3 px-4">
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${getStatusColor(job.status)}`}>
+                          {job.status.charAt(0).toUpperCase() + job.status.slice(1)}
+                        </span>
+                      </td>
+                      <td className="py-3 px-4 text-sm text-[var(--foreground-secondary)]">
+                        {job.appliedDate ? new Date(job.appliedDate).toLocaleDateString() : '-'}
+                      </td>
+                      <td className="py-3 px-4 text-sm text-[var(--foreground-secondary)]">
+                        {formatSalary(job)}
+                      </td>
+                      <td className="py-3 px-4 text-sm text-[var(--foreground-secondary)]">
+                        {job.location || '-'}
+                      </td>
+                      <td className="py-3 px-4">
+                        <button
+                          onClick={() => toggleFavorite(job.id)}
+                          className={`p-1 rounded hover:bg-[var(--hover)] transition-colors ${
+                            job.isFavorite ? 'text-yellow-500' : 'text-[var(--foreground-secondary)]'
+                          }`}
+                        >
+                          <Star className={`w-4 h-4 ${job.isFavorite ? 'fill-current' : ''}`} />
+                        </button>
+                      </td>
+                      <td className="py-3 px-4">
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={() => handleEdit(job)}
+                            className="p-1 text-[var(--foreground-secondary)] hover:text-[var(--foreground)] hover:bg-[var(--hover)] rounded transition-colors"
                           >
-                            <MoreHorizontal className="w-4 h-4" />
+                            <EditIcon className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => deleteJob(job.id)}
+                            className="p-1 text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors"
+                          >
+                            <TrashIcon className="w-4 h-4" />
                           </button>
                         </div>
                       </td>
                     </tr>
                   ))}
-                  
-                  {/* Add New Row */}
-                  <tr 
-                    className="border-t border-[var(--border)] hover:bg-[var(--hover)] transition-colors cursor-pointer text-[var(--foreground-tertiary)]"
-                    onClick={() => setIsFormOpen(true)}
-                  >
-                    <td colSpan={9} className="py-3 px-4">
-                      <div className="flex items-center gap-2">
-                        <Plus className="w-4 h-4" />
-                        <span className="text-sm">New Item</span>
-                      </div>
-                    </td>
-                  </tr>
                 </tbody>
               </table>
             </div>
@@ -490,15 +382,17 @@ export default function JobsPage() {
       </div>
 
       {/* Job Form Modal */}
-      <JobForm
-        isOpen={isFormOpen}
-        onClose={() => {
-          setIsFormOpen(false);
-          setEditingJob(null);
-        }}
-        job={editingJob}
-        onSave={handleSaveJob}
-      />
+      {isFormOpen && (
+        <JobForm
+          isOpen={isFormOpen}
+          job={editingJob}
+          onSave={handleSaveJob}
+          onClose={() => {
+            setIsFormOpen(false)
+            setEditingJob(null)
+          }}
+        />
+      )}
     </div>
-  );
+  )
 }

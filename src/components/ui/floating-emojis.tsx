@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 
 interface FloatingEmoji {
   id: number;
@@ -20,11 +20,11 @@ export function FloatingEmojis() {
   const [emojis, setEmojis] = useState<FloatingEmoji[]>([]);
   const [isClient, setIsClient] = useState(false);
 
-  // Mix of nature and medical emojis
-  const emojiList = [
+  // Mix of nature and medical emojis - moved outside component to prevent recreation
+  const emojiList = useMemo(() => [
     '🌻', '🦙', '🌙', '🌴',  // Nature emojis
     '🏥', '💊', '🩺', '🩻', '🦴', '🧬', '🫀', '🫁', '🧠', '🩸', '💉', '🩹', '🩺', '🚑', '⚕️'  // Medical emojis
-  ];
+  ], []);
 
   useEffect(() => {
     setIsClient(true);
@@ -87,6 +87,8 @@ export function FloatingEmojis() {
 
     return () => clearInterval(interval);
   }, [isClient]);
+
+
 
   if (!isClient) return null;
 

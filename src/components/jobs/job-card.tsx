@@ -2,9 +2,8 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Heart, Building, MapPin, Edit, Trash2, MoreHorizontal } from "lucide-react";
+import { Heart, MapPin, Edit, Trash2, MoreHorizontal } from "lucide-react";
 import { Job } from "@/lib/stores/jobs-store";
-import { JobProgress } from "./job-progress";
 
 interface JobCardProps {
   job: Job;
@@ -17,9 +16,7 @@ interface JobCardProps {
 export function JobCard({ job, onEdit, onDelete, onStatusChange, onToggleFavorite }: JobCardProps) {
   const [showActions, setShowActions] = useState(false);
 
-  const handleStatusChange = (status: Job['status']) => {
-    onStatusChange(job.id, status);
-  };
+
 
   const getCompanyInitials = (company: string) => {
     if (!company || company === 'Unknown Company') {

@@ -39,8 +39,6 @@ export function JobProgress({ job, onStatusChange }: JobProgressProps) {
       {STAGES.map((stage, index) => {
         const isCompleted = index <= currentStageIndex;
         const isCurrent = index === currentStageIndex;
-        const stageDate = getStageDate(stage.key as Job['status']);
-        
         return (
           <div key={stage.key} className="flex items-center">
             {/* Stage Circle */}

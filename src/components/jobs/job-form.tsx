@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { X, Save, Plus, Briefcase, User, Tag, FileText } from "lucide-react";
+import { X, Save, Plus } from "lucide-react";
 import { Job } from "@/lib/stores/jobs-store";
 
 interface JobFormProps {

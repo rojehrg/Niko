@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { BookOpen, Plus, Play, Trash2, Edit, FolderOpen, Settings, Shuffle } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { BookOpen, Plus, Play, Shuffle } from "lucide-react";
 import Link from "next/link";
 import { useFlashcardStore } from "@/lib/stores/flashcard-store";
 import { Button } from "@/components/ui/button";
@@ -85,7 +85,7 @@ export default function FlashcardsPage() {
           </Link>
           <Link href="/flashcards/sets">
             <Button variant="outline" className="border-[var(--border)] text-[var(--foreground)] hover:bg-[var(--hover)]">
-              <Settings className="mr-2 h-4 w-4" />
+              {/* Settings icon removed */}
               Manage Sets
             </Button>
           </Link>
@@ -95,7 +95,7 @@ export default function FlashcardsPage() {
       {/* Set Filter */}
       <div className="mb-8">
         <div className="flex items-center gap-2 mb-4">
-          <FolderOpen className="h-4 w-4 text-[var(--foreground-secondary)]" />
+          {/* FolderOpen icon removed */}
           <span className="text-sm font-medium text-[var(--foreground)]">Filter by Set:</span>
         </div>
         <div className="flex flex-wrap gap-2">

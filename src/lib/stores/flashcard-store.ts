@@ -109,9 +109,9 @@ export const useFlashcardStore = create<FlashcardStore>((set, get) => ({
   },
   
   getFlashcard: (id: string) => {
-    return get().flashcards.find((card) => card.id === id);
+    return get().flashcards.find(card => card.id === id);
   },
-
+  
   addSet: (name: string, description?: string, color?: string) => {
     const newSet: FlashcardSet = {
       id: Date.now().toString(),
@@ -123,53 +123,34 @@ export const useFlashcardStore = create<FlashcardStore>((set, get) => ({
     };
     
     set((state) => ({
-      sets: [...state.sets, newSet],
+      sets: [...state.sets, newSet]
     }));
   },
-
+  
   removeSet: (id: string) => {
-    if (id === 'default') return; // Prevent deleting default set
-    
-    set((state) => {
-      // Move all flashcards from this set to default set
-      const updatedFlashcards = state.flashcards.map(card => 
-        card.setId === id ? { ...card, setId: 'default' } : card
-      );
-      
-      // Update default set count
-      const defaultSetCount = updatedFlashcards.filter(card => card.setId === 'default').length;
-      const updatedSets = state.sets
-        .filter(set => set.id !== id)
-        .map(set => 
-          set.id === 'default' ? { ...set, cardCount: defaultSetCount } : set
-        );
-      
-      return {
-        flashcards: updatedFlashcards,
-        sets: updatedSets
-      };
-    });
+    set((state) => ({
+      sets: state.sets.filter(set => set.id !== id),
+      flashcards: state.flashcards.filter(card => card.setId !== id)
+    }));
   },
-
+  
   updateSet: (id: string, updates: Partial<FlashcardSet>) => {
-    if (id === 'default' && updates.name === 'General') return; // Prevent renaming default set
-    
     set((state) => ({
       sets: state.sets.map((set) =>
         set.id === id ? { ...set, ...updates } : set
       ),
     }));
   },
-
+  
   getSet: (id: string) => {
-    return get().sets.find((set) => set.id === id);
+    return get().sets.find(set => set.id === id);
   },
-
+  
   getFlashcardsBySet: (setId: string) => {
-    return get().flashcards.filter((card) => card.setId === setId);
+    return get().flashcards.filter(card => card.setId === setId);
   },
-
+  
   getDefaultSet: () => {
-    return get().sets.find(set => set.id === 'default')!;
-  }
+    return get().sets[0];
+  },
 }));
