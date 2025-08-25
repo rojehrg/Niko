@@ -160,9 +160,12 @@ export const useFlashcardStore = create<FlashcardStore>((set, get) => ({
       }));
 
       // Update set card count
-      await get().updateSet(setId, { 
-        cardCount: get().sets.find(s => s.id === setId)?.cardCount + 1 || 1 
-      });
+      const currentSet = get().sets.find(s => s.id === setId);
+      if (currentSet) {
+        await get().updateSet(setId, { 
+          cardCount: currentSet.cardCount + 1
+        });
+      }
     } catch (error) {
       console.error('Failed to add flashcard:', error);
       set({ isLoading: false });
@@ -193,9 +196,12 @@ export const useFlashcardStore = create<FlashcardStore>((set, get) => ({
 
       // Update set card count
       if (flashcard.setId) {
-        await get().updateSet(flashcard.setId, { 
-          cardCount: Math.max(0, get().sets.find(s => s.id === flashcard.setId)?.cardCount - 1 || 0) 
-        });
+        const currentSet = get().sets.find(s => s.id === flashcard.setId);
+        if (currentSet) {
+          await get().updateSet(flashcard.setId, { 
+            cardCount: Math.max(0, currentSet.cardCount - 1)
+          });
+        }
       }
     } catch (error) {
       console.error('Failed to remove flashcard:', error);
