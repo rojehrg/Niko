@@ -397,6 +397,11 @@ export default function AppLayout({
         </div>
       )}
       
+      {/* Debug info */}
+      <div className="fixed top-4 right-4 bg-red-500 text-white p-2 rounded z-50">
+        Music Player Visible: {isMusicPlayerVisible ? 'YES' : 'NO'}
+      </div>
+      
       {/* Sidebar */}
       <aside 
         className={`fixed left-0 top-0 h-full bg-[var(--background)] border-r border-[var(--border)] z-40 
@@ -447,9 +452,13 @@ export default function AppLayout({
             <div className={`flex items-center justify-center gap-3 transition-all duration-500 ease-out
               ${isSidebarCollapsed ? 'flex-col w-full' : ''}`}>
               <ThemeToggle />
-                          <MusicToggle
-              onClick={() => setIsMusicPlayerVisible(!isMusicPlayerVisible)}
-            />
+              <MusicToggle
+                onClick={() => {
+                  console.log('Music toggle clicked! Current state:', isMusicPlayerVisible);
+                  setIsMusicPlayerVisible(!isMusicPlayerVisible);
+                  console.log('New state will be:', !isMusicPlayerVisible);
+                }}
+              />
             </div>
           </div>
           
