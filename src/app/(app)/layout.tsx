@@ -8,8 +8,7 @@ import { WelcomeScreen } from "@/components/welcome/welcome-screen";
 import { useWelcomeStore } from "@/lib/stores/welcome-store";
 import { useState, useRef, useEffect } from "react";
 import { ChevronLeft } from "lucide-react";
-import { MusicPlayer } from "@/components/music/music-player";
-import { MusicToggle } from "@/components/music/music-toggle";
+import MusicToggle from "@/components/music/music-toggle";
 import SpotifyPlayer from "@/components/music/spotify-player";
 
 // Holiday Countdown Component
@@ -448,10 +447,9 @@ export default function AppLayout({
             <div className={`flex items-center justify-center gap-3 transition-all duration-500 ease-out
               ${isSidebarCollapsed ? 'flex-col w-full' : ''}`}>
               <ThemeToggle />
-              <MusicToggle 
-                isVisible={isMusicPlayerVisible}
-                onClick={() => setIsMusicPlayerVisible(!isMusicPlayerVisible)}
-              />
+                          <MusicToggle
+              onClick={() => setIsMusicPlayerVisible(!isMusicPlayerVisible)}
+            />
             </div>
           </div>
           
@@ -745,10 +743,7 @@ export default function AppLayout({
       )}
 
       {/* Music Player */}
-      <MusicPlayer 
-        isVisible={isMusicPlayerVisible}
-        onToggle={() => setIsMusicPlayerVisible(!isMusicPlayerVisible)}
-      />
+      
 
     </div>
   );

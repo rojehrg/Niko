@@ -1,24 +1,22 @@
-"use client";
+'use client'
 
-import { Music } from 'lucide-react';
+import { Music } from 'lucide-react'
+import { Button } from '@/components/ui/button'
 
 interface MusicToggleProps {
-  isVisible: boolean;
-  onClick: () => void;
+  onClick: () => void
 }
 
-export function MusicToggle({ isVisible, onClick }: MusicToggleProps) {
+export default function MusicToggle({ onClick }: MusicToggleProps) {
   return (
-    <button
+    <Button
+      variant="ghost"
+      size="icon"
       onClick={onClick}
-      className={`group flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-200 hover:shadow-sm ${
-        isVisible 
-          ? 'bg-[var(--primary)] text-white' 
-          : 'bg-[var(--background-secondary)] border border-[var(--border)] text-[var(--foreground-secondary)] hover:text-[var(--foreground)] hover:bg-[var(--hover)]'
-      }`}
-      title={isVisible ? "Hide music player" : "Show music player"}
+      className="w-10 h-10 rounded-lg hover:bg-[var(--hover)] transition-colors"
+      title="Music Player"
     >
-      <Music className="w-4 h-4" />
-    </button>
-  );
+      <Music className="h-5 w-5 text-[var(--foreground)]" />
+    </Button>
+  )
 }

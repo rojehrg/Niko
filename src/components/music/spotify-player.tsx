@@ -10,8 +10,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 interface SpotifyPlayer {
   connect(): Promise<boolean>;
   disconnect(): void;
-  getCurrentState(): Promise<any>;
+  getCurrentState(): Promise<SpotifyState | null>;
   activateElement(): Promise<void>;
+  setVolume(volume: number): void;
 }
 
 interface SpotifyTrack {
@@ -36,7 +37,11 @@ interface SpotifyState {
 declare global {
   interface Window {
     Spotify: {
-      Player: new (config: any) => SpotifyPlayer;
+      Player: new (config: {
+        name: string;
+        getOAuthToken: (callback: (token: string) => void) => void;
+        volume: number;
+      }) => SpotifyPlayer;
     };
     onSpotifyWebPlaybackSDKReady: () => void;
   }
@@ -70,9 +75,9 @@ export default function SpotifyPlayer() {
   const [progress, setProgress] = useState(0);
   const [volume, setVolume] = useState(50);
   const [searchQuery, setSearchQuery] = useState('');
-  const [searchResults, setSearchResults] = useState<SpotifyTrack[]>([]);
+  const [searchResults, setSearchResults] = useState<SpotifyApi.TrackObjectFull[]>([]);
   const [isSearching, setIsSearching] = useState(false);
-  const [userPlaylists, setUserPlaylists] = useState<Array<{id: string; name: string; images: Array<{url: string}>; tracks: {total: number}}>>([]);
+  const [userPlaylists, setUserPlaylists] = useState<SpotifyApi.PlaylistObjectSimplified[]>([]);
   const [showPlaylists, setShowPlaylists] = useState(false);
 
   // Initialize Spotify Web Playback SDK
@@ -245,7 +250,7 @@ export default function SpotifyPlayer() {
           }
         }
       );
-      const data = await response.json();
+      const data: SpotifyApi.SearchResponse = await response.json();
       setSearchResults(data.tracks?.items || []);
     } catch (error) {
       console.error('Search failed:', error);
@@ -427,7 +432,7 @@ export default function SpotifyPlayer() {
           
           {searchResults.length > 0 && (
             <div className="space-y-2 max-h-40 overflow-y-auto">
-              {searchResults.map((track: any) => (
+              {searchResults.map((track: SpotifyApi.TrackObjectFull) => (
                 <div
                   key={track.id}
                   className="flex items-center gap-3 p-2 hover:bg-[var(--hover)] rounded-lg cursor-pointer"
@@ -443,7 +448,7 @@ export default function SpotifyPlayer() {
                       {track.name}
                     </p>
                     <p className="text-xs text-[var(--foreground-secondary)] truncate">
-                      {track.artists.map((a: any) => a.name).join(', ')}
+                      {track.artists.map((a: SpotifyApi.ArtistObjectSimplified) => a.name).join(', ')}
                     </p>
                   </div>
                   <Button size="sm" variant="ghost">
@@ -468,7 +473,7 @@ export default function SpotifyPlayer() {
           
           {showPlaylists && userPlaylists.length > 0 && (
             <div className="space-y-2 max-h-40 overflow-y-auto">
-              {userPlaylists.map((playlist: any) => (
+              {userPlaylists.map((playlist: SpotifyApi.PlaylistObjectSimplified) => (
                 <div
                   key={playlist.id}
                   className="flex items-center gap-3 p-2 hover:bg-[var(--hover)] rounded-lg cursor-pointer"
