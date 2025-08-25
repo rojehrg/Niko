@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from 'react';
-import { Play, Pause, SkipBack, SkipForward, Volume2, Search, List, Heart, Shuffle, Repeat } from 'lucide-react';
+import { Play, Pause, SkipBack, SkipForward, Volume2, Search, List } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -70,9 +70,9 @@ export default function SpotifyPlayer() {
   const [progress, setProgress] = useState(0);
   const [volume, setVolume] = useState(50);
   const [searchQuery, setSearchQuery] = useState('');
-  const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [searchResults, setSearchResults] = useState<SpotifyTrack[]>([]);
   const [isSearching, setIsSearching] = useState(false);
-  const [userPlaylists, setUserPlaylists] = useState<any[]>([]);
+  const [userPlaylists, setUserPlaylists] = useState<Array<{id: string; name: string; images: Array<{url: string}>; tracks: {total: number}}>>([]);
   const [showPlaylists, setShowPlaylists] = useState(false);
 
   // Initialize Spotify Web Playback SDK
