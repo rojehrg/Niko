@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
-import { StickyNote, Plus, Search, Pin } from "lucide-react";
+import { StickyNote, Plus, Search, Pin, Trash2 } from "lucide-react";
 import { useNotesStore } from "@/lib/stores/notes-store";
 import { NoteEditor } from "@/components/notes/note-editor";
 import { NoteCard } from "@/components/notes/note-card";
@@ -20,6 +20,9 @@ export default function NotesPage() {
   const [sortBy, setSortBy] = useState<"date" | "title" | "pinned">("date");
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [noteToDelete, setNoteToDelete] = useState<string | null>(null);
+  const [selectedNotes, setSelectedNotes] = useState<Set<string>>(new Set());
+  const [isMultiSelectMode, setIsMultiSelectMode] = useState(false);
+  const [showBulkDeleteConfirm, setShowBulkDeleteConfirm] = useState(false);
 
   // Filter and sort notes
   const filteredNotes = notes
@@ -83,8 +86,43 @@ export default function NotesPage() {
     setEditingNote(null);
   };
 
+  // Multi-select functions
+  const toggleMultiSelectMode = () => {
+    setIsMultiSelectMode(!isMultiSelectMode);
+    if (isMultiSelectMode) {
+      setSelectedNotes(new Set());
+    }
+  };
 
+  const toggleNoteSelection = (noteId: string) => {
+    const newSelected = new Set(selectedNotes);
+    if (newSelected.has(noteId)) {
+      newSelected.delete(noteId);
+    } else {
+      newSelected.add(noteId);
+    }
+    setSelectedNotes(newSelected);
+  };
 
+  const selectAllNotes = () => {
+    setSelectedNotes(new Set(filteredNotes.map(note => note.id)));
+  };
+
+  const clearSelection = () => {
+    setSelectedNotes(new Set());
+  };
+
+  const handleBulkDelete = async () => {
+    try {
+      const deletePromises = Array.from(selectedNotes).map(id => deleteNote(id));
+      await Promise.all(deletePromises);
+      setSelectedNotes(new Set());
+      setIsMultiSelectMode(false);
+      setShowBulkDeleteConfirm(false);
+    } catch (error) {
+      console.error('Failed to delete notes:', error);
+    }
+  };
 
 
   return (
@@ -127,6 +165,56 @@ export default function NotesPage() {
         </select>
       </div>
 
+      {/* Multi-select Controls */}
+      {filteredNotes.length > 0 && (
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-3">
+            <Button
+              variant={isMultiSelectMode ? "default" : "outline"}
+              onClick={toggleMultiSelectMode}
+              className="border-[var(--border)] text-[var(--foreground)] hover:bg-[var(--hover)]"
+            >
+              {isMultiSelectMode ? "Cancel Selection" : "Select Multiple"}
+            </Button>
+            
+            {isMultiSelectMode && (
+              <>
+                <Button
+                  variant="outline"
+                  onClick={selectAllNotes}
+                  className="border-[var(--border)] text-[var(--foreground)] hover:bg-[var(--hover)]"
+                >
+                  Select All
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={clearSelection}
+                  className="border-[var(--border)] text-[var(--foreground)] hover:bg-[var(--hover)]"
+                >
+                  Clear Selection
+                </Button>
+                {selectedNotes.size > 0 && (
+                  <Button
+                    variant="destructive"
+                    onClick={() => setShowBulkDeleteConfirm(true)}
+                    className="bg-red-600 hover:bg-red-700 text-white"
+                  >
+                    <Trash2 className="mr-2 h-4 w-4" />
+                    Delete {selectedNotes.size} Note{selectedNotes.size !== 1 ? 's' : ''}
+                  </Button>
+                )}
+              </>
+            )}
+          </div>
+          
+          {isMultiSelectMode && selectedNotes.size > 0 && (
+            <span className="text-sm text-[var(--foreground-secondary)]">
+              {selectedNotes.size} note{selectedNotes.size !== 1 ? 's' : ''} selected
+            </span>
+          )}
+        </div>
+      )}
+
       {/* Notes Grid */}
       <div className="space-y-4">
         {isLoading ? (
@@ -151,7 +239,7 @@ export default function NotesPage() {
               <p className="text-[var(--foreground-secondary)] mb-6 max-w-md mx-auto">
                 {searchQuery
                   ? "Try adjusting your search terms or create a new note"
-                  : "Start capturing your ideas and thoughts with your first note"
+                  : ""
                 }
               </p>
               {!searchQuery && (

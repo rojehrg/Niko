@@ -232,7 +232,6 @@ export function JobForm({ isOpen, onClose, job, onSave }: JobFormProps) {
                     value={formData.url}
                     onChange={(e) => setFormData(prev => ({ ...prev, url: e.target.value }))}
                     placeholder="https://... (optional)"
-                    type="url"
                     className="border-[var(--border)] bg-[var(--background)] text-[var(--foreground)] focus:ring-2 focus:ring-[var(--primary)] focus:border-[var(--primary)] transition-all duration-200"
                   />
                 </div>
@@ -261,7 +260,6 @@ export function JobForm({ isOpen, onClose, job, onSave }: JobFormProps) {
                     value={formData.contactEmail}
                     onChange={(e) => setFormData(prev => ({ ...prev, contactEmail: e.target.value }))}
                     placeholder="email@company.com (optional)"
-                    type="email"
                     className="border-[var(--border)] bg-[var(--background)] text-[var(--foreground)] focus:ring-2 focus:ring-[var(--primary)] focus:border-[var(--primary)] transition-all duration-200"
                   />
                 </div>

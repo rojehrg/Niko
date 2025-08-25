@@ -8,18 +8,9 @@ export interface Job {
   location: string;
   jobType: 'full-time' | 'part-time' | 'contract' | 'internship' | 'freelance';
   status: 'saved' | 'applied' | 'screen' | 'interview' | 'offer' | 'rejected' | 'withdrawn';
-  savedDate?: Date;
-  appliedDate?: Date;
-  screenDate?: Date;
-  interviewDate?: Date;
-  offerDate?: Date;
-  lastUpdated: Date;
   salary?: string;
-  salaryMin?: number;
-  salaryMax?: number;
   notes?: string;
   url?: string;
-  applicationUrl?: string;
   contactPerson?: string;
   contactEmail?: string;
   tags: string[];
@@ -72,18 +63,9 @@ export const useJobsStore = create<JobsState>((set, get) => ({
         location: job.location,
         jobType: job.job_type,
         status: job.status,
-        savedDate: job.saved_date ? new Date(job.saved_date) : undefined,
-        appliedDate: job.applied_date ? new Date(job.applied_date) : undefined,
-        screenDate: job.screen_date ? new Date(job.screen_date) : undefined,
-        interviewDate: job.interview_date ? new Date(job.interview_date) : undefined,
-        offerDate: job.offer_date ? new Date(job.offer_date) : undefined,
-        lastUpdated: new Date(job.last_updated),
         salary: job.salary,
-        salaryMin: job.salary_min,
-        salaryMax: job.salary_max,
         notes: job.notes,
         url: job.url,
-        applicationUrl: job.application_url,
         contactPerson: job.contact_person,
         contactEmail: job.contact_email,
         tags: job.tags || [],
@@ -108,17 +90,9 @@ export const useJobsStore = create<JobsState>((set, get) => ({
           location: jobData.location,
           job_type: jobData.jobType,
           status: jobData.status,
-          saved_date: jobData.savedDate,
-          applied_date: jobData.appliedDate,
-          screen_date: jobData.screenDate,
-          interview_date: jobData.interviewDate,
-          offer_date: jobData.offerDate,
           salary: jobData.salary,
-          salary_min: jobData.salaryMin,
-          salary_max: jobData.salaryMax,
           notes: jobData.notes,
           url: jobData.url,
-          application_url: jobData.applicationUrl,
           contact_person: jobData.contactPerson,
           contact_email: jobData.contactEmail,
           tags: jobData.tags,

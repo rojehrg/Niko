@@ -9,7 +9,8 @@ import {
   Edit, 
   Trash2, 
   Clock,
-  Tag
+  Tag,
+  Check
 } from "lucide-react";
 import { Note } from "@/lib/stores/notes-store";
 import { formatDistanceToNow } from "date-fns";
@@ -18,62 +19,153 @@ interface NoteCardProps {
   note: Note;
   onEdit: (note: Note) => void;
   onDelete: (id: string) => void;
+  isMultiSelectMode?: boolean;
+  isSelected?: boolean;
+  onToggleSelection?: (id: string) => void;
 }
 
-export function NoteCard({ note, onEdit, onDelete }: NoteCardProps) {
+export function NoteCard({ 
+  note, 
+  onEdit, 
+  onDelete, 
+  isMultiSelectMode = false, 
+  isSelected = false, 
+  onToggleSelection 
+}: NoteCardProps) {
   const [isHovered, setIsHovered] = useState(false);
 
   const getColorClasses = (color: string) => {
-    // Handle CSS class-based colors for new system
-    if (color.includes('bg-')) {
-      // Extract color name from CSS class and return appropriate classes
-      if (color.includes('purple')) return { 
+    // Enhanced color mapping with proper names
+    const colorMap: Record<string, { bg: string; border: string; accent: string; name: string }> = {
+      'purple': { 
         bg: 'bg-purple-50 dark:bg-purple-900/20', 
         border: 'border-purple-200 dark:border-purple-700/50',
-        accent: 'bg-purple-500'
-      };
-      if (color.includes('emerald')) return { 
+        accent: 'bg-purple-500',
+        name: 'Purple'
+      },
+      'emerald': { 
         bg: 'bg-emerald-50 dark:bg-emerald-900/20', 
         border: 'border-emerald-200 dark:border-emerald-700/50',
-        accent: 'bg-emerald-500'
-      };
-      if (color.includes('orange')) return { 
+        accent: 'bg-emerald-500',
+        name: 'Emerald'
+      },
+      'orange': { 
         bg: 'bg-orange-50 dark:bg-orange-900/20', 
         border: 'border-orange-200 dark:border-orange-700/50',
-        accent: 'bg-orange-500'
-      };
-      if (color.includes('blue')) return { 
+        accent: 'bg-orange-500',
+        name: 'Orange'
+      },
+      'blue': { 
         bg: 'bg-blue-50 dark:bg-blue-900/20', 
         border: 'border-blue-200 dark:border-blue-700/50',
-        accent: 'bg-blue-500'
-      };
-      if (color.includes('pink')) return { 
+        accent: 'bg-blue-500',
+        name: 'Blue'
+      },
+      'pink': { 
         bg: 'bg-pink-50 dark:bg-pink-900/20', 
         border: 'border-pink-200 dark:border-pink-700/50',
-        accent: 'bg-pink-500'
-      };
-      if (color.includes('red')) return { 
+        accent: 'bg-pink-500',
+        name: 'Pink'
+      },
+      'red': { 
         bg: 'bg-red-50 dark:bg-red-900/20', 
         border: 'border-red-200 dark:border-red-700/50',
-        accent: 'bg-red-500'
-      };
-      if (color.includes('violet')) return { 
+        accent: 'bg-red-500',
+        name: 'Red'
+      },
+      'violet': { 
         bg: 'bg-violet-50 dark:bg-violet-900/20', 
         border: 'border-violet-200 dark:border-violet-700/50',
-        accent: 'bg-violet-500'
-      };
-      if (color.includes('teal')) return { 
+        accent: 'bg-violet-500',
+        name: 'Violet'
+      },
+      'teal': { 
         bg: 'bg-teal-50 dark:bg-teal-900/20', 
         border: 'border-teal-200 dark:border-teal-700/50',
-        accent: 'bg-teal-500'
-      };
+        accent: 'bg-teal-500',
+        name: 'Teal'
+      },
+      'yellow': { 
+        bg: 'bg-yellow-50 dark:bg-yellow-900/20', 
+        border: 'border-yellow-200 dark:border-yellow-700/50',
+        accent: 'bg-yellow-500',
+        name: 'Yellow'
+      },
+      'indigo': { 
+        bg: 'bg-indigo-50 dark:bg-indigo-900/20', 
+        border: 'border-indigo-200 dark:border-indigo-700/50',
+        accent: 'bg-indigo-500',
+        name: 'Indigo'
+      },
+      'cyan': { 
+        bg: 'bg-cyan-50 dark:bg-cyan-900/20', 
+        border: 'border-cyan-200 dark:border-cyan-700/50',
+        accent: 'bg-cyan-500',
+        name: 'Cyan'
+      },
+      'lime': { 
+        bg: 'bg-lime-50 dark:bg-lime-900/20', 
+        border: 'border-lime-200 dark:border-lime-700/50',
+        accent: 'bg-lime-500',
+        name: 'Lime'
+      },
+      'amber': { 
+        bg: 'bg-amber-50 dark:bg-amber-900/20', 
+        border: 'border-amber-200 dark:border-amber-700/50',
+        accent: 'bg-amber-500',
+        name: 'Amber'
+      },
+      'rose': { 
+        bg: 'bg-rose-50 dark:bg-rose-900/20', 
+        border: 'border-rose-200 dark:border-rose-700/50',
+        accent: 'bg-rose-500',
+        name: 'Rose'
+      },
+      'slate': { 
+        bg: 'bg-slate-50 dark:bg-slate-900/20', 
+        border: 'border-slate-200 dark:border-slate-700/50',
+        accent: 'bg-slate-500',
+        name: 'Slate'
+      },
+      'gray': { 
+        bg: 'bg-gray-50 dark:bg-gray-900/20', 
+        border: 'border-gray-200 dark:border-gray-700/50',
+        accent: 'bg-gray-500',
+        name: 'Gray'
+      },
+      'zinc': { 
+        bg: 'bg-zinc-50 dark:bg-zinc-900/20', 
+        border: 'border-zinc-200 dark:border-zinc-700/50',
+        accent: 'bg-zinc-500',
+        name: 'Zinc'
+      },
+      'neutral': { 
+        bg: 'bg-neutral-50 dark:bg-neutral-900/20', 
+        border: 'border-neutral-200 dark:border-neutral-700/50',
+        accent: 'bg-neutral-500',
+        name: 'Neutral'
+      },
+      'stone': { 
+        bg: 'bg-stone-50 dark:bg-stone-900/20', 
+        border: 'border-stone-200 dark:border-stone-700/50',
+        accent: 'bg-stone-500',
+        name: 'Stone'
+      }
+    };
+
+    // Try to find the color in our map
+    for (const [colorName, colorData] of Object.entries(colorMap)) {
+      if (color.toLowerCase().includes(colorName.toLowerCase())) {
+        return colorData;
+      }
     }
     
     // Default fallback
     return { 
       bg: 'bg-[var(--background)]', 
       border: 'border-[var(--border)]',
-      accent: 'bg-gray-500'
+      accent: 'bg-gray-500',
+      name: 'Default'
     };
   };
 
