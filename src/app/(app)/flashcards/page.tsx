@@ -18,11 +18,17 @@ export default function FlashcardsPage() {
     sets, 
     removeFlashcard, 
     getFlashcardsBySet, 
-    getDefaultSet 
+    getDefaultSet,
+    fetchSets
   } = useFlashcardStore();
   
   const [filteredCards, setFilteredCards] = useState(flashcards);
   const [selectedSet, setSelectedSet] = useState(selectedSetId || 'all');
+
+  useEffect(() => {
+    // Fetch sets from Supabase on component mount
+    fetchSets();
+  }, [fetchSets]);
 
   useEffect(() => {
     if (selectedSet === 'all') {
