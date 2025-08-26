@@ -96,6 +96,9 @@ export default function SpotifyPlayer() {
   const [userPlaylists, setUserPlaylists] = useState<SpotifyPlaylist[]>([]);
   const [showPlaylists, setShowPlaylists] = useState(false);
 
+  // TEST: Add this to see if component is rendering
+  console.log('SpotifyPlayer component is rendering!');
+
   // Initialize Spotify Web Playback SDK
   useEffect(() => {
     const script = document.createElement('script');
@@ -346,8 +349,13 @@ export default function SpotifyPlayer() {
   }
 
   return (
-    <Card className="w-full max-w-md mx-auto">
-      <CardHeader>
+    <Card className="w-full max-w-lg">
+      {/* TEST ELEMENT - This should always be visible */}
+      <div className="bg-red-500 text-white p-4 text-center font-bold">
+        🎵 SPOTIFY PLAYER IS RENDERING! 🎵
+      </div>
+      
+      <CardHeader className="pb-6 border-b border-[var(--border)] bg-[var(--background-secondary)] rounded-t-xl">
         <CardTitle className="flex items-center gap-2">
           🎵 Now Playing
         </CardTitle>
