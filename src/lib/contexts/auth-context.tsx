@@ -103,21 +103,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
 
       if (authData.user) {
-        // Create user profile
-        const { error: profileError } = await supabase
-          .from('user_profiles')
-          .insert({
-            id: authData.user.id,
-            name: userData.name,
-            email: userData.email,
-            selectedSubject: userData.selectedSubject,
-          });
+        // Manually create user profile using the Supabase function
+        const { error: profileError } = await supabase.rpc('create_user_profile', {
+          user_id: authData.user.id,
+          user_name: userData.name,
+          user_email: userData.email
+        });
 
         if (profileError) {
-          return { error: profileError };
+          console.error('Profile creation error:', profileError);
+          // Don't fail the signup if profile creation fails
+          // The profile can be created later when they verify their email
         }
 
-        // Set user profile
+        // Set user profile locally
         setUserProfile({
           id: authData.user.id,
           ...userData,
