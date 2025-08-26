@@ -150,6 +150,11 @@ export default function AppLayout({
   const [isMusicPlayerVisible, setIsMusicPlayerVisible] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   
+  // Debug: Monitor music player visibility state changes
+  useEffect(() => {
+    console.log('🎵 Music player visibility changed to:', isMusicPlayerVisible);
+  }, [isMusicPlayerVisible]);
+  
   // Bunny feeding state
   const [bunnyTreats, setBunnyTreats] = useState<Array<{
     id: string;
@@ -454,10 +459,25 @@ export default function AppLayout({
               <ThemeToggle />
               {/* TEST: Simple button instead of MusicToggle */}
               <button
-                onClick={() => {
-                  console.log('TEST BUTTON CLICKED! Current state:', isMusicPlayerVisible);
-                  setIsMusicPlayerVisible(!isMusicPlayerVisible);
-                  console.log('New state will be:', !isMusicPlayerVisible);
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  console.log('=== MUSIC BUTTON DEBUG ===');
+                  console.log('Event type:', e.type);
+                  console.log('Target:', e.target);
+                  console.log('Current state:', isMusicPlayerVisible);
+                  console.log('About to set state to:', !isMusicPlayerVisible);
+                  
+                  // Use functional update to ensure we're working with the latest state
+                  setIsMusicPlayerVisible(prev => {
+                    const newValue = !prev;
+                    console.log('Inside setState callback, prev was:', prev, 'new will be:', newValue);
+                    return newValue;
+                  });
+                  
+                  console.log('State set, new value should be:', !isMusicPlayerVisible);
+                  console.log('=== END DEBUG ===');
                 }}
                 className="w-10 h-10 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
                 title="Test Music Button"
