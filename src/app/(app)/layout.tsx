@@ -724,7 +724,11 @@ export default function AppLayout({
               <span className="text-white font-bold text-lg">N</span>
             )}
           </div>
-          <h1 className="text-lg font-semibold text-[var(--foreground)]">Niko</h1>
+          <h1 className="text-lg font-semibold text-[var(--foreground)]">
+            {typeof window !== 'undefined' && localStorage.getItem('userData') 
+              ? JSON.parse(localStorage.getItem('userData')!).name 
+              : 'StudyBuddy'}
+          </h1>
         </div>
       </div>
 

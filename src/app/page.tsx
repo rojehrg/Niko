@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Phone, Mail, BookOpen, ArrowRight, User } from "lucide-react";
+import { Phone, Mail, BookOpen, ArrowRight, User, ChevronDown, ChevronUp } from "lucide-react";
 
 interface SignupData {
   phone: string;
@@ -19,6 +19,7 @@ export default function HomePage() {
     name: ''
   });
   const [isLoading, setIsLoading] = useState(false);
+  const [showAllSubjects, setShowAllSubjects] = useState(false);
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -42,126 +43,129 @@ export default function HomePage() {
     router.push('/dashboard');
   };
 
-  const subjects = [
-    { id: 'biology', name: 'Biology', emoji: '🧬🌱🔬🦠🧫🌿🧍' },
-    { id: 'chemistry', name: 'Chemistry', emoji: '⚗️🧪🔥💨🧊🔮💥' },
-    { id: 'physics', name: 'Physics', emoji: '⚡🌌🛰️🌠🔭🪐📡' },
-    { id: 'mathematics', name: 'Mathematics', emoji: '📐➗🔢✖️➕📊📏' },
-    { id: 'computer-science', name: 'Computer Science', emoji: '💻🤖📊📱🖥️🔧👨‍💻' },
-    { id: 'english', name: 'English', emoji: '📚✍️📝📰🖋️📖📜' },
-    { id: 'history', name: 'History', emoji: '📜🏛️🗿⚔️📯🏺⛩️' },
-    { id: 'geography', name: 'Geography', emoji: '🌍🗺️⛰️🌊🏕️🏜️🏝️' },
-    { id: 'economics', name: 'Economics', emoji: '💰📈🏦📉🪙💳🛒' },
-    { id: 'psychology', name: 'Psychology', emoji: '🧠💭🔎📘🤯😌👥' },
-    { id: 'art', name: 'Art', emoji: '🎨🖌️🖼️🖍️✏️🎭🪡' },
-    { id: 'music', name: 'Music', emoji: '🎵🎶🎹🥁🎸🎤🎷' },
-    { id: 'philosophy', name: 'Philosophy', emoji: '🤔📖⚖️💡🗣️🔍🌌' },
-    { id: 'sociology', name: 'Sociology', emoji: '👥🌐🏘️🗣️🤝📊🧑‍🤝‍🧑' },
-    { id: 'political-science', name: 'Political Science', emoji: '🏛️📊🗳️⚖️🌍📢✍️' },
-    { id: 'engineering', name: 'Engineering', emoji: '🛠️🏗️⚙️🔩🔧🧱🚧' },
-    { id: 'medicine', name: 'Medicine', emoji: '⚕️💉🩺🧪🫀🫁💊' },
-    { id: 'law', name: 'Law', emoji: '⚖️📜👩‍⚖️👨‍⚖️🔍🏛️✍️' },
-    { id: 'languages', name: 'Languages', emoji: '🌐🗣️✒️📖📝📚💬' },
-    { id: 'astronomy', name: 'Astronomy', emoji: '🌌🔭🪐⭐🌙☄️🛰️' },
-    { id: 'environmental-science', name: 'Environmental Science', emoji: '🌿🌎♻️🌱💧🌳☀️' },
-    { id: 'anthropology', name: 'Anthropology', emoji: '🗿🌍👣🧑‍🤝‍🧑📜🏺⛏️' },
-    { id: 'literature', name: 'Literature', emoji: '📖🖋️🎭📚📝📜📕' },
-    { id: 'business', name: 'Business', emoji: '💼📊📉📈💳🏦📑' },
-    { id: 'education', name: 'Education', emoji: '🎓📘✏️📚🏫📝📖' },
-    { id: 'sports', name: 'Sports', emoji: '⚽🏀🏋️🎾🏈⚾🥇' }
-
-    
+  const initialSubjects = [
+    { id: 'computer-science', name: 'Computer Science' },
+    { id: 'biology', name: 'Biology' },
+    { id: 'chemistry', name: 'Chemistry' },
+    { id: 'physics', name: 'Physics' },
+    { id: 'mathematics', name: 'Mathematics' },
+    { id: 'pa', name: 'Physician Assistant' }
   ];
 
+  const allSubjects = [
+    { id: 'computer-science', name: 'Computer Science' },
+    { id: 'biology', name: 'Biology' },
+    { id: 'chemistry', name: 'Chemistry' },
+    { id: 'physics', name: 'Physics' },
+    { id: 'mathematics', name: 'Mathematics' },
+    { id: 'pa', name: 'Physician Assistant' },
+    { id: 'english', name: 'English' },
+    { id: 'history', name: 'History' },
+    { id: 'geography', name: 'Geography' },
+    { id: 'economics', name: 'Economics' },
+    { id: 'psychology', name: 'Psychology' },
+    { id: 'art', name: 'Art' },
+    { id: 'music', name: 'Music' },
+    { id: 'sports', name: 'Sports' },
+    { id: 'engineering', name: 'Engineering' },
+    { id: 'medicine', name: 'Medicine' },
+    { id: 'law', name: 'Law' },
+    { id: 'business', name: 'Business' },
+    { id: 'architecture', name: 'Architecture' },
+    { id: 'design', name: 'Design' }
+  ];
+
+  const displayedSubjects = showAllSubjects ? allSubjects : initialSubjects;
+
   return (
-    <div className="min-h-screen bg-[var(--background)]">
-      <div className="max-w-4xl mx-auto px-6 py-16">
+    <div className="min-h-screen bg-[var(--background)] flex items-center justify-center p-6">
+      <div className="w-full max-w-2xl">
         {/* Header */}
-        <div className="text-center mb-16">
-          <div className="inline-flex items-center gap-3 mb-6">
-            <div className="w-12 h-12 bg-[var(--foreground)] rounded-lg flex items-center justify-center">
-              <BookOpen className="w-6 h-6 text-[var(--background)]" />
+        <div className="text-center mb-12">
+          <div className="inline-flex items-center gap-4 mb-6">
+            <div className="w-16 h-16 bg-[var(--primary)] rounded-2xl flex items-center justify-center shadow-lg">
+              <BookOpen className="w-8 h-8 text-white" />
             </div>
-            <h1 className="text-4xl font-bold text-[var(--foreground)]">
-              Niko
+            <h1 className="text-5xl font-bold text-[var(--foreground)]">
+              StudyBuddy
             </h1>
           </div>
-          <p className="text-lg text-[var(--foreground-secondary)] max-w-2xl mx-auto">
+          <p className="text-xl text-[var(--foreground-secondary)] max-w-xl mx-auto leading-relaxed">
             Your personal learning and productivity hub. Get started with personalized study plans and stay motivated with SMS reminders.
           </p>
         </div>
 
         {/* Main Content */}
-        <div className="bg-[var(--background-secondary)] rounded-xl border border-[var(--border)] overflow-hidden">
+        <div className="bg-[var(--background-secondary)] rounded-2xl border border-[var(--border)] shadow-xl overflow-hidden">
           {step === 'signup' ? (
             /* Signup Form */
-            <div className="p-8">
-              <div className="text-center mb-8">
-                <h2 className="text-2xl font-semibold text-[var(--foreground)] mb-2">
+            <div className="p-10">
+              <div className="text-center mb-10">
+                <h2 className="text-3xl font-bold text-[var(--foreground)] mb-3">
                   Create Your Account
                 </h2>
-                <p className="text-[var(--foreground-secondary)]">
-                  Join thousands of students already using Niko to boost their productivity
+                <p className="text-[var(--foreground-secondary)] text-lg">
+                  Join thousands of students already using StudyBuddy to boost their productivity
                 </p>
               </div>
 
               <form onSubmit={handleSignup} className="space-y-6 max-w-md mx-auto">
                 <div>
-                  <label className="block text-sm font-medium text-[var(--foreground)] mb-2">
+                  <label className="block text-sm font-semibold text-[var(--foreground)] mb-3">
                     Full Name
                   </label>
                   <div className="relative">
-                    <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-[var(--foreground-tertiary)]" />
+                    <User className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-[var(--foreground-tertiary)]" />
                     <input
                       type="text"
                       value={signupData.name}
                       onChange={(e) => setSignupData({...signupData, name: e.target.value})}
-                      className="w-full pl-10 pr-4 py-3 border border-[var(--border)] rounded-lg focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent bg-[var(--background)] text-[var(--foreground)] transition-all duration-200"
+                      className="w-full pl-12 pr-4 py-4 border-2 border-[var(--border)] rounded-xl focus:ring-2 focus:ring-[var(--primary)] focus:border-[var(--primary)] bg-[var(--background)] text-[var(--foreground)] transition-all duration-200 text-lg"
                       placeholder="Enter your full name"
                       required
                     />
                   </div>
-                  <p className="text-xs text-[var(--foreground-tertiary)] mt-1">
+                  <p className="text-sm text-[var(--foreground-tertiary)] mt-2 ml-1">
                     This will be displayed throughout your personalized experience
                   </p>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-[var(--foreground)] mb-2">
+                  <label className="block text-sm font-semibold text-[var(--foreground)] mb-3">
                     Phone Number
                   </label>
                   <div className="relative">
-                    <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-[var(--foreground-tertiary)]" />
+                    <Phone className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-[var(--foreground-tertiary)]" />
                     <input
                       type="tel"
                       value={signupData.phone}
                       onChange={(e) => setSignupData({...signupData, phone: e.target.value})}
-                      className="w-full pl-10 pr-4 py-3 border border-[var(--border)] rounded-lg focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent bg-[var(--background)] text-[var(--foreground)] transition-all duration-200"
+                      className="w-full pl-12 pr-4 py-4 border-2 border-[var(--border)] rounded-xl focus:ring-2 focus:ring-[var(--primary)] focus:border-[var(--primary)] bg-[var(--background)] text-[var(--foreground)] transition-all duration-200 text-lg"
                       placeholder="Enter your phone number"
                       required
                     />
                   </div>
-                  <p className="text-xs text-[var(--foreground-tertiary)] mt-1">
+                  <p className="text-sm text-[var(--foreground-tertiary)] mt-2 ml-1">
                     We'll send you SMS reminders for exams and study motivation
                   </p>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-[var(--foreground)] mb-2">
+                  <label className="block text-sm font-semibold text-[var(--foreground)] mb-3">
                     Email Address
                   </label>
                   <div className="relative">
-                    <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-[var(--foreground-tertiary)]" />
+                    <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-[var(--foreground-tertiary)]" />
                     <input
                       type="email"
                       value={signupData.email}
                       onChange={(e) => setSignupData({...signupData, email: e.target.value})}
-                      className="w-full pl-10 pr-4 py-3 border border-[var(--border)] rounded-lg focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent bg-[var(--background)] text-[var(--foreground)] transition-all duration-200"
+                      className="w-full pl-12 pr-4 py-4 border-2 border-[var(--border)] rounded-xl focus:ring-2 focus:ring-[var(--primary)] focus:border-[var(--primary)] bg-[var(--background)] text-[var(--foreground)] transition-all duration-200 text-lg"
                       placeholder="Enter your email address"
                       required
                     />
                   </div>
-                  <p className="text-xs text-[var(--foreground-tertiary)] mt-1">
+                  <p className="text-sm text-[var(--foreground-tertiary)] mt-2 ml-1">
                     For account recovery and important updates
                   </p>
                 </div>
@@ -169,17 +173,17 @@ export default function HomePage() {
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="w-full bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white py-3 px-6 rounded-lg font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  className="w-full bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white py-4 px-8 rounded-xl font-semibold text-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3 shadow-lg hover:shadow-xl transform hover:scale-[1.02]"
                 >
                   {isLoading ? (
                     <>
-                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                      <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                       Creating account...
                     </>
                   ) : (
                     <>
                       Continue
-                      <ArrowRight className="w-4 h-4" />
+                      <ArrowRight className="w-5 h-5" />
                     </>
                   )}
                 </button>
@@ -187,35 +191,47 @@ export default function HomePage() {
             </div>
           ) : (
             /* Subject Selection */
-            <div className="p-8">
-              <div className="text-center mb-8">
-                <h2 className="text-2xl font-semibold text-[var(--foreground)] mb-2">
+            <div className="p-10">
+              <div className="text-center mb-10">
+                <h2 className="text-3xl font-bold text-[var(--foreground)] mb-3">
                   Welcome, {signupData.name}! 👋
                 </h2>
-                <p className="text-[var(--foreground-secondary)]">
+                <p className="text-[var(--foreground-secondary)] text-lg">
                   Choose your primary subject to personalize your learning experience
                 </p>
               </div>
 
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4 max-w-2xl mx-auto">
-                {subjects.map((subject) => (
+              <div className="space-y-3 max-w-lg mx-auto">
+                {displayedSubjects.map((subject) => (
                   <button
                     key={subject.id}
                     onClick={() => handleSubjectSelect(subject.id)}
-                    className="p-4 border border-[var(--border)] rounded-lg hover:border-[var(--primary)] hover:bg-[var(--hover)] transition-all duration-200 text-center group"
+                    className="w-full p-4 border-2 border-[var(--border)] rounded-xl hover:border-[var(--primary)] hover:bg-[var(--hover)] transition-all duration-200 text-left group hover:shadow-md"
                   >
-                    <div className="text-3xl mb-2">
-                      {subject.emoji.split('').map((emoji, index) => (
-                        <span key={index} className="inline-block">
-                          {emoji}
-                        </span>
-                      ))}
-                    </div>
-                    <div className="text-sm font-medium text-[var(--foreground)] group-hover:text-[var(--primary)]">
+                    <div className="font-semibold text-[var(--foreground)] group-hover:text-[var(--primary)] text-lg">
                       {subject.name}
                     </div>
                   </button>
                 ))}
+                
+                <button
+                  onClick={() => setShowAllSubjects(!showAllSubjects)}
+                  className="w-full p-4 border-2 border-dashed border-[var(--border)] rounded-xl hover:border-[var(--primary)] hover:bg-[var(--hover)] transition-all duration-200 text-center group"
+                >
+                  <div className="flex items-center justify-center gap-2 text-[var(--foreground-secondary)] group-hover:text-[var(--primary)] font-medium">
+                    {showAllSubjects ? (
+                      <>
+                        <ChevronUp className="w-5 h-5" />
+                        Show Less
+                      </>
+                    ) : (
+                      <>
+                        <ChevronDown className="w-5 h-5" />
+                        Show More Subjects
+                      </>
+                    )}
+                  </div>
+                </button>
               </div>
             </div>
           )}
