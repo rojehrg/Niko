@@ -7,9 +7,8 @@ import { FloatingEmojis } from "@/components/ui/floating-emojis";
 import { WelcomeScreen } from "@/components/welcome/welcome-screen";
 import { useWelcomeStore } from "@/lib/stores/welcome-store";
 import { useState, useRef, useEffect } from "react";
-import { ChevronLeft } from "lucide-react";
-import MusicToggle from "@/components/music/music-toggle";
-import SpotifyPlayer from "@/components/music/spotify-player";
+import { ChevronLeft, Music } from "lucide-react";
+
 
 // Holiday Countdown Component
 function HolidayCountdown({ 
@@ -150,10 +149,7 @@ export default function AppLayout({
   const [isMusicPlayerVisible, setIsMusicPlayerVisible] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   
-  // Debug: Monitor music player visibility state changes
-  useEffect(() => {
-    console.log('🎵 Music player visibility changed to:', isMusicPlayerVisible);
-  }, [isMusicPlayerVisible]);
+
   
   // Bunny feeding state
   const [bunnyTreats, setBunnyTreats] = useState<Array<{
@@ -396,16 +392,57 @@ export default function AppLayout({
       {/* Spotify Music Player Modal */}
       {isMusicPlayerVisible && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-          <div className="w-full max-w-lg max-h-[90vh] overflow-y-auto">
-            <SpotifyPlayer />
+          <div className="bg-gray-900 rounded-2xl shadow-2xl border border-gray-700 w-full max-w-md max-h-[80vh] overflow-hidden">
+            {/* Modal Header */}
+            <div className="bg-black/20 backdrop-blur-sm border-b border-gray-700 p-4 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
+                  <Music className="w-5 h-5 text-white" />
+                </div>
+                <h3 className="text-lg font-semibold text-white">Spotify Player</h3>
+              </div>
+              <button
+                onClick={() => setIsMusicPlayerVisible(false)}
+                className="text-gray-400 hover:text-white transition-colors p-1 rounded-lg hover:bg-gray-700"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            
+            {/* Spotify iframe */}
+            <div className="h-96 w-full">
+              <iframe
+                src="https://open.spotify.com/embed"
+                width="100%"
+                height="100%"
+                frameBorder="0"
+                allow="encrypted-media"
+                title="Spotify Web Player"
+                className="w-full h-full"
+              />
+            </div>
+            
+            {/* Footer */}
+            <div className="bg-black/20 backdrop-blur-sm border-t border-gray-700 p-3 text-center">
+              <a
+                href="https://open.spotify.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-green-400 hover:text-green-300 transition-colors text-sm flex items-center justify-center gap-2"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                </svg>
+                Open in Spotify
+              </a>
+            </div>
           </div>
         </div>
       )}
       
-      {/* Debug info */}
-      <div className="fixed top-4 right-4 bg-red-500 text-white p-2 rounded z-50">
-        Music Player Visible: {isMusicPlayerVisible ? 'YES' : 'NO'}
-      </div>
+
       
       {/* Sidebar */}
       <aside 
@@ -457,30 +494,11 @@ export default function AppLayout({
             <div className={`flex items-center justify-center gap-3 transition-all duration-500 ease-out
               ${isSidebarCollapsed ? 'flex-col w-full' : ''}`}>
               <ThemeToggle />
-              {/* TEST: Simple button instead of MusicToggle */}
+              {/* Music Button - Toggle Spotify Modal */}
               <button
-                type="button"
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  console.log('=== MUSIC BUTTON DEBUG ===');
-                  console.log('Event type:', e.type);
-                  console.log('Target:', e.target);
-                  console.log('Current state:', isMusicPlayerVisible);
-                  console.log('About to set state to:', !isMusicPlayerVisible);
-                  
-                  // Use functional update to ensure we're working with the latest state
-                  setIsMusicPlayerVisible(prev => {
-                    const newValue = !prev;
-                    console.log('Inside setState callback, prev was:', prev, 'new will be:', newValue);
-                    return newValue;
-                  });
-                  
-                  console.log('State set, new value should be:', !isMusicPlayerVisible);
-                  console.log('=== END DEBUG ===');
-                }}
-                className="w-10 h-10 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
-                title="Test Music Button"
+                onClick={() => setIsMusicPlayerVisible(!isMusicPlayerVisible)}
+                className="w-10 h-10 bg-green-500 hover:bg-green-600 text-white rounded-lg transition-colors flex items-center justify-center"
+                title="Toggle Spotify Player"
               >
                 🎵
               </button>
