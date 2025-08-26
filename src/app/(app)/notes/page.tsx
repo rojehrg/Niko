@@ -127,48 +127,45 @@ export default function NotesPage() {
 
   return (
     <div className="min-h-screen p-6 max-w-7xl mx-auto">
-      {/* Simple Header */}
-      <div className="flex items-center justify-between mb-8">
-        <div>
-          <h1 className="text-2xl font-semibold text-[var(--foreground)]">Notes</h1>
-          <p className="text-sm text-[var(--foreground-secondary)]">{notes.length} notes</p>
-        </div>
-        <Button
-          onClick={() => setIsEditorOpen(true)}
-          className="bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white shadow-sm hover:shadow-md transition-all duration-200"
-        >
-          <Plus className="mr-2 h-4 w-4" />
-          Add Note
-        </Button>
+      {/* Header */}
+      <div className="mb-8">
+        <h1 className="text-4xl font-bold text-[var(--foreground)] tracking-tight mb-3">
+          Notes
+        </h1>
+        <p className="text-lg text-[var(--foreground-secondary)] font-medium">
+          Organize your thoughts and ideas
+        </p>
       </div>
-
-      {/* Simple Search and Sort */}
-      <div className="flex items-center gap-4 mb-6">
-        <div className="relative flex-1 max-w-md">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-[var(--foreground-tertiary)]" />
-          <Input
-            placeholder="Search notes..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10 border-[var(--border)] bg-[var(--background)] text-[var(--foreground)]"
-          />
+      
+      {/* Controls Section */}
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-4">
+          {/* Search Input */}
+          <div className="relative flex-1 max-w-md">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-[var(--foreground-tertiary)]" />
+            <Input
+              placeholder="Search notes..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10 border-[var(--border)] bg-[var(--background)] text-[var(--foreground)]"
+            />
+          </div>
+          
+          {/* Sort Dropdown */}
+          <select
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value as "date" | "title" | "pinned")}
+            className="px-3 py-2 border border-[var(--border)] rounded-md bg-[var(--background)] text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[#2e75cc]"
+          >
+            <option value="date">By Date</option>
+            <option value="title">By Title</option>
+            <option value="pinned">Pinned First</option>
+          </select>
         </div>
         
-        <select
-          value={sortBy}
-          onChange={(e) => setSortBy(e.target.value as "date" | "title" | "pinned")}
-          className="px-3 py-2 border border-[var(--border)] rounded-md bg-[var(--background)] text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[#2e75cc]"
-        >
-          <option value="date">By Date</option>
-          <option value="title">By Title</option>
-          <option value="pinned">Pinned First</option>
-        </select>
-      </div>
-
-      {/* Multi-select Controls */}
-      {filteredNotes.length > 0 && (
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3">
+          {/* Multi-select Controls */}
+          {filteredNotes.length > 0 && (
             <Button
               variant={isMultiSelectMode ? "default" : "outline"}
               onClick={toggleMultiSelectMode}
@@ -176,7 +173,23 @@ export default function NotesPage() {
             >
               {isMultiSelectMode ? "Cancel Selection" : "Select Multiple"}
             </Button>
-            
+          )}
+          
+          {/* Add Note Button */}
+          <Button
+            onClick={() => setIsEditorOpen(true)}
+            className="bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white shadow-sm hover:shadow-md transition-all duration-200"
+          >
+            <Plus className="mr-2 h-4 w-4" />
+            Add Note
+          </Button>
+        </div>
+      </div>
+
+      {/* Multi-select Controls */}
+      {filteredNotes.length > 0 && (
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-3">
             {isMultiSelectMode && (
               <>
                 <Button

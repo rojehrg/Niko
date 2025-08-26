@@ -411,10 +411,80 @@ export default function AppLayout({
               </button>
             </div>
             
+            {/* Spotify Search and Embed */}
+            <div className="p-4 space-y-4">
+              {/* Search Input */}
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  placeholder="Search for songs, artists, or albums..."
+                  className="flex-1 bg-gray-800 text-white placeholder-gray-400 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+                  onKeyPress={(e) => {
+                    if (e.key === 'Enter') {
+                      const searchTerm = (e.target as HTMLInputElement).value.trim();
+                      if (searchTerm) {
+                        const encodedSearch = encodeURIComponent(searchTerm);
+                        const embedUrl = `https://open.spotify.com/embed/search/${encodedSearch}`;
+                        const iframe = document.getElementById('spotify-iframe') as HTMLIFrameElement;
+                        if (iframe) iframe.src = embedUrl;
+                      }
+                    }
+                  }}
+                />
+                <button
+                  onClick={(e) => {
+                    const input = e.currentTarget.previousElementSibling as HTMLInputElement;
+                    const searchTerm = input.value.trim();
+                    if (searchTerm) {
+                      const encodedSearch = encodeURIComponent(searchTerm);
+                      const embedUrl = `https://open.spotify.com/embed/search/${encodedSearch}`;
+                      const iframe = document.getElementById('spotify-iframe') as HTMLIFrameElement;
+                      if (iframe) iframe.src = embedUrl;
+                    }
+                  }}
+                  className="bg-green-500 hover:bg-green-600 text-white px-3 py-2 rounded-lg text-sm transition-colors"
+                >
+                  Search
+                </button>
+              </div>
+              
+              {/* Quick Access Buttons */}
+              <div className="flex flex-wrap gap-2">
+                <button
+                  onClick={() => {
+                    const iframe = document.getElementById('spotify-iframe') as HTMLIFrameElement;
+                    if (iframe) iframe.src = 'https://open.spotify.com/embed/playlist/37i9dQZF1DXcBWIGoYBM5M';
+                  }}
+                  className="bg-gray-700 hover:bg-gray-600 text-white px-3 py-2 rounded-lg text-sm transition-colors"
+                >
+                  Today's Top Hits
+                </button>
+                <button
+                  onClick={() => {
+                    const iframe = document.getElementById('spotify-iframe') as HTMLIFrameElement;
+                    if (iframe) iframe.src = 'https://open.spotify.com/embed/playlist/37i9dQZEVXbMDoHDwVN2tF';
+                  }}
+                  className="bg-gray-700 hover:bg-gray-600 text-white px-3 py-2 rounded-lg text-sm transition-colors"
+                >
+                  Global Top 50
+                </button>
+                <button
+                  onClick={() => {
+                    const iframe = document.getElementById('spotify-iframe') as HTMLIFrameElement;
+                    if (iframe) iframe.src = 'https://open.spotify.com/embed/playlist/37i9dQZF1DX5Ejj0EkURtP';
+                  }}
+                  className="bg-gray-700 hover:bg-gray-600 text-white px-3 py-2 rounded-lg text-sm transition-colors"
+                >
+                  All Out 2010s
+                </button>
+              </div>
+            </div>
+            
             {/* Spotify iframe */}
-            <div className="h-96 w-full">
+            <div className="h-80 w-full">
               <iframe
-                src="https://open.spotify.com/embed"
+                id="spotify-iframe"
+                src="https://open.spotify.com/embed/playlist/37i9dQZF1DXcBWIGoYBM5M"
                 width="100%"
                 height="100%"
                 frameBorder="0"
@@ -494,14 +564,6 @@ export default function AppLayout({
             <div className={`flex items-center justify-center gap-3 transition-all duration-500 ease-out
               ${isSidebarCollapsed ? 'flex-col w-full' : ''}`}>
               <ThemeToggle />
-              {/* Music Button - Toggle Spotify Modal */}
-              <button
-                onClick={() => setIsMusicPlayerVisible(!isMusicPlayerVisible)}
-                className="w-10 h-10 bg-green-500 hover:bg-green-600 text-white rounded-lg transition-colors flex items-center justify-center"
-                title="Toggle Spotify Player"
-              >
-                🎵
-              </button>
             </div>
           </div>
           

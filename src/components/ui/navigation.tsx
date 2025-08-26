@@ -4,7 +4,8 @@ import {
   BookOpen, 
   StickyNote, 
   Briefcase, 
-  Home
+  Home,
+  Calendar
 } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
@@ -14,6 +15,7 @@ const navigation = [
   { name: "Dashboard", href: "/dashboard", icon: Home },
   { name: "Flashcards", href: "/flashcards", icon: BookOpen },
   { name: "Notes", href: "/notes", icon: StickyNote },
+  { name: "Exams", href: "/exams", icon: Calendar },
   { name: "Jobs", href: "/jobs", icon: Briefcase },
 ];
 

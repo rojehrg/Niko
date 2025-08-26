@@ -1,15 +1,19 @@
 "use client";
 
 import { useEffect } from "react";
-import { BookOpen, Briefcase, StickyNote } from "lucide-react";
+import Link from "next/link";
+import { BookOpen, Briefcase, StickyNote, Calendar } from "lucide-react";
 import { useFlashcardStore } from "@/lib/stores/flashcard-store";
 import { useNotesStore } from "@/lib/stores/notes-store";
 import { useJobsStore } from "@/lib/stores/jobs-store";
+import { useExamsStore } from "@/lib/stores/exams-store";
+import { GamificationWidget } from "@/components/ui/gamification-widget";
 
 export default function DashboardPage() {
   const { flashcards, fetchFlashcards, fetchSets } = useFlashcardStore();
   const { notes, fetchNotes } = useNotesStore();
   const { jobs, fetchJobs } = useJobsStore();
+  const { exams, fetchExams } = useExamsStore();
   
   // Calculate job stats manually since getStats might not exist
   const jobStats = {
@@ -28,7 +32,8 @@ export default function DashboardPage() {
           fetchNotes(),
           fetchFlashcards(),
           fetchSets(),
-          fetchJobs()
+          fetchJobs(),
+          fetchExams()
         ]);
       } catch (error) {
         console.log('Some data failed to load (this is normal when running locally without Supabase):', error);
@@ -36,24 +41,22 @@ export default function DashboardPage() {
     };
     
     fetchData();
-  }, [fetchNotes, fetchFlashcards, fetchSets, fetchJobs]);
+  }, [fetchNotes, fetchFlashcards, fetchSets, fetchJobs, fetchExams]);
   
   return (
-    <div className="min-h-screen p-8">
+    <div className="min-h-screen p-6 max-w-7xl mx-auto">
       {/* Modern Header */}
-      <div className="mb-12">
-        <div className="mb-4">
-          <h1 className="text-4xl font-bold text-[var(--foreground)] tracking-tight">
-            Welcome back, Niko
-          </h1>
-        </div>
+      <div className="mb-8">
+        <h1 className="text-4xl font-bold text-[var(--foreground)] tracking-tight mb-3">
+          Welcome back, Niko
+        </h1>
         <p className="text-lg text-[var(--foreground-secondary)] font-medium">
           Your personal learning and productivity hub
         </p>
       </div>
 
       {/* Quick Stats Overview */}
-      <div className="grid gap-6 md:grid-cols-3 mb-12">
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 mb-12">
         {/* Learning Overview */}
         <div className="bg-[var(--background)] border border-[var(--border)] rounded-xl p-6 hover:border-[var(--border)] transition-all duration-300 group cursor-pointer shadow-sm hover:shadow-md">
           <div className="flex items-center justify-between mb-4">
@@ -148,6 +151,56 @@ export default function DashboardPage() {
               {notes.length >= 10 ? '📚 Knowledge base!' : `${10 - notes.length} more to build knowledge`}
             </p>
           </div>
+        </div>
+
+        {/* Exams Overview */}
+        <Link href="/exams" className="block">
+          <div className="bg-[var(--background)] border border-[var(--border)] rounded-xl p-6 hover:border-[var(--border)] transition-all duration-300 group cursor-pointer shadow-sm hover:shadow-md">
+            <div className="flex items-center justify-between mb-4">
+              <div className="p-3 bg-purple-200 dark:bg-purple-900/30 rounded-lg group-hover:scale-110 transition-transform duration-300">
+                <Calendar className="h-6 w-6 text-purple-700 dark:text-purple-400" />
+              </div>
+              <div className="text-right">
+                <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">
+                  {exams?.length > 0 ? '📅' : '⏰'}
+                </div>
+                <div className="text-xs text-[var(--foreground-secondary)] font-medium">
+                  {exams?.length > 0 ? 'Stay on track' : 'Plan ahead'}
+                </div>
+              </div>
+            </div>
+            <div className="space-y-2">
+              <p className="text-3xl font-bold text-[var(--foreground)]">
+                {exams?.filter(e => !e.completed).length || 0}
+              </p>
+              <p className="text-sm text-[var(--foreground-secondary)] font-medium">Active Exams</p>
+              <div className="w-full bg-[var(--hover)] rounded-full h-2">
+                <div 
+                  className="bg-purple-500 dark:bg-purple-400 h-2 rounded-full transition-all duration-500 ease-out"
+                  style={{ width: `${Math.min((exams?.filter(e => !e.completed).length || 0) / 5 * 100, 100)}%` }}
+                ></div>
+              </div>
+              <p className="text-xs text-[var(--foreground-secondary)]">
+                {(exams?.filter(e => !e.completed).length || 0) >= 5 ? '📚 Exam master!' : `${5 - (exams?.filter(e => !e.completed).length || 0)} more to stay organized`}
+              </p>
+            </div>
+          </div>
+        </Link>
+      </div>
+
+      {/* Gamification Section */}
+      <div className="mb-12">
+        <div className="mb-6">
+          <h2 className="text-2xl font-bold text-[var(--foreground)] mb-2">
+            🎮 Stay Motivated
+          </h2>
+          <p className="text-[var(--foreground-secondary)]">
+            Track your progress, unlock achievements, and build streaks
+          </p>
+        </div>
+        
+        <div className="grid gap-6 lg:grid-cols-1">
+          <GamificationWidget />
         </div>
       </div>
     </div>

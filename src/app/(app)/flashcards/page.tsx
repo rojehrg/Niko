@@ -50,16 +50,17 @@ export default function FlashcardsPage() {
   return (
     <div className="min-h-screen p-6 max-w-7xl mx-auto">
       {/* Header */}
-      <div className="flex items-center justify-between mb-8">
-        <div>
-          <h1 className="text-2xl font-semibold text-[var(--foreground)]">Flashcards</h1>
-          <p className="text-sm text-[var(--foreground-secondary)]">
-            {selectedSet === 'all' 
-              ? `${flashcards.length} total cards` 
-              : `${filteredCards.length} cards in ${currentSet.name}`
-            }
-          </p>
-        </div>
+      <div className="mb-8">
+        <h1 className="text-4xl font-bold text-[var(--foreground)] tracking-tight mb-3">
+          Flashcards
+        </h1>
+        <p className="text-lg text-[var(--foreground-secondary)] font-medium">
+          Master your subjects with interactive flashcards
+        </p>
+      </div>
+      
+      {/* Controls Section */}
+      <div className="mb-8 flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
         <div className="flex items-center gap-3">
           {filteredCards.length > 0 && (
             <div className="flex gap-2">
@@ -83,6 +84,9 @@ export default function FlashcardsPage() {
               </Button>
             </div>
           )}
+        </div>
+        
+        <div className="flex items-center gap-3">
           <Link href="/flashcards/create">
             <Button className="bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white shadow-sm hover:shadow-md transition-all duration-200">
               <Plus className="mr-2 h-4 w-4" />
@@ -90,8 +94,7 @@ export default function FlashcardsPage() {
             </Button>
           </Link>
           <Link href="/flashcards/sets">
-            <Button variant="outline" className="border-[var(--border)] text-[var(--foreground)] hover:bg-[var(--hover)]">
-              {/* Settings icon removed */}
+            <Button variant="outline" className="border-[var(--border)] text-[var(--hover)] hover:bg-[var(--hover)]">
               Manage Sets
             </Button>
           </Link>
@@ -133,25 +136,6 @@ export default function FlashcardsPage() {
           ))}
         </div>
       </div>
-
-      {/* Current Set Info */}
-      {selectedSet !== 'all' && (
-        <Card className="bg-[var(--background)] border-[var(--border)] mb-8">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <div className={`w-8 h-8 ${currentSet.color} rounded-lg flex items-center justify-center`}>
-                <BookOpen className="h-5 w-5 text-white" />
-              </div>
-              <div>
-                <h3 className="font-medium text-[var(--foreground)]">{currentSet.name}</h3>
-                {currentSet.description && (
-                  <p className="text-sm text-[var(--foreground-secondary)]">{currentSet.description}</p>
-                )}
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      )}
 
       {/* Flashcards Grid */}
       <div className="space-y-4">
