@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
+import { AuthProvider } from "@/lib/contexts/auth-context";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -9,8 +10,8 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Niko - Your Personal Learning Hub",
-  description: "A comprehensive learning platform with flashcards, notes, music, and job tracking",
+  title: "StudyBuddy - Your Personal Learning Hub",
+  description: "A comprehensive learning platform with flashcards, notes, and job tracking",
 };
 
 export default function RootLayout({
@@ -24,7 +25,9 @@ export default function RootLayout({
         className={`${inter.variable} antialiased bg-background text-foreground`}
         suppressHydrationWarning={true}
       >
-        {children}
+        <AuthProvider>
+          {children}
+        </AuthProvider>
       </body>
     </html>
   );
