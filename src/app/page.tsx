@@ -241,7 +241,7 @@ export default function HomePage() {
                   </div>
                   {!isSignIn && (
                     <p className="text-xs text-[var(--foreground-tertiary)] mt-2 ml-1">
-                      We'll send you a verification email to confirm your account
+                      Your account will be created immediately - no email verification needed
                     </p>
                   )}
                 </div>
@@ -290,10 +290,10 @@ export default function HomePage() {
                   Welcome, {signupData.name}! 👋
                 </h2>
                 <p className="text-lg text-[var(--foreground-secondary)] mb-6">
-                  Check your email for verification, then choose your primary subject
+                  Choose your primary subject to personalize your learning experience
                 </p>
                 <p className="text-[var(--foreground-secondary)] text-lg">
-                  Choose your primary subject to personalize your learning experience
+                  This will customize the floating emojis and organize your content
                 </p>
               </div>
 

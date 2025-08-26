@@ -73,6 +73,14 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 -- 9. Grant execute permission on the function
 GRANT EXECUTE ON FUNCTION create_user_profile(UUID, TEXT, TEXT) TO authenticated;
 
--- 10. Now add the foreign key constraint (after table is populated)
+-- 10. Disable email confirmation requirement (for single-person use)
+-- This will make signups work immediately without email verification
+UPDATE auth.config 
+SET confirm_email_change = false, 
+    enable_signup = true, 
+    enable_confirmations = false
+WHERE id = 1;
+
+-- 11. Now add the foreign key constraint (after table is populated)
 -- ALTER TABLE user_profiles ADD CONSTRAINT user_profiles_id_fkey 
 --   FOREIGN KEY (id) REFERENCES auth.users(id) ON DELETE CASCADE;

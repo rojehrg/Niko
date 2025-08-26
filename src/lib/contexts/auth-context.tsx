@@ -86,12 +86,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signUp = async (email: string, password: string, userData: Omit<UserProfile, 'id'>) => {
     try {
-      // Create auth user with email confirmation
+      // Create auth user WITHOUT email confirmation requirement
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email,
         password,
         options: {
-          emailRedirectTo: `${window.location.origin}/auth/callback`,
           data: {
             name: userData.name,
           }
@@ -113,7 +112,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (profileError) {
           console.error('Profile creation error:', profileError);
           // Don't fail the signup if profile creation fails
-          // The profile can be created later when they verify their email
+          // The profile can be created later
         }
 
         // Set user profile locally
@@ -121,6 +120,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           id: authData.user.id,
           ...userData,
         });
+
+        // Auto-sign in after signup (since no email verification needed)
+        const { error: signInError } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
+
+        if (signInError) {
+          console.error('Auto sign-in error:', signInError);
+        }
       }
 
       return { error: null };
