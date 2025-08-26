@@ -80,21 +80,6 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-[var(--background)] flex items-center justify-center p-6">
       <div className="w-full max-w-2xl">
-        {/* Header */}
-        <div className="text-center mb-12">
-          <div className="inline-flex items-center gap-4 mb-6">
-            <div className="w-16 h-16 bg-[var(--primary)] rounded-2xl flex items-center justify-center shadow-lg">
-              <BookOpen className="w-8 h-8 text-white" />
-            </div>
-            <h1 className="text-5xl font-bold text-[var(--foreground)]">
-              StudyBuddy
-            </h1>
-          </div>
-          <p className="text-xl text-[var(--foreground-secondary)] max-w-xl mx-auto leading-relaxed">
-            Your personal learning and productivity hub. Get started with personalized study plans and stay motivated with SMS reminders.
-          </p>
-        </div>
-
         {/* Main Content */}
         <div className="bg-[var(--background-secondary)] rounded-2xl border border-[var(--border)] shadow-xl overflow-hidden">
           {step === 'signup' ? (

@@ -5,8 +5,7 @@ import {
   StickyNote, 
   Briefcase, 
   Home,
-  Calendar,
-  Gift
+  Calendar
 } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
@@ -18,7 +17,7 @@ const navigation = [
   { name: "Notes", href: "/notes", icon: StickyNote },
   { name: "Exams", href: "/exams", icon: Calendar },
   { name: "Jobs", href: "/jobs", icon: Briefcase },
-  { name: "Holidays", href: "/holidays", icon: Gift },
+
 ];
 
 interface NavigationProps {

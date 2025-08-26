@@ -3,6 +3,7 @@
 import { Navigation } from "@/components/ui/navigation";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { FloatingEmojis } from "@/components/ui/floating-emojis";
+import { SidebarUsername } from "@/components/ui/sidebar-username";
 
 import { WelcomeScreen } from "@/components/welcome/welcome-screen";
 import { useWelcomeStore } from "@/lib/stores/welcome-store";
@@ -576,7 +577,7 @@ export default function AppLayout({
               <div className="mb-6 p-4 bg-[var(--hover)] rounded-xl border border-[var(--border)]">
                 <div className="flex items-center justify-between mb-3">
                   <div className="text-sm font-semibold text-[var(--foreground)]">
-                    🎉 Holiday Countdown
+                    🎉 Look Forward!
                   </div>
                   <button
                     onClick={handleAddHoliday}
@@ -725,9 +726,7 @@ export default function AppLayout({
             )}
           </div>
           <h1 className="text-lg font-semibold text-[var(--foreground)]">
-            {typeof window !== 'undefined' && localStorage.getItem('userData') 
-              ? JSON.parse(localStorage.getItem('userData')!).name 
-              : 'StudyBuddy'}
+            <SidebarUsername />
           </h1>
         </div>
       </div>
