@@ -8,15 +8,14 @@ import { useNotesStore } from "@/lib/stores/notes-store";
 import { useJobsStore } from "@/lib/stores/jobs-store";
 import { useExamsStore } from "@/lib/stores/exams-store";
 import { GamificationWidget } from "@/components/ui/gamification-widget";
+import { useAuth } from "@/lib/contexts/auth-context";
 
 export default function DashboardPage() {
   const { flashcards, fetchFlashcards, fetchSets } = useFlashcardStore();
   const { notes, fetchNotes } = useNotesStore();
   const { jobs, fetchJobs } = useJobsStore();
   const { exams, fetchExams } = useExamsStore();
-  
-  // Get user data for personalization
-  const [userData, setUserData] = useState<{ name: string; phone: string; email: string } | null>(null);
+  const { userProfile, signOut } = useAuth();
   
   // Calculate job stats manually since getStats might not exist
   const jobStats = {
@@ -44,12 +43,6 @@ export default function DashboardPage() {
     };
     
     fetchData();
-    
-    // Get user data from localStorage
-    const storedUserData = localStorage.getItem('userData');
-    if (storedUserData) {
-      setUserData(JSON.parse(storedUserData));
-    }
   }, [fetchNotes, fetchFlashcards, fetchSets, fetchJobs, fetchExams]);
   
   return (
@@ -58,7 +51,7 @@ export default function DashboardPage() {
       <div className="mb-8 flex items-center justify-between">
         <div>
           <h1 className="text-4xl font-bold text-[var(--foreground)] tracking-tight mb-3">
-            Welcome back, {userData?.name || 'Niko'}! 👋
+            Welcome back, {userProfile?.name || 'StudyBuddy'}! 👋
           </h1>
           <p className="text-lg text-[var(--foreground-secondary)] font-medium">
             Your personal learning and productivity hub
@@ -67,10 +60,8 @@ export default function DashboardPage() {
         
         <button
           onClick={() => {
-            localStorage.removeItem('userData');
-            localStorage.removeItem('isAuthenticated');
-            localStorage.removeItem('selectedSubject');
-            window.location.href = '/';
+            // Use the auth context signOut instead of localStorage
+            signOut();
           }}
           className="px-4 py-2 text-sm font-medium text-[var(--foreground-secondary)] hover:text-[var(--foreground)] hover:bg-[var(--hover)] rounded-lg transition-all duration-200"
         >

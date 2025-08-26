@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useMemo } from 'react';
+import { useAuth } from '@/lib/contexts/auth-context';
 
 interface FloatingEmoji {
   id: number;
@@ -19,6 +20,7 @@ interface FloatingEmoji {
 export function FloatingEmojis() {
   const [emojis, setEmojis] = useState<FloatingEmoji[]>([]);
   const [isClient, setIsClient] = useState(false);
+  const { userProfile } = useAuth();
   const [selectedSubject, setSelectedSubject] = useState<string>('general');
 
   // Get emojis based on selected subject
@@ -57,26 +59,12 @@ export function FloatingEmojis() {
     }
   };
 
-  // Update selected subject when component mounts or localStorage changes
+  // Update selected subject when userProfile changes
   useEffect(() => {
-    if (isClient) {
-      const storedSubject = localStorage.getItem('selectedSubject');
-      if (storedSubject) {
-        setSelectedSubject(storedSubject);
-      }
-      
-      // Listen for changes to localStorage
-      const handleStorageChange = () => {
-        const newSubject = localStorage.getItem('selectedSubject');
-        if (newSubject && newSubject !== selectedSubject) {
-          setSelectedSubject(newSubject);
-        }
-      };
-      
-      window.addEventListener('storage', handleStorageChange);
-      return () => window.removeEventListener('storage', handleStorageChange);
+    if (userProfile?.selectedSubject) {
+      setSelectedSubject(userProfile.selectedSubject);
     }
-  }, [isClient, selectedSubject]);
+  }, [userProfile]);
 
   // Mix of nature and medical emojis - moved outside component to prevent recreation
   const emojiList = useMemo(() => getEmojisForSubject(selectedSubject), [selectedSubject]);

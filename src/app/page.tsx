@@ -2,45 +2,99 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Phone, Mail, BookOpen, ArrowRight, User, ChevronDown, ChevronUp } from "lucide-react";
+import { Mail, ArrowRight, User, Lock, ChevronDown, ChevronUp } from "lucide-react";
+import { useAuth } from "@/lib/contexts/auth-context";
 
 interface SignupData {
-  phone: string;
   email: string;
   name: string;
+  password: string;
 }
 
 export default function HomePage() {
   const router = useRouter();
+  const { signUp, signIn, isAuthenticated, userProfile, updateProfile } = useAuth();
   const [step, setStep] = useState<'signup' | 'subjects'>('signup');
+  const [isSignIn, setIsSignIn] = useState(false);
   const [signupData, setSignupData] = useState<SignupData>({
-    phone: '',
     email: '',
-    name: ''
+    name: '',
+    password: ''
   });
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [showAllSubjects, setShowAllSubjects] = useState(false);
+
+  // Redirect if already authenticated
+  if (isAuthenticated && userProfile) {
+    router.push('/dashboard');
+    return null;
+  }
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!signupData.phone || !signupData.email || !signupData.name) {
-      alert('Please fill in all fields');
+    if (!signupData.email || !signupData.name || !signupData.password) {
+      setError('Please fill in all fields');
       return;
     }
     
     setIsLoading(true);
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    setIsLoading(false);
-    setStep('subjects');
+    setError(null);
+
+    try {
+      const { error } = await signUp(signupData.email, signupData.password, {
+        name: signupData.name,
+        email: signupData.email,
+      });
+
+      if (error) {
+        setError(error.message);
+        setIsLoading(false);
+        return;
+      }
+
+      // Show success message and redirect to subjects
+      setIsLoading(false);
+      setStep('subjects');
+    } catch (error) {
+      setError('An unexpected error occurred');
+      setIsLoading(false);
+    }
   };
 
-  const handleSubjectSelect = (subject: string) => {
-    // Store the selected subject and user data
-    localStorage.setItem('selectedSubject', subject);
-    localStorage.setItem('userData', JSON.stringify(signupData));
-    localStorage.setItem('isAuthenticated', 'true');
-    router.push('/dashboard');
+  const handleSignIn = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!signupData.email || !signupData.password) {
+      setError('Please fill in email and password');
+      return;
+    }
+    
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const { error } = await signIn(signupData.email, signupData.password);
+
+      if (error) {
+        setError(error.message);
+        setIsLoading(false);
+        return;
+      }
+
+      // Redirect to dashboard on successful sign in
+      router.push('/dashboard');
+    } catch (error) {
+      setError('An unexpected error occurred');
+      setIsLoading(false);
+    }
+  };
+
+  const handleSubjectSelect = async (subject: string) => {
+    // Update user profile with selected subject
+    if (userProfile) {
+      await updateProfile({ selectedSubject: subject });
+      router.push('/dashboard');
+    }
   };
 
   const initialSubjects = [
@@ -83,57 +137,69 @@ export default function HomePage() {
         {/* Main Content */}
         <div className="bg-[var(--background-secondary)] rounded-2xl border border-[var(--border)] shadow-xl overflow-hidden">
           {step === 'signup' ? (
-            /* Signup Form */
+            /* Signup/Signin Form */
             <div className="p-10">
               <div className="text-center mb-10">
                 <h2 className="text-3xl font-bold text-[var(--foreground)] mb-3">
-                  Create Your Account
+                  {isSignIn ? 'Welcome Back' : 'Create Your Account'}
                 </h2>
                 <p className="text-[var(--foreground-secondary)] text-lg">
-                  Join thousands of students already using StudyBuddy to boost their productivity
+                  {isSignIn 
+                    ? 'Sign in to continue your learning journey'
+                    : 'Join thousands of students already using StudyBuddy to boost their productivity'
+                  }
                 </p>
               </div>
 
-              <form onSubmit={handleSignup} className="space-y-6 max-w-md mx-auto">
-                <div>
-                  <label className="block text-sm font-semibold text-[var(--foreground)] mb-3">
-                    Full Name
-                  </label>
-                  <div className="relative">
-                    <User className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-[var(--foreground-tertiary)]" />
-                    <input
-                      type="text"
-                      value={signupData.name}
-                      onChange={(e) => setSignupData({...signupData, name: e.target.value})}
-                      className="w-full pl-12 pr-4 py-4 border-2 border-[var(--border)] rounded-xl focus:ring-2 focus:ring-[var(--primary)] focus:border-[var(--primary)] bg-[var(--background)] text-[var(--foreground)] transition-all duration-200 text-lg"
-                      placeholder="Enter your full name"
-                      required
-                    />
-                  </div>
-                  <p className="text-sm text-[var(--foreground-tertiary)] mt-2 ml-1">
-                    This will be displayed throughout your personalized experience
-                  </p>
-                </div>
+              {/* Toggle between signup and signin */}
+              <div className="flex mb-8 bg-[var(--background)] rounded-lg p-1">
+                <button
+                  onClick={() => setIsSignIn(false)}
+                  className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all ${
+                    !isSignIn 
+                      ? 'bg-[var(--primary)] text-white' 
+                      : 'text-[var(--foreground-secondary)] hover:text-[var(--foreground)]'
+                  }`}
+                >
+                  Sign Up
+                </button>
+                <button
+                  onClick={() => setIsSignIn(true)}
+                  className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all ${
+                    isSignIn 
+                      ? 'bg-[var(--primary)] text-white' 
+                      : 'text-[var(--foreground-secondary)] hover:text-[var(--foreground)]'
+                  }`}
+                >
+                  Sign In
+                </button>
+              </div>
 
-                <div>
-                  <label className="block text-sm font-semibold text-[var(--foreground)] mb-3">
-                    Phone Number
-                  </label>
-                  <div className="relative">
-                    <Phone className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-[var(--foreground-tertiary)]" />
-                    <input
-                      type="tel"
-                      value={signupData.phone}
-                      onChange={(e) => setSignupData({...signupData, phone: e.target.value})}
-                      className="w-full pl-12 pr-4 py-4 border-2 border-[var(--border)] rounded-xl focus:ring-2 focus:ring-[var(--primary)] focus:border-[var(--primary)] bg-[var(--background)] text-[var(--foreground)] transition-all duration-200 text-lg"
-                      placeholder="Enter your phone number"
-                      required
-                    />
-                  </div>
-                  <p className="text-sm text-[var(--foreground-tertiary)] mt-2 ml-1">
-                    We'll send you SMS reminders for exams and study motivation
-                  </p>
+              {error && (
+                <div className="mb-6 p-3 bg-red-100 dark:bg-red-900/20 border border-red-300 dark:border-red-700 rounded-lg text-red-700 dark:text-red-300 text-sm">
+                  {error}
                 </div>
+              )}
+
+              <form onSubmit={isSignIn ? handleSignIn : handleSignup} className="space-y-6 max-w-md mx-auto">
+                {!isSignIn && (
+                  <div>
+                    <label className="block text-sm font-semibold text-[var(--foreground)] mb-3">
+                      Full Name
+                    </label>
+                    <div className="relative">
+                      <User className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-[var(--foreground-tertiary)]" />
+                      <input
+                        type="text"
+                        value={signupData.name}
+                        onChange={(e) => setSignupData({...signupData, name: e.target.value})}
+                        className="w-full pl-12 pr-4 py-4 border-2 border-[var(--border)] rounded-xl focus:ring-2 focus:ring-[var(--primary)] focus:border-[var(--primary)] bg-[var(--background)] text-[var(--foreground)] transition-all duration-200 text-lg"
+                        placeholder="Enter your full name"
+                        required={!isSignIn}
+                      />
+                    </div>
+                  </div>
+                )}
 
                 <div>
                   <label className="block text-sm font-semibold text-[var(--foreground)] mb-3">
@@ -150,9 +216,28 @@ export default function HomePage() {
                       required
                     />
                   </div>
-                  <p className="text-sm text-[var(--foreground-tertiary)] mt-2 ml-1">
-                    For account recovery and important updates
-                  </p>
+                  {!isSignIn && (
+                    <p className="text-xs text-[var(--foreground-tertiary)] mt-2 ml-1">
+                      We'll send you a verification email to confirm your account
+                    </p>
+                  )}
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-[var(--foreground)] mb-3">
+                    Password
+                  </label>
+                  <div className="relative">
+                    <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-[var(--foreground-tertiary)]" />
+                    <input
+                      type="password"
+                      value={signupData.password}
+                      onChange={(e) => setSignupData({...signupData, password: e.target.value})}
+                      className="w-full pl-12 pr-4 py-4 border-2 border-[var(--border)] rounded-xl focus:ring-2 focus:ring-[var(--primary)] focus:border-[var(--primary)] bg-[var(--background)] text-[var(--foreground)] transition-all duration-200 text-lg"
+                      placeholder="Enter your password"
+                      required
+                    />
+                  </div>
                 </div>
 
                 <button
@@ -163,11 +248,11 @@ export default function HomePage() {
                   {isLoading ? (
                     <>
                       <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                      Creating account...
+                      {isSignIn ? 'Signing in...' : 'Creating account...'}
                     </>
                   ) : (
                     <>
-                      Continue
+                      {isSignIn ? 'Sign In' : 'Continue'}
                       <ArrowRight className="w-5 h-5" />
                     </>
                   )}
@@ -181,6 +266,9 @@ export default function HomePage() {
                 <h2 className="text-3xl font-bold text-[var(--foreground)] mb-3">
                   Welcome, {signupData.name}! 👋
                 </h2>
+                <p className="text-lg text-[var(--foreground-secondary)] mb-6">
+                  Check your email for verification, then choose your primary subject
+                </p>
                 <p className="text-[var(--foreground-secondary)] text-lg">
                   Choose your primary subject to personalize your learning experience
                 </p>
