@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Mail, ArrowRight, User, Lock, ChevronDown, ChevronUp } from "lucide-react";
 import { useAuth } from "@/lib/contexts/auth-context";
@@ -24,11 +24,34 @@ export default function HomePage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showAllSubjects, setShowAllSubjects] = useState(false);
+  const [isClient, setIsClient] = useState(false);
 
-  // Redirect if already authenticated
-  if (isAuthenticated && userProfile) {
-    router.push('/dashboard');
-    return null;
+  // Handle client-side rendering
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  // Redirect if already authenticated (only on client)
+  useEffect(() => {
+    if (isClient && isAuthenticated && userProfile) {
+      router.push('/dashboard');
+    }
+  }, [isClient, isAuthenticated, userProfile, router]);
+
+  // Don't render anything until client-side
+  if (!isClient) {
+    return (
+      <div className="min-h-screen bg-[var(--background)] flex items-center justify-center p-6">
+        <div className="w-full max-w-2xl">
+          <div className="bg-[var(--background-secondary)] rounded-2xl border border-[var(--border)] shadow-xl overflow-hidden">
+            <div className="p-10 text-center">
+              <div className="w-8 h-8 border-2 border-[var(--primary)] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+              <p className="text-[var(--foreground-secondary)]">Loading...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   const handleSignup = async (e: React.FormEvent) => {
@@ -143,7 +166,7 @@ export default function HomePage() {
                 <h2 className="text-3xl font-bold text-[var(--foreground)] mb-3">
                   {isSignIn ? 'Welcome Back' : 'Create Your Account'}
                 </h2>
-                <p className="text-[var(--foreground-secondary)] text-lg">
+                <p className="text-lg text-[var(--foreground-secondary)]">
                   {isSignIn 
                     ? 'Sign in to continue your learning journey'
                     : 'Join thousands of students already using StudyBuddy to boost their productivity'
@@ -211,7 +234,7 @@ export default function HomePage() {
                       type="email"
                       value={signupData.email}
                       onChange={(e) => setSignupData({...signupData, email: e.target.value})}
-                      className="w-full pl-12 pr-4 py-4 border-2 border-[var(--border)] rounded-xl focus:ring-2 focus:ring-[var(--primary)] focus:border-[var(--primary)] bg-[var(--background)] text-[var(--foreground)] transition-all duration-200 text-lg"
+                      className="w-full pl-12 pr-4 py-4 border-2 border-[var(--border)] rounded-xl focus:ring-2 focus:ring-[var(--primary)] focus:border-[var(--foreground)] bg-[var(--background)] text-[var(--foreground)] transition-all duration-200 text-lg"
                       placeholder="Enter your email address"
                       required
                     />

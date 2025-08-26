@@ -9,6 +9,7 @@ import { WelcomeScreen } from "@/components/welcome/welcome-screen";
 import { useWelcomeStore } from "@/lib/stores/welcome-store";
 import { useState, useRef, useEffect } from "react";
 import { ChevronLeft, Music } from "lucide-react";
+import { AuthProvider } from "@/lib/contexts/auth-context";
 
 
 // Holiday Countdown Component
@@ -226,156 +227,61 @@ export default function AppLayout({
     const hour = new Date().getHours();
     
     if (hour >= 6 && hour < 12) {
-      // Morning: Bright blue sky with warm sun
-      return {
-        background: 'from-blue-200 via-blue-100 to-green-200 dark:from-blue-800/40 dark:via-blue-700/30 dark:to-green-800/40',
-        sun: '☀️',
-        clouds: '☁️',
-        mood: 'morning'
-      };
-    } else if (hour >= 12 && hour < 17) {
-      // Afternoon: Bright blue sky with full sun
-      return {
-        background: 'from-blue-300 via-blue-200 to-green-300 dark:from-blue-700/50 dark:via-blue-600/40 dark:to-green-700/50',
-        sun: '☀️',
-        clouds: '☁️',
-        mood: 'afternoon'
-      };
-    } else if (hour >= 17 && hour < 20) {
-      // Evening: Golden hour with warm colors
-      return {
-        background: 'from-orange-200 via-yellow-200 to-green-200 dark:from-orange-800/40 dark:via-yellow-800/30 dark:to-green-800/40',
-        sun: '🌅',
-        clouds: '☁️',
-        mood: 'evening'
-      };
-    } else if (hour >= 20 || hour < 6) {
-      // Night: Dark sky with stars and moon
-      return {
-        background: 'from-indigo-900 via-purple-800 to-green-900 dark:from-indigo-950 dark:via-purple-900 dark:to-green-950',
-        sun: '🌙',
-        clouds: '☁️',
-        mood: 'night'
-      };
+      return 'morning'; // Morning: bright blue
+    } else if (hour >= 12 && hour < 18) {
+      return 'afternoon'; // Afternoon: bright blue
+    } else if (hour >= 18 && hour < 20) {
+      return 'evening'; // Evening: orange/pink
+    } else {
+      return 'night'; // Night: dark blue
     }
-    
-    // Default fallback
-    return {
-      background: 'from-blue-200 via-blue-100 to-green-200 dark:from-blue-800/40 dark:via-blue-700/30 dark:to-green-800/40',
-      sun: '☀️',
-      clouds: '☁️',
-      mood: 'default'
-    };
   };
-  
-  const skyTheme = getSkyTheme();
-  
-  // Random bunny movement across the entire sidebar
+
+  // Bunny movement effect
   useEffect(() => {
-    if (!isBunnyMovementReady) {
-      setIsBunnyMovementReady(true);
-      return;
-    }
+    if (!isBunnyMovementReady) return;
     
-    const interval = setInterval(() => {
+    const moveBunnies = () => {
       setBunnyPositions(prev => {
         const newPositions = { ...prev };
         
         // White bunny - moves horizontally and vertically
         newPositions.white.x += newPositions.white.direction * newPositions.white.speed;
-        newPositions.white.y += (Math.random() - 0.5) * 0.2; // Gentler vertical movement
+        newPositions.white.y += Math.sin(Date.now() * 0.001) * 0.5;
         
-        // Brown bunny - moves in opposite direction with some randomness
+        // Brown bunny - moves in a different pattern
         newPositions.brown.x += newPositions.brown.direction * newPositions.brown.speed;
-        newPositions.brown.y += (Math.random() - 0.5) * 0.25; // Gentler vertical movement
+        newPositions.brown.y += Math.cos(Date.now() * 0.001) * 0.3;
         
-        // Boundary checking - keep bunnies within sidebar bounds
-        // X bounds: 16px to 240px (sidebar width)
-        if (newPositions.white.x >= 240 || newPositions.white.x <= 16) {
-          newPositions.white.direction *= -1; // Reverse direction
-          newPositions.white.x = Math.max(16, Math.min(240, newPositions.white.x)); // Clamp to bounds
-        }
-        if (newPositions.brown.x >= 240 || newPositions.brown.x <= 16) {
-          newPositions.brown.direction *= -1; // Reverse direction
-          newPositions.brown.x = Math.max(16, Math.min(240, newPositions.brown.x)); // Clamp to bounds
-        }
-        
-        // Y bounds: separate ranges for each bunny to prevent overlap
-        // White bunny: upper area (20px to 50px)
-        newPositions.white.y = Math.max(20, Math.min(50, newPositions.white.y));
-        // Brown bunny: lower area (8px to 35px)
-        newPositions.brown.y = Math.max(8, Math.min(35, newPositions.brown.y));
-        
-        // Random direction changes for more natural movement
-        if (Math.random() < 0.005) { // 0.5% chance per frame
+        // Bounce off edges
+        if (newPositions.white.x <= 0 || newPositions.white.x >= 100) {
           newPositions.white.direction *= -1;
         }
-        if (Math.random() < 0.003) { // 0.3% chance per frame
+        if (newPositions.brown.x <= 0 || newPositions.brown.x >= 100) {
           newPositions.brown.direction *= -1;
         }
         
+        // Keep bunnies within bounds
+        newPositions.white.x = Math.max(0, Math.min(100, newPositions.white.x));
+        newPositions.white.y = Math.max(0, Math.min(100, newPositions.white.y));
+        newPositions.brown.x = Math.max(0, Math.min(100, newPositions.brown.x));
+        newPositions.brown.y = Math.max(0, Math.min(100, newPositions.brown.y));
+        
         return newPositions;
       });
-    }, 80); // Faster movement
+    };
     
+    const interval = setInterval(moveBunnies, 50);
     return () => clearInterval(interval);
   }, [isBunnyMovementReady]);
 
-  // Handle hydration
+  // Mount effect
   useEffect(() => {
     setIsMounted(true);
+    setIsBunnyMovementReady(true);
   }, []);
 
-  // Load custom logo from localStorage on mount
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const savedLogo = localStorage.getItem('niko-custom-logo');
-      if (savedLogo) {
-        setCustomLogo(savedLogo);
-      }
-    }
-  }, []);
-
-  const handleLogoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const result = e.target?.result as string;
-        setCustomLogo(result);
-        if (typeof window !== 'undefined') {
-          localStorage.setItem('niko-custom-logo', result);
-        }
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
-
-
-  const toggleSidebar = () => {
-    if (isAnimating) return; // Prevent rapid toggling during animation
-    
-    setIsAnimating(true);
-    setIsSidebarCollapsed(!isSidebarCollapsed);
-    
-    // Reset animation state after transition completes
-    setTimeout(() => {
-      setIsAnimating(false);
-    }, 500);
-  };
-
-  // Prevent hydration mismatch
-  if (!isMounted) {
-    return (
-      <div className="flex h-screen bg-[var(--background-secondary)] items-center justify-center">
-        <div className="text-[var(--foreground)]">Loading...</div>
-      </div>
-    );
-  }
-
-
-
+  // Welcome screen logic
   try {
     if (!hasSeenWelcome) {
       return <WelcomeScreen onEnter={() => setHasSeenWelcome(true)} />;
@@ -386,482 +292,298 @@ export default function AppLayout({
   }
 
   return (
-    <div className="flex h-screen relative">
-      {/* Floating Background Emojis */}
-      <FloatingEmojis />
-      
-      {/* Spotify Music Player Modal */}
-      {isMusicPlayerVisible && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-          <div className="bg-gray-900 rounded-2xl shadow-2xl border border-gray-700 w-full max-w-md max-h-[80vh] overflow-hidden">
-            {/* Modal Header */}
-            <div className="bg-black/20 backdrop-blur-sm border-b border-gray-700 p-4 flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
-                  <Music className="w-5 h-5 text-white" />
+    <AuthProvider>
+      <div className="flex h-screen relative">
+        {/* Floating Background Emojis */}
+        <FloatingEmojis />
+        
+        {/* Spotify Music Player Modal */}
+        {isMusicPlayerVisible && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+            <div className="bg-gray-900 rounded-2xl shadow-2xl border border-gray-700 w-full max-w-md max-h-[80vh] overflow-hidden">
+              {/* Modal Header */}
+              <div className="bg-black/20 backdrop-blur-sm border-b border-gray-700 p-4 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
+                    <Music className="w-5 h-5 text-white" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-white">Spotify Player</h3>
                 </div>
-                <h3 className="text-lg font-semibold text-white">Spotify Player</h3>
+                <button
+                  onClick={() => setIsMusicPlayerVisible(false)}
+                  className="text-gray-400 hover:text-white transition-colors p-1 rounded-lg hover:bg-gray-700"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
               </div>
-              <button
-                onClick={() => setIsMusicPlayerVisible(false)}
-                className="text-gray-400 hover:text-white transition-colors p-1 rounded-lg hover:bg-gray-700"
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
-            
-            {/* Spotify Search and Embed */}
-            <div className="p-4 space-y-4">
-              {/* Search Input */}
-              <div className="flex gap-2">
-                <input
-                  type="text"
-                  placeholder="Search for songs, artists, or albums..."
-                  className="flex-1 bg-gray-800 text-white placeholder-gray-400 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
-                  onKeyPress={(e) => {
-                    if (e.key === 'Enter') {
-                      const searchTerm = (e.target as HTMLInputElement).value.trim();
+              
+              {/* Spotify Search and Embed */}
+              <div className="p-4 space-y-4">
+                {/* Search Input */}
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    placeholder="Search for songs, artists, or albums..."
+                    className="flex-1 bg-gray-800 text-white placeholder-gray-400 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+                    onKeyPress={(e) => {
+                      if (e.key === 'Enter') {
+                        const searchTerm = (e.target as HTMLInputElement).value.trim();
+                        if (searchTerm) {
+                          const encodedSearch = encodeURIComponent(searchTerm);
+                          const embedUrl = `https://open.spotify.com/embed/search/${encodedSearch}`;
+                          const iframe = document.getElementById('spotify-iframe') as HTMLIFrameElement;
+                          if (iframe) iframe.src = embedUrl;
+                        }
+                      }
+                    }}
+                  />
+                  <button
+                    onClick={(e) => {
+                      const input = e.currentTarget.previousElementSibling as HTMLInputElement;
+                      const searchTerm = input.value.trim();
                       if (searchTerm) {
                         const encodedSearch = encodeURIComponent(searchTerm);
                         const embedUrl = `https://open.spotify.com/embed/search/${encodedSearch}`;
                         const iframe = document.getElementById('spotify-iframe') as HTMLIFrameElement;
                         if (iframe) iframe.src = embedUrl;
                       }
-                    }
-                  }}
-                />
-                <button
-                  onClick={(e) => {
-                    const input = e.currentTarget.previousElementSibling as HTMLInputElement;
-                    const searchTerm = input.value.trim();
-                    if (searchTerm) {
-                      const encodedSearch = encodeURIComponent(searchTerm);
-                      const embedUrl = `https://open.spotify.com/embed/search/${encodedSearch}`;
-                      const iframe = document.getElementById('spotify-iframe') as HTMLIFrameElement;
-                      if (iframe) iframe.src = embedUrl;
-                    }
-                  }}
-                  className="bg-green-500 hover:bg-green-600 text-white px-3 py-2 rounded-lg text-sm transition-colors"
-                >
-                  Search
-                </button>
-              </div>
-              
-              {/* Quick Access Buttons */}
-              <div className="flex flex-wrap gap-2">
-                <button
-                  onClick={() => {
-                    const iframe = document.getElementById('spotify-iframe') as HTMLIFrameElement;
-                    if (iframe) iframe.src = 'https://open.spotify.com/embed/playlist/37i9dQZF1DXcBWIGoYBM5M';
-                  }}
-                  className="bg-gray-700 hover:bg-gray-600 text-white px-3 py-2 rounded-lg text-sm transition-colors"
-                >
-                  Today's Top Hits
-                </button>
-                <button
-                  onClick={() => {
-                    const iframe = document.getElementById('spotify-iframe') as HTMLIFrameElement;
-                    if (iframe) iframe.src = 'https://open.spotify.com/embed/playlist/37i9dQZEVXbMDoHDwVN2tF';
-                  }}
-                  className="bg-gray-700 hover:bg-gray-600 text-white px-3 py-2 rounded-lg text-sm transition-colors"
-                >
-                  Global Top 50
-                </button>
-                <button
-                  onClick={() => {
-                    const iframe = document.getElementById('spotify-iframe') as HTMLIFrameElement;
-                    if (iframe) iframe.src = 'https://open.spotify.com/embed/playlist/37i9dQZF1DX5Ejj0EkURtP';
-                  }}
-                  className="bg-gray-700 hover:bg-gray-600 text-white px-3 py-2 rounded-lg text-sm transition-colors"
-                >
-                  All Out 2010s
-                </button>
-              </div>
-            </div>
-            
-            {/* Spotify iframe */}
-            <div className="h-80 w-full">
-              <iframe
-                id="spotify-iframe"
-                src="https://open.spotify.com/embed/playlist/37i9dQZF1DXcBWIGoYBM5M"
-                width="100%"
-                height="100%"
-                frameBorder="0"
-                allow="encrypted-media"
-                title="Spotify Web Player"
-                className="w-full h-full"
-              />
-            </div>
-            
-            {/* Footer */}
-            <div className="bg-black/20 backdrop-blur-sm border-t border-gray-700 p-3 text-center">
-              <a
-                href="https://open.spotify.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-green-400 hover:text-green-300 transition-colors text-sm flex items-center justify-center gap-2"
-              >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                </svg>
-                Open in Spotify
-              </a>
-            </div>
-          </div>
-        </div>
-      )}
-      
-
-      
-      {/* Sidebar */}
-      <aside 
-        className={`fixed left-0 top-0 h-full bg-[var(--background)] border-r border-[var(--border)] z-40 
-          transition-all duration-500 ease-out transform-gpu overflow-hidden
-          ${isSidebarCollapsed ? 'md:w-20' : 'md:w-64'}
-          ${isAnimating ? 'pointer-events-none' : ''}`}
-      >
-
-
-        <div className={`flex flex-col flex-grow pt-6 pb-4 transition-all duration-500 ease-out
-          ${isSidebarCollapsed ? 'overflow-hidden' : 'overflow-y-auto'}`}>
-          
-          {/* Logo/Brand - Top section */}
-          <div className={`flex items-center flex-shrink-0 px-6 mb-8 transition-all duration-500 ease-out
-            ${isSidebarCollapsed ? 'justify-center px-2' : ''}`}>
-            <div className="flex items-center space-x-3">
-              <div className="relative">
-                <img
-                  src={customLogo || '/next.svg'}
-                  alt="Niko Logo"
-                  className="w-10 h-10 rounded-lg cursor-pointer hover:scale-110 transition-transform duration-200"
-                  onClick={() => fileInputRef.current?.click()}
-                />
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/*"
-                  onChange={handleLogoUpload}
-                  className="hidden"
-                />
-              </div>
-              <h1 className={`text-xl font-semibold text-[var(--foreground)] transition-all duration-500 ease-out
-                ${isSidebarCollapsed ? 'opacity-0 scale-95 translate-x-2' : 'opacity-100 scale-100 translate-x-0'}`}>
-                Niko
-              </h1>
-            </div>
-          </div>
-          
-          {/* Main Navigation - Core app navigation */}
-          <div className={`flex-1 transition-all duration-500 ease-out mb-8
-            ${isSidebarCollapsed ? 'px-2' : 'px-6'}`}>
-            <Navigation isCollapsed={isSidebarCollapsed} />
-          </div>
-          
-          {/* Utility Controls - Theme and Music */}
-          <div className={`mb-6 transition-all duration-500 ease-out
-            ${isSidebarCollapsed ? 'px-2' : 'px-6'}`}>
-            <div className={`flex items-center justify-center gap-3 transition-all duration-500 ease-out
-              ${isSidebarCollapsed ? 'flex-col w-full' : ''}`}>
-              <ThemeToggle />
-            </div>
-          </div>
-          
-          {/* Fun Features Section - Holidays and Bunnies */}
-          {!isSidebarCollapsed && (
-            <div className={`transition-all duration-500 ease-out mb-6
-              ${isSidebarCollapsed ? 'px-2' : 'px-6'}`}>
-              
-              {/* Holiday Countdown */}
-              <div className="mb-6 p-4 bg-[var(--hover)] rounded-xl border border-[var(--border)]">
-                <div className="flex items-center justify-between mb-3">
-                  <div className="text-sm font-semibold text-[var(--foreground)]">
-                    🎉 Look Forward!
-                  </div>
-                  <button
-                    onClick={handleAddHoliday}
-                    className="text-xs text-[var(--foreground-tertiary)] hover:text-[var(--foreground)] p-1.5 hover:bg-[var(--active)] rounded-lg transition-colors"
-                    title="Add holiday"
+                    }}
+                    className="bg-green-500 hover:bg-green-600 text-white px-3 py-2 rounded-lg text-sm transition-colors"
                   >
-                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                    </svg>
+                    Search
                   </button>
                 </div>
-                <div className="space-y-2.5">
-                  {holidays.map((holiday) => (
-                    <HolidayCountdown 
-                      key={holiday.id}
-                      holiday={holiday}
-                      onEdit={handleEditHoliday}
-                      onDelete={handleDeleteHoliday}
-                    />
-                  ))}
+                
+                {/* Quick Access Buttons */}
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    onClick={() => {
+                      const iframe = document.getElementById('spotify-iframe') as HTMLIFrameElement;
+                      if (iframe) iframe.src = 'https://open.spotify.com/embed/playlist/37i9dQZF1DXcBWIGoYBM5M';
+                    }}
+                    className="bg-gray-700 hover:bg-gray-600 text-white px-3 py-2 rounded-lg text-sm transition-colors"
+                  >
+                    Today's Top Hits
+                  </button>
+                  <button
+                    onClick={() => {
+                      const iframe = document.getElementById('spotify-iframe') as HTMLIFrameElement;
+                      if (iframe) iframe.src = 'https://open.spotify.com/embed/playlist/37i9dQZF1DXcBWIGoYBM5M';
+                    }}
+                    className="bg-gray-700 hover:bg-gray-600 text-white px-3 py-2 rounded-lg text-sm transition-colors"
+                  >
+                    Today's Top Hits
+                  </button>
+                  <button
+                    onClick={() => {
+                      const iframe = document.getElementById('spotify-iframe') as HTMLIFrameElement;
+                      if (iframe) iframe.src = 'https://open.spotify.com/embed/playlist/37i9dQZF1DXcBWIGoYBM5M';
+                    }}
+                    className="bg-gray-700 hover:bg-gray-600 text-white px-3 py-2 rounded-lg text-sm transition-colors"
+                  >
+                    Today's Top Hits
+                  </button>
                 </div>
               </div>
               
-              {/* Animated Bunnies */}
-              <div className={`relative h-24 overflow-hidden bg-gradient-to-b ${skyTheme.background} rounded-xl border border-[var(--border)] p-4`}>
-                
-                {/* Sky Elements */}
-                <div className="absolute top-1 left-2 text-lg opacity-60 animate-pulse">{skyTheme.clouds}</div>
-                <div className="absolute top-2 right-3 text-sm opacity-50 animate-pulse" style={{ animationDelay: '1s' }}>{skyTheme.clouds}</div>
-                <div className="absolute top-3 left-8 text-base opacity-40 animate-pulse" style={{ animationDelay: '2s' }}>{skyTheme.clouds}</div>
-                
-                {/* Sun/Moon */}
-                <div className="absolute top-1 right-1 text-lg animate-pulse">{skyTheme.sun}</div>
-                
-                {/* Stars for night time */}
-                {skyTheme.mood === 'night' && (
-                  <>
-                    <div className="absolute top-2 left-6 text-xs opacity-80 animate-pulse">⭐</div>
-                    <div className="absolute top-3 right-6 text-xs opacity-60 animate-pulse" style={{ animationDelay: '0.5s' }}>⭐</div>
-                    <div className="absolute top-1 left-10 text-xs opacity-70 animate-pulse" style={{ animationDelay: '1.5s' }}>⭐</div>
-                    <div className="absolute top-4 right-1 text-xs opacity-50 animate-pulse" style={{ animationDelay: '2.5s' }}>⭐</div>
-                  </>
-                )}
-                
-                {/* Grass and Ground */}
-                <div className="absolute bottom-0 left-0 right-0 h-6 bg-gradient-to-t from-green-300 via-green-200 to-green-100 dark:from-green-700 dark:via-green-600 dark:to-green-500"></div>
-                
-                {/* Flowers and Plants */}
-                <div className="absolute bottom-2 left-3 text-xs">🌸</div>
-                <div className="absolute bottom-2 right-4 text-xs">🌻</div>
-                <div className="absolute bottom-2 left-12 text-xs">🌷</div>
-                <div className="absolute bottom-3 right-8 text-xs">🌱</div>
-                <div className="absolute bottom-3 left-6 text-xs">🌿</div>
-                
-                {/* Small decorative elements */}
-                <div className="absolute bottom-4 left-8 text-xs opacity-70">✨</div>
-                <div className="absolute bottom-4 right-2 text-xs opacity-70">✨</div>
-                
-                {/* White Bunny */}
-                <button
-                  onClick={(e) => feedBunny('white', e)}
-                  className="absolute cursor-pointer hover:scale-110 transition-all duration-200 z-10" 
-                  style={{ 
-                    left: isBunnyMovementReady ? `${bunnyPositions.white.x}px` : '32px',
-                    bottom: isBunnyMovementReady ? `${bunnyPositions.white.y}px` : '16px'
-                  }}
-                  title="Feed the white bunny! 🥕"
-                >
-                  <div className="text-2xl filter brightness-150 contrast-110 drop-shadow-[0_0_2px_rgba(0,0,0,0.3)] dark:drop-shadow-[0_0_2px_rgba(255,255,255,0.3)] animate-bounce" style={{ animationDelay: '0s' }}>🐰</div>
-                </button>
-                
-                {/* Brown Bunny */}
-                <button
-                  onClick={(e) => feedBunny('brown', e)}
-                  className="absolute cursor-pointer hover:scale-110 transition-all duration-200 z-10" 
-                  style={{ 
-                    left: isBunnyMovementReady ? `${bunnyPositions.brown.x}px` : '64px',
-                    bottom: isBunnyMovementReady ? `${bunnyPositions.brown.y}px` : '12px'
-                  }}
-                  title="Feed the brown bunny! 🥕"
-                >
-                  <div className="text-2xl filter sepia brightness-75 contrast-125 drop-shadow-[0_0_2px_rgba(0,0,0,0.3)] dark:drop-shadow-[0_0_2px_rgba(255,255,255,0.3)] animate-bounce" style={{ animationDelay: '1s' }}>🐰</div>
-                </button>
-                
-                {/* Bunny Trail */}
-                <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-pink-200 to-transparent opacity-30 animate-bunny-trail"></div>
-                
-                {/* Floating Treats */}
-                {bunnyTreats.map((treat) => (
-                  <div
-                    key={treat.id}
-                    className="absolute pointer-events-none animate-bounce z-20"
-                    style={{
-                      left: treat.x - 20,
-                      top: treat.y,
-                      zIndex: 1000
-                    }}
-                  >
-                    <div className="text-2xl animate-ping">
-                      {treat.type === 'carrot' && '🥕'}
-                      {treat.type === 'hay' && '🌾'}
-                      {treat.type === 'lettuce' && '🥬'}
-                      {treat.type === 'apple' && '🍎'}
-                    </div>
-                  </div>
-                ))}
+              {/* Spotify iframe */}
+              <div className="p-4">
+                <iframe
+                  id="spotify-iframe"
+                  src="https://open.spotify.com/embed/playlist/37i9dQZF1DXcBWIGoYBM5M"
+                  width="100%"
+                  height="300"
+                  frameBorder="0"
+                  allow="encrypted-media"
+                  className="rounded-lg"
+                />
               </div>
             </div>
-          )}
-          
-          {/* Collapse Toggle - Bottom section */}
-          <div className={`mt-auto pt-4 border-t border-[var(--border)] transition-all duration-500 ease-out
-            ${isSidebarCollapsed ? 'px-2' : 'px-6'}`}>
-            <div className="flex justify-center">
+          </div>
+        )}
+
+        {/* Sidebar */}
+        <div className={`flex flex-col bg-[var(--background-secondary)] border-r border-[var(--border)] transition-all duration-300 ease-in-out ${
+          isSidebarCollapsed ? 'w-16' : 'w-64'
+        }`}>
+          {/* Header */}
+          <div className="p-4 border-b border-[var(--border)]">
+            <div className="flex items-center justify-between">
+              {!isSidebarCollapsed && (
+                <SidebarUsername />
+              )}
               <button
-                onClick={toggleSidebar}
-                className="group flex items-center gap-2 px-3 py-2 text-sm text-[var(--foreground-secondary)] hover:text-[var(--foreground)] bg-[var(--background-secondary)] border border-[var(--border)] rounded-lg hover:bg-[var(--hover)] transition-all duration-200 hover:shadow-sm"
-                title={isSidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+                onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+                className="p-2 rounded-lg hover:bg-[var(--hover)] transition-colors"
               >
-                <div className={`transform transition-all duration-300 ${isSidebarCollapsed ? 'rotate-180' : 'rotate-0'}`}>
-                  <ChevronLeft className="w-4 h-4" />
-                </div>
-                {!isSidebarCollapsed && (
-                  <span className="text-xs font-medium">
-                    {isSidebarCollapsed ? 'Expand' : 'Collapse'}
-                  </span>
-                )}
+                <ChevronLeft className={`w-4 h-4 transition-transform duration-300 ${
+                  isSidebarCollapsed ? 'rotate-180' : ''
+                }`} />
               </button>
             </div>
           </div>
-        </div>
-      </aside>
 
-      {/* Mobile header */}
-      <div className="md:hidden fixed top-0 left-0 right-0 z-50 bg-[var(--background)] border-b border-[var(--border)] px-4 py-3">
-        <div className="flex items-center">
-          <div className="w-8 h-8 bg-gradient-to-br from-[#2e75cc] to-[#9b8afb] rounded-md flex items-center justify-center mr-3">
-            {customLogo ? (
-              <img 
-                src={customLogo} 
-                alt="Custom Logo" 
-                className="w-full h-full object-cover rounded-md"
-              />
-            ) : (
-              <span className="text-white font-bold text-lg">N</span>
-            )}
-          </div>
-          <h1 className="text-lg font-semibold text-[var(--foreground)]">
-            <SidebarUsername />
-          </h1>
-        </div>
-      </div>
+          {/* Navigation */}
+          <Navigation isCollapsed={isSidebarCollapsed} />
 
-                  {/* Main content */}
-            <div className={`md:flex md:flex-col md:flex-1 transition-all duration-300 ease-in-out ${
-              isSidebarCollapsed ? 'md:ml-20' : 'md:ml-64'
-            }`}>
-              <main className="flex-1 transition-all duration-500 ease-out transform-gpu">
-                <div className="p-6 w-full relative" style={{ 
-                  background: 'transparent',
-                  boxShadow: 'none',
-                  outline: 'none',
-                  border: 'none'
-                }}>
-                  {children}
-                </div>
-              </main>
+          {/* Holiday Countdown */}
+          <div className="mt-auto p-4 border-t border-[var(--border)]">
+            <div className="space-y-3">
+              {holidays.map((holiday) => (
+                <HolidayCountdown
+                  key={holiday.id}
+                  holiday={holiday}
+                  onEdit={handleEditHoliday}
+                  onDelete={handleDeleteHoliday}
+                />
+              ))}
+              <button
+                onClick={handleAddHoliday}
+                className="w-full p-2 text-xs text-[var(--foreground-secondary)] hover:text-[var(--foreground)] hover:bg-[var(--hover)] rounded-lg transition-colors"
+              >
+                + Add Holiday
+              </button>
             </div>
-      
-      {/* Holiday Editor Modal */}
-      {showHolidayEditor && (
-        <div className="fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-in fade-in duration-200">
-          <div className="bg-white dark:bg-[var(--background)] rounded-xl shadow-2xl border border-[var(--border)] w-full max-w-md animate-in slide-in-from-bottom-4 duration-300">
-            <div className="p-6">
-              <h3 className="text-lg font-semibold text-[var(--foreground)] mb-4">
-                {editingHoliday ? 'Edit Holiday' : 'Add New Holiday'}
-              </h3>
-              
-              <div className="space-y-4">
-                {/* Emoji Picker */}
-                <div>
-                  <label className="block text-sm font-medium text-[var(--foreground-secondary)] mb-2">
-                    Emoji
-                  </label>
-                  <div className="grid grid-cols-8 gap-2">
-                    {['🎉', '🎃', '🦃', '🎄', '🎊', '🎈', '🎁', '⭐', '🌙', '☀️', '🌸', '🍁', '❄️', '🔥', '💫', '✨'].map((emoji) => (
-                      <button
-                        key={emoji}
-                        onClick={() => {
-                          if (editingHoliday) {
-                            setEditingHoliday({ ...editingHoliday, emoji });
-                          } else {
-                            setNewHoliday({ ...newHoliday, emoji });
-                          }
-                        }}
-                        className={`p-2 rounded-lg text-lg hover:bg-[var(--hover)] transition-colors ${
-                          (editingHoliday ? editingHoliday.emoji : newHoliday.emoji) === emoji 
-                            ? 'bg-[var(--primary)] text-white' 
-                            : 'bg-[var(--background-secondary)]'
-                        }`}
-                      >
-                        {emoji}
-                      </button>
-                    ))}
+          </div>
+
+          {/* Theme Toggle */}
+          <div className="p-4 border-t border-[var(--border)]">
+            <ThemeToggle />
+          </div>
+        </div>
+
+        {/* Main Content */}
+        <main className="flex-1 overflow-hidden">
+          <div className="h-full">
+            <div className="p-6 w-full relative" style={{ 
+              background: 'transparent',
+              boxShadow: 'none',
+              outline: 'none',
+              border: 'none'
+            }}>
+              {children}
+            </div>
+          </div>
+        </main>
+        
+        {/* Holiday Editor Modal */}
+        {showHolidayEditor && (
+          <div className="fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-in fade-in duration-200">
+            <div className="bg-white dark:bg-[var(--background)] rounded-xl shadow-2xl border border-[var(--border)] w-full max-w-md animate-in slide-in-from-bottom-4 duration-300">
+              <div className="p-6">
+                <h3 className="text-lg font-semibold text-[var(--foreground)] mb-4">
+                  {editingHoliday ? 'Edit Holiday' : 'Add New Holiday'}
+                </h3>
+                
+                <div className="space-y-4">
+                  {/* Emoji Picker */}
+                  <div>
+                    <label className="block text-sm font-medium text-[var(--foreground-secondary)] mb-2">
+                      Emoji
+                    </label>
+                    <div className="grid grid-cols-8 gap-2">
+                      {['🎉', '🎃', '🦃', '🎄', '🎊', '🎈', '🎁', '⭐', '🌙', '☀️', '🌸', '🍁', '❄️', '🔥', '💫', '✨'].map((emoji) => (
+                        <button
+                          key={emoji}
+                          onClick={() => {
+                            if (editingHoliday) {
+                              setEditingHoliday({ ...editingHoliday, emoji });
+                            } else {
+                              setNewHoliday({ ...newHoliday, emoji });
+                            }
+                          }}
+                          className={`p-2 rounded-lg text-lg hover:bg-[var(--hover)] transition-colors ${
+                            (editingHoliday ? editingHoliday.emoji : newHoliday.emoji) === emoji 
+                              ? 'bg-[var(--primary)] text-white' 
+                              : 'bg-[var(--background-secondary)]'
+                          }`}
+                        >
+                          {emoji}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  
+                  {/* Name Input */}
+                  <div>
+                    <label className="block text-sm font-medium text-[var(--foreground-secondary)] mb-2">
+                      Holiday Name
+                    </label>
+                    <input
+                      type="text"
+                      value={editingHoliday ? editingHoliday.name : newHoliday.name}
+                      onChange={(e) => {
+                        if (editingHoliday) {
+                          setEditingHoliday({ ...editingHoliday, name: e.target.value });
+                        } else {
+                          setNewHoliday({ ...newHoliday, name: e.target.value });
+                        }
+                      }}
+                      placeholder="e.g., My Birthday"
+                      className="w-full px-3 py-2 border border-[var(--border)] rounded-lg bg-[var(--background)] text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
+                    />
+                  </div>
+                  
+                  {/* Date Input */}
+                  <div>
+                    <label className="block text-sm font-medium text-[var(--foreground-secondary)] mb-2">
+                      Date (MM-DD)
+                    </label>
+                    <input
+                      type="text"
+                      value={editingHoliday ? editingHoliday.date : newHoliday.date}
+                      onChange={(e) => {
+                        if (editingHoliday) {
+                          setEditingHoliday({ ...editingHoliday, date: e.target.value });
+                        } else {
+                          setNewHoliday({ ...newHoliday, date: e.target.value });
+                        }
+                      }}
+                      placeholder="e.g., My Birthday"
+                      className="w-full px-3 py-2 border border-[var(--border)] rounded-lg bg-[var(--background)] text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
+                    />
                   </div>
                 </div>
                 
-                {/* Name Input */}
-                <div>
-                  <label className="block text-sm font-medium text-[var(--foreground-secondary)] mb-2">
-                    Holiday Name
-                  </label>
-                  <input
-                    type="text"
-                    value={editingHoliday ? editingHoliday.name : newHoliday.name}
-                    onChange={(e) => {
-                      if (editingHoliday) {
-                        setEditingHoliday({ ...editingHoliday, name: e.target.value });
-                      } else {
-                        setNewHoliday({ ...newHoliday, name: e.target.value });
-                      }
-                    }}
-                    placeholder="e.g., My Birthday"
-                    className="w-full px-3 py-2 border border-[var(--border)] rounded-lg bg-[var(--background)] text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
-                  />
+                <div className="flex gap-3 mt-6">
+                  <button
+                    onClick={() => setShowHolidayEditor(false)}
+                    className="flex-1 px-4 py-2 border border-[var(--border)] text-[var(--foreground)] rounded-lg hover:bg-[var(--hover)] transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleSaveHoliday}
+                    disabled={!(editingHoliday ? editingHoliday.name && editingHoliday.date : newHoliday.name && newHoliday.date)}
+                    className="flex-1 px-4 py-2 bg-[var(--primary)] text-white rounded-lg hover:bg-[var(--primary-hover)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {editingHoliday ? 'Save Changes' : 'Add Holiday'}
+                  </button>
                 </div>
                 
-                {/* Date Input */}
-                <div>
-                  <label className="block text-sm font-medium text-[var(--foreground-secondary)] mb-2">
-                    Date (MM-DD)
-                  </label>
-                  <input
-                    type="text"
-                    value={editingHoliday ? editingHoliday.date : newHoliday.date}
-                    onChange={(e) => {
-                      if (editingHoliday) {
-                        setEditingHoliday({ ...editingHoliday, date: e.target.value });
-                      } else {
-                        setNewHoliday({ ...newHoliday, date: e.target.value });
-                      }
+                {/* Delete Button for Editing */}
+                {editingHoliday && (
+                  <button
+                    onClick={() => {
+                      handleDeleteHoliday(editingHoliday.id);
+                      setShowHolidayEditor(false);
                     }}
-                    placeholder="e.g., 12-25"
-                    className="w-full px-3 py-2 border border-[var(--border)] rounded-lg bg-[var(--background)] text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)]"
-                  />
-                </div>
+                    className="w-full mt-3 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
+                  >
+                    Delete Holiday
+                  </button>
+                )}
               </div>
-              
-              <div className="flex gap-3 mt-6">
-                <button
-                  onClick={() => setShowHolidayEditor(false)}
-                  className="flex-1 px-4 py-2 border border-[var(--border)] text-[var(--foreground)] rounded-lg hover:bg-[var(--hover)] transition-colors"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleSaveHoliday}
-                  disabled={!(editingHoliday ? editingHoliday.name && editingHoliday.date : newHoliday.name && newHoliday.date)}
-                  className="flex-1 px-4 py-2 bg-[var(--primary)] text-white rounded-lg hover:bg-[var(--primary-hover)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {editingHoliday ? 'Save Changes' : 'Add Holiday'}
-                </button>
-              </div>
-              
-              {/* Delete Button for Editing */}
-              {editingHoliday && (
-                <button
-                  onClick={() => {
-                    handleDeleteHoliday(editingHoliday.id);
-                    setShowHolidayEditor(false);
-                  }}
-                  className="w-full mt-3 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
-                >
-                  Delete Holiday
-                </button>
-              )}
             </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* Music Player */}
-      
+        {/* Music Player */}
+        
 
-    </div>
+      </div>
+    </AuthProvider>
   );
 }
