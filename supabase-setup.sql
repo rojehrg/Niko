@@ -127,5 +127,5 @@ GRANT ALL ON public.events TO authenticated;
 GRANT EXECUTE ON FUNCTION public.create_user_profile TO authenticated;
 GRANT EXECUTE ON FUNCTION public.update_updated_at_column TO authenticated;
 
--- Disable email confirmation requirement for simplified single-user auth
-UPDATE auth.config SET confirm_email_change = false, enable_signup = true, enable_confirmations = false WHERE id = 1;
+-- Note: Email confirmation settings can be configured in Supabase Dashboard > Authentication > Settings
+-- For single-user use, you may want to disable email confirmation in the dashboard
