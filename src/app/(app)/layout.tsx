@@ -3,12 +3,12 @@
 import { Navigation } from "@/components/ui/navigation";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { FloatingEmojis } from "@/components/ui/floating-emojis";
-import { SidebarUsername } from "@/components/ui/sidebar-username";
+
 
 import { WelcomeScreen } from "@/components/welcome/welcome-screen";
 import { useWelcomeStore } from "@/lib/stores/welcome-store";
 import { useState, useRef, useEffect } from "react";
-import { ChevronLeft, Music } from "lucide-react";
+import { ChevronLeft, Music, ChevronRight, BookOpen } from "lucide-react";
 
 
 // Holiday Countdown Component
@@ -290,6 +290,10 @@ export default function AppLayout({
     // Skip welcome screen if there's an error
   }
 
+  const toggleSidebar = () => {
+    setIsSidebarCollapsed(!isSidebarCollapsed);
+  };
+
   return (
     <div className="flex h-screen relative">
       {/* Floating Background Emojis */}
@@ -406,21 +410,22 @@ export default function AppLayout({
       <div className={`flex flex-col bg-[var(--background-secondary)] border-r border-[var(--border)] transition-all duration-300 ease-in-out ${
         isSidebarCollapsed ? 'w-16' : 'w-64'
       }`}>
-        {/* Header */}
-        <div className="p-4 border-b border-[var(--border)]">
-          <div className="flex items-center justify-between">
+        {/* Logo and Toggle */}
+        <div className="flex items-center justify-between p-4 border-b border-[var(--border)]">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 bg-[var(--primary)] rounded-lg flex items-center justify-center">
+              <BookOpen className="w-5 h-5 text-white" />
+            </div>
             {!isSidebarCollapsed && (
-              <SidebarUsername />
+              <span className="text-lg font-bold text-[var(--foreground)]">StudyBuddy</span>
             )}
-            <button
-              onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
-              className="p-2 rounded-lg hover:bg-[var(--hover)] transition-colors"
-            >
-              <ChevronLeft className={`w-4 h-4 transition-transform duration-300 ${
-                isSidebarCollapsed ? 'rotate-180' : ''
-              }`} />
-            </button>
           </div>
+          <button
+            onClick={toggleSidebar}
+            className="p-2 hover:bg-[var(--hover)] rounded-lg transition-colors"
+          >
+            {isSidebarCollapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
+          </button>
         </div>
 
         {/* Navigation */}

@@ -1,152 +1,98 @@
 "use client";
 
-import { useEffect, useState, useMemo } from 'react';
-import { useAuth } from '@/lib/contexts/auth-context';
+import { useEffect, useState } from 'react';
 
-interface FloatingEmoji {
+interface Emoji {
   id: number;
   emoji: string;
   x: number;
   y: number;
   speed: number;
-  rotation: number;
-  scale: number;
-  opacity: number;
-  sway: number;
-  swaySpeed: number;
-  swayAmount: number;
+  direction: number;
 }
 
 export function FloatingEmojis() {
-  const [emojis, setEmojis] = useState<FloatingEmoji[]>([]);
-  const [isClient, setIsClient] = useState(false);
-  const { userProfile } = useAuth();
-  const [selectedSubject, setSelectedSubject] = useState<string>('general');
+  const [emojis, setEmojis] = useState<Emoji[]>([]);
 
-  // Get emojis based on selected subject
-  const getEmojisForSubject = (subject: string) => {
-    switch (subject) {
-      case 'biology':
-        return ['🧬', '🌱', '🔬', '🦠', '🧫', '🌿', '🧍', '🦎', '🦋', '🌸', '🌺', '🌻', '🌳', '🌲', '🍄', '🦠', '🧬', '🦴', '🫀', '🫁', '🧠', '🩸', '💉', '🩹', '🩺', '🚑', '⚕️'];
-      case 'chemistry':
-        return ['⚗️', '🧪', '🔥', '💨', '🧊', '🔮', '💥', '⚡', '🌪️', '💧', '💦', '🌊', '☁️', '🌫️', '💨', '🔥', '💥', '⚡', '🧪', '⚗️', '🔬', '🔭', '📊', '📈', '📉'];
-      case 'physics':
-        return ['⚡', '🌌', '🛰️', '🌠', '🔭', '🪐', '📡', '🌍', '🌙', '☀️', '⭐', '🌟', '💫', '✨', '🔋', '💡', '🔌', '⚡', '🌊', '🌪️', '🔥', '💥', '🧲', '⚖️', '📏', '📐'];
-      case 'mathematics':
-        return ['📐', '➗', '🔢', '✖️', '➕', '📊', '📏', '🔺', '🔻', '⭕', '🔴', '🔵', '🟡', '🟢', '🟣', '⚫', '⚪', '🔶', '🔷', '💎', '💠', '🔸', '🔹', '🔻', '🔺'];
-      case 'computer-science':
-        return ['💻', '🤖', '📊', '📱', '🖥️', '🔧', '👨‍💻', '👩‍💻', '⌨️', '🖱️', '🖲️', '💾', '💿', '📀', '🔌', '🔋', '💡', '🔍', '🔎', '📡', '🛰️', '🌐', '🔗', '🔒', '🔓', '🔐'];
-      case 'pa':
-        return ['🏥', '💊', '🩺', '🩻', '🦴', '🧬', '🫀', '🫁', '🧠', '🩸', '💉', '🩹', '🚑', '⚕️', '👨‍⚕️', '👩‍⚕️', '🏨', '💊', '💉', '🩺', '🩻', '🦴', '🧬', '🫀', '🫁', '🧠', '🩸'];
-      case 'english':
-        return ['📚', '✍️', '📝', '📰', '🖋️', '📖', '📜', '📄', '📃', '📑', '🔖', '📌', '📍', '📎', '🖇️', '📐', '✏️', '🖊️', '🖌️', '🖍️', '✂️', '🗂️', '📁', '📂', '🗄️', '📋'];
-      case 'history':
-        return ['📜', '🏛️', '🗿', '⚔️', '📯', '🏺', '⛩️', '🏰', '🏯', '🗼', '🗽', '🏛️', '🏺', '📜', '⚔️', '🛡️', '🗡️', '⚔️', '🏹', '🛡️', '🗿', '🏺', '📜', '⚔️', '🏛️', '🗿'];
-      case 'geography':
-        return ['🌍', '🗺️', '⛰️', '🌊', '🏕️', '🏜️', '🏝️', '🏔️', '🌋', '🏖️', '🏞️', '🏟️', '🏗️', '🏘️', '🏙️', '🏚️', '🏛️', '🏜️', '🏝️', '🏞️', '🏟️', '🏠', '🏡', '🏢', '🏣', '🏤'];
-      case 'economics':
-        return ['💰', '📈', '🏦', '📉', '🪙', '💳', '🛒', '💵', '💴', '💶', '💷', '🪙', '💎', '💠', '🔶', '🔷', '💎', '💠', '🔶', '🔷', '💎', '💠', '🔶', '🔷', '💎', '💠'];
-      case 'psychology':
-        return ['🧠', '💭', '🔎', '📘', '🤯', '😌', '👥', '🤔', '💡', '🔍', '🔎', '📊', '📈', '📉', '📊', '📈', '📉', '📊', '📈', '📉', '📊', '📈', '📉', '📊', '📈', '📉'];
-      case 'art':
-        return ['🎨', '🖌️', '🖼️', '🖍️', '✏️', '🎭', '🪡', '🧵', '🪢', '🧶', '🪡', '🧵', '🪢', '🧶', '🪡', '🧵', '🪢', '🧶', '🪡', '🧵', '🪢', '🧶', '🪡', '🧵', '🪢', '🧶'];
-      case 'music':
-        return ['🎵', '🎶', '🎹', '🥁', '🎸', '🎤', '🎷', '🎺', '🎻', '🪕', '🪘', '🎼', '🎤', '🎧', '🎼', '🎤', '🎧', '🎼', '🎤', '🎧', '🎼', '🎤', '🎧', '🎼', '🎤', '🎧'];
-      case 'sports':
-        return ['⚽', '🏀', '🏋️', '🎾', '🏈', '⚾', '🥇', '🏆', '🎯', '🎳', '🏓', '🏸', '🏒', '🏑', '🏏', '🏐', '🏉', '🎱', '🏓', '🏸', '🏒', '🏑', '🏏', '🏐', '🏉', '🎱'];
-      default:
-        return ['🌟', '✨', '💫', '⭐', '🌙', '☀️', '🌈', '🎈', '🎉', '🎊', '🎋', '🎍', '🎎', '🎏', '🎐', '🎀', '🎁', '🎂', '🎃', '🎄', '🎅', '🎆', '🎇', '🎈', '🎉', '🎊'];
-    }
-  };
-
-  // Update selected subject when userProfile changes
-  useEffect(() => {
-    if (userProfile?.selectedSubject) {
-      setSelectedSubject(userProfile.selectedSubject);
-    }
-  }, [userProfile]);
-
-  // Mix of nature and medical emojis - moved outside component to prevent recreation
-  const emojiList = useMemo(() => getEmojisForSubject(selectedSubject), [selectedSubject]);
+  // Static default emoji set - no more subject dependency
+  const defaultEmojis = ['📚', '✏️', '💡', '🎯', '🚀', '⭐', '💪', '🎉', '🌟', '💭'];
 
   useEffect(() => {
-    setIsClient(true);
-  }, []);
-
-  useEffect(() => {
-    if (!isClient) return;
-
-    // Create initial emoji with snow-like properties
-    const createEmoji = (id: number): FloatingEmoji => ({
-      id,
-      emoji: emojiList[Math.floor(Math.random() * emojiList.length)],
-      x: Math.random() * 120, // percentage - extend beyond 100% for full coverage
-      y: -20, // start above screen
-      speed: 0.04 + Math.random() * 0.12, // varied fall speed
-      rotation: Math.random() * 360,
-      scale: 0.8 + Math.random() * 1.2, // 0.8 to 2.0 (much bigger size)
-      opacity: 0.3 + Math.random() * 0.3, // 0.3 to 0.6 (more transparent)
-      sway: Math.random() * Math.PI * 2, // random starting sway phase
-      swaySpeed: 0.02 + Math.random() * 0.03, // sway speed
-      swayAmount: 0.8 + Math.random() * 2.0, // sway amount
-    });
-
-    // Initialize with many more emojis for full page coverage
-    const initialEmojis = Array.from({ length: 25 }, (_, i) => {
-      const emoji = createEmoji(i);
-      emoji.y = Math.random() * 140; // spread them across screen initially
-      emoji.x = Math.random() * 120; // spread horizontally across full width
-      return emoji;
-    });
+    // Create initial emojis
+    const initialEmojis: Emoji[] = defaultEmojis.map((emoji, index) => ({
+      id: index,
+      emoji,
+      x: Math.random() * (typeof window !== 'undefined' ? window.innerWidth : 1200),
+      y: Math.random() * (typeof window !== 'undefined' ? window.innerHeight : 800),
+      speed: 0.5 + Math.random() * 1,
+      direction: Math.random() * Math.PI * 2
+    }));
 
     setEmojis(initialEmojis);
 
-    let emojiId = initialEmojis.length;
+    // Animation loop
+    const animate = () => {
+      setEmojis(prevEmojis => 
+        prevEmojis.map(emoji => {
+          let newX = emoji.x + Math.cos(emoji.direction) * emoji.speed;
+          let newY = emoji.y + Math.sin(emoji.direction) * emoji.speed;
 
-    const animateEmojis = () => {
-      setEmojis(prevEmojis => {
-        const updatedEmojis = prevEmojis
-          .map(emoji => ({
+          // Bounce off edges
+          if (newX <= 0 || newX >= (typeof window !== 'undefined' ? window.innerWidth : 1200)) {
+            emoji.direction = Math.PI - emoji.direction;
+            newX = Math.max(0, Math.min(newX, (typeof window !== 'undefined' ? window.innerWidth : 1200)));
+          }
+          if (newY <= 0 || newY >= (typeof window !== 'undefined' ? window.innerHeight : 800)) {
+            emoji.direction = -emoji.direction;
+            newY = Math.max(0, Math.min(newY, (typeof window !== 'undefined' ? window.innerHeight : 800)));
+          }
+
+          return {
             ...emoji,
-            y: emoji.y + emoji.speed,
-            rotation: emoji.rotation + 0.1, // very slow rotation
-            sway: emoji.sway + emoji.swaySpeed, // update sway phase
-            x: emoji.x + Math.sin(emoji.sway) * emoji.swayAmount * 0.015, // gentle side-to-side sway like snow
-          }))
-          .filter(emoji => emoji.y < 120); // remove emojis that fall off screen
-
-        // Constantly add new emojis for continuous rain effect
-        if (Math.random() < 0.015 && updatedEmojis.length < 35) { // high spawn rate and max count
-          const newEmoji = createEmoji(emojiId++);
-          newEmoji.x = Math.random() * 120; // random horizontal position
-          updatedEmojis.push(newEmoji);
-        }
-
-        return updatedEmojis;
-      });
+            x: newX,
+            y: newY
+          };
+        })
+      );
     };
 
-    const interval = setInterval(animateEmojis, 80); // faster animation updates for smoother rain
-
+    const interval = setInterval(animate, 50);
     return () => clearInterval(interval);
-  }, [isClient]);
+  }, []);
 
+  // Handle window resize
+  useEffect(() => {
+    const handleResize = () => {
+      setEmojis(prevEmojis => 
+        prevEmojis.map(emoji => ({
+          ...emoji,
+          x: Math.min(emoji.x, window.innerWidth),
+          y: Math.min(emoji.y, window.innerHeight)
+        }))
+      );
+    };
 
-
-  if (!isClient) return null;
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   return (
     <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
-      {emojis.map(emoji => (
+      {emojis.map((emoji) => (
         <div
           key={emoji.id}
-          className="absolute text-3xl transition-all duration-75 ease-out"
+          className="absolute text-2xl opacity-20 select-none"
           style={{
-            left: `${emoji.x}%`,
-            top: `${emoji.y}%`,
-            transform: `rotate(${emoji.rotation}deg) scale(${emoji.scale})`,
-            opacity: emoji.opacity,
-            filter: 'blur(0.2px)', // minimal blur for crisp appearance
+            left: emoji.x,
+            top: emoji.y,
+            transform: 'translate(-50%, -50%)',
+            transition: 'opacity 0.3s ease-in-out'
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.opacity = '0.6';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.opacity = '0.2';
           }}
         >
           {emoji.emoji}

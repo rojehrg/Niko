@@ -1,36 +1,105 @@
 -- Supabase Setup for StudyBuddy App - Fixed Version
 -- Run these commands in your Supabase SQL Editor
 
--- 1. Drop existing table and functions to start fresh
-DROP TABLE IF EXISTS user_profiles CASCADE;
-DROP FUNCTION IF EXISTS public.handle_new_user() CASCADE;
-DROP FUNCTION IF EXISTS update_updated_at_column() CASCADE;
+-- Drop existing tables and functions if they exist
+DROP TABLE IF EXISTS public.events CASCADE;
+DROP TABLE IF EXISTS public.exams CASCADE;
+DROP TABLE IF EXISTS public.user_profiles CASCADE;
+DROP FUNCTION IF EXISTS public.create_user_profile CASCADE;
+DROP FUNCTION IF EXISTS public.handle_new_user CASCADE;
 
--- 2. Create user_profiles table WITHOUT foreign key constraint initially
-CREATE TABLE user_profiles (
-  id UUID PRIMARY KEY,
+-- Create user_profiles table
+CREATE TABLE public.user_profiles (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   name TEXT NOT NULL,
-  email TEXT NOT NULL,
-  selectedSubject TEXT,
+  email TEXT UNIQUE NOT NULL,
+  selected_subject TEXT,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- 3. Enable Row Level Security (RLS)
-ALTER TABLE user_profiles ENABLE ROW LEVEL SECURITY;
+-- Create exams table
+CREATE TABLE public.exams (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID NOT NULL,
+  title TEXT NOT NULL,
+  subject TEXT NOT NULL,
+  exam_date DATE NOT NULL,
+  reminder_days INTEGER DEFAULT 7,
+  notes TEXT,
+  status TEXT DEFAULT 'upcoming' CHECK (status IN ('upcoming', 'completed', 'overdue')),
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
 
--- 4. Create RLS policies
-CREATE POLICY "Users can view own profile" ON user_profiles
+-- Create events table for holidays/events with countdown functionality
+CREATE TABLE public.events (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID NOT NULL,
+  title TEXT NOT NULL,
+  event_date DATE NOT NULL,
+  event_time TIME,
+  description TEXT,
+  category TEXT DEFAULT 'general' CHECK (category IN ('holiday', 'birthday', 'anniversary', 'deadline', 'general')),
+  is_recurring BOOLEAN DEFAULT false,
+  recurring_pattern TEXT, -- 'yearly', 'monthly', 'weekly'
+  reminder_days INTEGER DEFAULT 1,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Create indexes for better performance
+CREATE INDEX idx_exams_user_id ON public.exams(user_id);
+CREATE INDEX idx_exams_exam_date ON public.exams(exam_date);
+CREATE INDEX idx_exams_status ON public.exams(status);
+CREATE INDEX idx_events_user_id ON public.events(user_id);
+CREATE INDEX idx_events_event_date ON public.events(event_date);
+CREATE INDEX idx_events_category ON public.events(category);
+
+-- Enable Row Level Security
+ALTER TABLE public.user_profiles ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.exams ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.events ENABLE ROW LEVEL SECURITY;
+
+-- Create RLS policies
+CREATE POLICY "Users can view own profile" ON public.user_profiles
   FOR SELECT USING (auth.uid()::text = id::text);
 
-CREATE POLICY "Users can insert own profile" ON user_profiles
-  FOR INSERT WITH CHECK (auth.uid()::text = id::text);
-
-CREATE POLICY "Users can update own profile" ON user_profiles
+CREATE POLICY "Users can update own profile" ON public.user_profiles
   FOR UPDATE USING (auth.uid()::text = id::text);
 
--- 5. Create function to update updated_at timestamp
-CREATE OR REPLACE FUNCTION update_updated_at_column()
+CREATE POLICY "Users can insert own profile" ON public.user_profiles
+  FOR INSERT WITH CHECK (auth.uid()::text = id::text);
+
+CREATE POLICY "Users can view own exams" ON public.exams
+  FOR ALL USING (auth.uid()::text = user_id::text);
+
+CREATE POLICY "Users can view own events" ON public.events
+  FOR ALL USING (auth.uid()::text = user_id::text);
+
+-- Create function to create user profile
+CREATE OR REPLACE FUNCTION public.create_user_profile(
+  user_name TEXT,
+  user_email TEXT,
+  user_subject TEXT DEFAULT NULL
+)
+RETURNS UUID
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+DECLARE
+  profile_id UUID;
+BEGIN
+  INSERT INTO public.user_profiles (id, name, email, selected_subject)
+  VALUES (auth.uid(), user_name, user_email, user_subject)
+  RETURNING id INTO profile_id;
+  
+  RETURN profile_id;
+END;
+$$;
+
+-- Create function to update updated_at timestamp
+CREATE OR REPLACE FUNCTION public.update_updated_at_column()
 RETURNS TRIGGER AS $$
 BEGIN
   NEW.updated_at = NOW();
@@ -38,49 +107,25 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- 6. Create trigger to update updated_at on profile changes
+-- Create triggers for updated_at
 CREATE TRIGGER update_user_profiles_updated_at
-  BEFORE UPDATE ON user_profiles
-  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+  BEFORE UPDATE ON public.user_profiles
+  FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
 
--- 7. Grant necessary permissions
-GRANT USAGE ON SCHEMA public TO anon, authenticated;
-GRANT ALL ON public.user_profiles TO anon, authenticated;
+CREATE TRIGGER update_exams_updated_at
+  BEFORE UPDATE ON public.exams
+  FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
 
--- 8. Create a simple function to manually create profiles (we'll call this from the app)
-CREATE OR REPLACE FUNCTION create_user_profile(
-  user_id UUID,
-  user_name TEXT,
-  user_email TEXT
-)
-RETURNS BOOLEAN AS $$
-BEGIN
-  INSERT INTO user_profiles (id, name, email)
-  VALUES (user_id, user_name, user_email)
-  ON CONFLICT (id) DO UPDATE SET
-    name = EXCLUDED.name,
-    email = EXCLUDED.email,
-    updated_at = NOW();
-  
-  RETURN TRUE;
-EXCEPTION
-  WHEN OTHERS THEN
-    RAISE LOG 'Failed to create/update user profile: %', SQLERRM;
-    RETURN FALSE;
-END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+CREATE TRIGGER update_events_updated_at
+  BEFORE UPDATE ON public.events
+  FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
 
--- 9. Grant execute permission on the function
-GRANT EXECUTE ON FUNCTION create_user_profile(UUID, TEXT, TEXT) TO authenticated;
+-- Grant permissions
+GRANT ALL ON public.user_profiles TO authenticated;
+GRANT ALL ON public.exams TO authenticated;
+GRANT ALL ON public.events TO authenticated;
+GRANT EXECUTE ON FUNCTION public.create_user_profile TO authenticated;
+GRANT EXECUTE ON FUNCTION public.update_updated_at_column TO authenticated;
 
--- 10. Disable email confirmation requirement (for single-person use)
--- This will make signups work immediately without email verification
-UPDATE auth.config 
-SET confirm_email_change = false, 
-    enable_signup = true, 
-    enable_confirmations = false
-WHERE id = 1;
-
--- 11. Now add the foreign key constraint (after table is populated)
--- ALTER TABLE user_profiles ADD CONSTRAINT user_profiles_id_fkey 
---   FOREIGN KEY (id) REFERENCES auth.users(id) ON DELETE CASCADE;
+-- Disable email confirmation requirement for simplified single-user auth
+UPDATE auth.config SET confirm_email_change = false, enable_signup = true, enable_confirmations = false WHERE id = 1;
