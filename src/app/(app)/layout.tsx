@@ -426,6 +426,85 @@ export default function AppLayout({
         {/* Navigation */}
         <Navigation isCollapsed={isSidebarCollapsed} />
 
+        {/* Animated Bunnies Section */}
+        {!isSidebarCollapsed && (
+          <div className="p-4 border-t border-[var(--border)]">
+            <div className="relative h-24 overflow-hidden bg-gradient-to-b from-blue-200 via-blue-100 to-green-200 dark:from-blue-800/40 dark:via-blue-700/30 dark:to-green-800/40 rounded-xl border border-[var(--border)] p-4">
+              
+              {/* Sky Elements */}
+              <div className="absolute top-1 left-2 text-lg opacity-60 animate-pulse">☁️</div>
+              <div className="absolute top-2 right-3 text-sm opacity-50 animate-pulse" style={{ animationDelay: '1s' }}>☁️</div>
+              <div className="absolute top-3 left-8 text-base opacity-40 animate-pulse" style={{ animationDelay: '2s' }}>☁️</div>
+              
+              {/* Sun */}
+              <div className="absolute top-1 right-1 text-lg animate-pulse">☀️</div>
+              
+              {/* Grass and Ground */}
+              <div className="absolute bottom-0 left-0 right-0 h-6 bg-gradient-to-t from-green-300 via-green-200 to-green-100 dark:from-green-700 dark:via-green-600 dark:to-green-500"></div>
+              
+              {/* Flowers and Plants */}
+              <div className="absolute bottom-2 left-3 text-xs">🌸</div>
+              <div className="absolute bottom-2 right-4 text-xs">🌻</div>
+              <div className="absolute bottom-2 left-12 text-xs">🌷</div>
+              <div className="absolute bottom-3 right-8 text-xs">🌱</div>
+              <div className="absolute bottom-3 left-6 text-xs">🌿</div>
+              
+              {/* Small decorative elements */}
+              <div className="absolute bottom-4 left-8 text-xs opacity-70">✨</div>
+              <div className="absolute bottom-4 right-2 text-xs opacity-70">✨</div>
+              
+              {/* White Bunny */}
+              <button
+                onClick={(e) => feedBunny('white', e)}
+                className="absolute cursor-pointer hover:scale-110 transition-all duration-200 z-10" 
+                style={{ 
+                  left: isBunnyMovementReady ? `${bunnyPositions.white.x}px` : '32px',
+                  bottom: isBunnyMovementReady ? `${bunnyPositions.white.y}px` : '16px'
+                }}
+                title="Feed the white bunny! 🥕"
+              >
+                <div className="text-2xl filter brightness-150 contrast-110 drop-shadow-[0_0_2px_rgba(0,0,0,0.3)] dark:drop-shadow-[0_0_2px_rgba(255,255,255,0.3)] animate-bounce" style={{ animationDelay: '0s' }}>🐰</div>
+              </button>
+              
+              {/* Brown Bunny */}
+              <button
+                onClick={(e) => feedBunny('brown', e)}
+                className="absolute cursor-pointer hover:scale-110 transition-all duration-200 z-10" 
+                style={{ 
+                  left: isBunnyMovementReady ? `${bunnyPositions.brown.x}px` : '64px',
+                  bottom: isBunnyMovementReady ? `${bunnyPositions.brown.y}px` : '12px'
+                }}
+                title="Feed the brown bunny! 🥕"
+              >
+                <div className="text-2xl filter sepia brightness-75 contrast-125 drop-shadow-[0_0_2px_rgba(0,0,0,0.3)] dark:drop-shadow-[0_0_2px_rgba(255,255,255,0.3)] animate-bounce" style={{ animationDelay: '1s' }}>🐰</div>
+              </button>
+              
+              {/* Bunny Trail */}
+              <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-pink-200 to-transparent opacity-30 animate-bunny-trail"></div>
+              
+              {/* Floating Treats */}
+              {bunnyTreats.map((treat) => (
+                <div
+                  key={treat.id}
+                  className="absolute pointer-events-none animate-bounce z-20"
+                  style={{
+                    left: treat.x - 20,
+                    top: treat.y,
+                    zIndex: 1000
+                  }}
+                >
+                  <div className="text-2xl animate-ping">
+                    {treat.type === 'carrot' && '🥕'}
+                    {treat.type === 'hay' && '🌾'}
+                    {treat.type === 'lettuce' && '🥬'}
+                    {treat.type === 'apple' && '🍎'}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Holiday Countdown */}
         <div className="mt-auto p-4 border-t border-[var(--border)]">
           <div className="space-y-3">
