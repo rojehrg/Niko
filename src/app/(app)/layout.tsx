@@ -452,13 +452,18 @@ export default function AppLayout({
             <div className={`flex items-center justify-center gap-3 transition-all duration-500 ease-out
               ${isSidebarCollapsed ? 'flex-col w-full' : ''}`}>
               <ThemeToggle />
-              <MusicToggle
+              {/* TEST: Simple button instead of MusicToggle */}
+              <button
                 onClick={() => {
-                  console.log('Music toggle clicked! Current state:', isMusicPlayerVisible);
+                  console.log('TEST BUTTON CLICKED! Current state:', isMusicPlayerVisible);
                   setIsMusicPlayerVisible(!isMusicPlayerVisible);
                   console.log('New state will be:', !isMusicPlayerVisible);
                 }}
-              />
+                className="w-10 h-10 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+                title="Test Music Button"
+              >
+                🎵
+              </button>
             </div>
           </div>
           

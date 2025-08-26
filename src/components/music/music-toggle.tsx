@@ -8,11 +8,16 @@ interface MusicToggleProps {
 }
 
 export default function MusicToggle({ onClick }: MusicToggleProps) {
+  const handleClick = () => {
+    console.log('MusicToggle button clicked!');
+    onClick();
+  };
+
   return (
     <Button
       variant="ghost"
       size="icon"
-      onClick={onClick}
+      onClick={handleClick}
       className="w-10 h-10 rounded-lg hover:bg-[var(--hover)] transition-colors"
       title="Music Player"
     >
