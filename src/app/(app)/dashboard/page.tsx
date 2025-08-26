@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { BookOpen, Briefcase, StickyNote, Calendar } from "lucide-react";
 import { useFlashcardStore } from "@/lib/stores/flashcard-store";
@@ -14,6 +14,9 @@ export default function DashboardPage() {
   const { notes, fetchNotes } = useNotesStore();
   const { jobs, fetchJobs } = useJobsStore();
   const { exams, fetchExams } = useExamsStore();
+  
+  // Get user data for personalization
+  const [userData, setUserData] = useState<{ name: string; phone: string; email: string } | null>(null);
   
   // Calculate job stats manually since getStats might not exist
   const jobStats = {
@@ -41,18 +44,38 @@ export default function DashboardPage() {
     };
     
     fetchData();
+    
+    // Get user data from localStorage
+    const storedUserData = localStorage.getItem('userData');
+    if (storedUserData) {
+      setUserData(JSON.parse(storedUserData));
+    }
   }, [fetchNotes, fetchFlashcards, fetchSets, fetchJobs, fetchExams]);
   
   return (
     <div className="min-h-screen p-6 max-w-7xl mx-auto">
       {/* Modern Header */}
-      <div className="mb-8">
-        <h1 className="text-4xl font-bold text-[var(--foreground)] tracking-tight mb-3">
-          Welcome back, Niko
-        </h1>
-        <p className="text-lg text-[var(--foreground-secondary)] font-medium">
-          Your personal learning and productivity hub
-        </p>
+      <div className="mb-8 flex items-center justify-between">
+        <div>
+          <h1 className="text-4xl font-bold text-[var(--foreground)] tracking-tight mb-3">
+            Welcome back, {userData?.name || 'Niko'}! 👋
+          </h1>
+          <p className="text-lg text-[var(--foreground-secondary)] font-medium">
+            Your personal learning and productivity hub
+          </p>
+        </div>
+        
+        <button
+          onClick={() => {
+            localStorage.removeItem('userData');
+            localStorage.removeItem('isAuthenticated');
+            localStorage.removeItem('selectedSubject');
+            window.location.href = '/';
+          }}
+          className="px-4 py-2 text-sm font-medium text-[var(--foreground-secondary)] hover:text-[var(--foreground)] hover:bg-[var(--hover)] rounded-lg transition-all duration-200"
+        >
+          Sign Out
+        </button>
       </div>
 
       {/* Quick Stats Overview */}
