@@ -106,7 +106,7 @@ export default function FlashcardsPage() {
         <Link href="/flashcards/create">
           <Button className="bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white px-6 py-3">
             <Plus className="mr-2 h-5 w-5" />
-            Create Flashcard
+            Create Flashcardr
           </Button>
         </Link>
         <Link href="/flashcards/study">
@@ -126,9 +126,9 @@ export default function FlashcardsPage() {
       {/* Content Display */}
       <div className="space-y-6">
         {isLoading ? (
-          <Card className="border-[var(--border)] bg-[var(--background)]">
+          <Card className="border-[var(--border)] bg-white dark:bg-[var(--background)]">
             <CardContent className="text-center py-16">
-              <div className="inline-flex items-center justify-center w-20 h-20 bg-[var(--background-secondary)] border border-[var(--border)] rounded-full mb-6">
+              <div className="inline-flex items-center justify-center w-20 h-20 bg-gray-100 dark:bg-[var(--background-secondary)] border border-[var(--border)] rounded-full mb-6">
                 <div className="w-10 h-10 border-4 border-[var(--border)] border-t-[var(--primary)] rounded-full animate-spin"></div>
               </div>
               <h3 className="text-2xl font-semibold text-[var(--foreground)] mb-3">
@@ -140,7 +140,7 @@ export default function FlashcardsPage() {
             </CardContent>
           </Card>
         ) : sets.length === 0 ? (
-          <Card className="border-[var(--border)] bg-[var(--background)]">
+          <Card className="border-[var(--border)] bg-white dark:bg-[var(--background)]">
             <CardContent className="text-center py-16">
               <div className="inline-flex items-center justify-center mb-6">
                 <img src="/sprites/flashcards.png" alt="Flashcards" className="h-16 w-16" />
@@ -169,7 +169,7 @@ export default function FlashcardsPage() {
               return (
                 <Card 
                   key={set.id} 
-                  className="border-[var(--border)] bg-[var(--background)] hover:shadow-lg transition-all duration-200 hover:scale-105 group cursor-pointer"
+                  className="border-[var(--border)] bg-white dark:bg-[var(--background)] hover:shadow-lg transition-all duration-200 hover:scale-105 group cursor-pointer"
                   style={{ borderLeft: `4px solid ${getColorValue(set.color)}` }}
                   onClick={() => {
                     const url = `/flashcards?set=${set.id}`;
@@ -178,7 +178,7 @@ export default function FlashcardsPage() {
                 >
                   <CardContent className="p-4">
                     <div className="flex items-start justify-between mb-2">
-                      <div className="text-xs text-[var(--foreground-secondary)] bg-[var(--background-secondary)] px-2 py-0.5 rounded-full">
+                      <div className="text-xs text-[var(--foreground-secondary)] bg-gray-100 dark:bg-[var(--background-secondary)] px-2 py-0.5 rounded-full">
                         {cardCount} card{cardCount !== 1 ? 's' : ''}
                       </div>
                     </div>
