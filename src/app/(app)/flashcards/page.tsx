@@ -2,53 +2,30 @@
 
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { BookOpen, Plus, Play, Search, Calendar, Clock } from "lucide-react";
+import { BookOpen, Plus, Calendar, Clock, Trash2, Eye } from "lucide-react";
 import Link from "next/link";
 import { useFlashcardStore } from "@/lib/stores/flashcard-store";
 import { Button } from "@/components/ui/button";
-import { useSearchParams } from "next/navigation";
 
 export default function FlashcardsPage() {
-  const searchParams = useSearchParams();
-  const selectedSetId = searchParams.get('set');
-  
   const { 
     flashcards, 
     sets, 
     fetchFlashcards,
-    fetchSets
+    fetchSets,
+    removeFlashcard
   } = useFlashcardStore();
   
-  const [filteredCards, setFilteredCards] = useState(flashcards);
-  const [selectedSet, setSelectedSet] = useState(selectedSetId || 'all');
-  const [searchTerm, setSearchTerm] = useState('');
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [cardToDelete, setCardToDelete] = useState<string | null>(null);
+  const [showPreviewModal, setShowPreviewModal] = useState(false);
+  const [selectedSetForPreview, setSelectedSetForPreview] = useState<string | null>(null);
 
   useEffect(() => {
     fetchFlashcards();
     fetchSets();
   }, [fetchFlashcards, fetchSets]);
 
-  useEffect(() => {
-    let cards = selectedSet === 'all' ? flashcards : flashcards.filter(card => card.setId === selectedSet);
-    
-    if (searchTerm) {
-      cards = cards.filter(card => 
-        card.front.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        card.back.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-    }
-    
-    setFilteredCards(cards);
-  }, [selectedSet, flashcards, searchTerm]);
-
-  const handleSetChange = (setId: string) => {
-    setSelectedSet(setId);
-    const url = setId === 'all' ? '/flashcards' : `/flashcards?set=${setId}`;
-    window.history.pushState({}, '', url);
-  };
-
-  const currentSet = sets.find(set => set.id === selectedSet);
-  
   const formatDate = (date: Date) => {
     return new Intl.DateTimeFormat('en-US', {
       month: 'short',
@@ -66,6 +43,14 @@ export default function FlashcardsPage() {
     if (diffInHours < 168) return `${Math.floor(diffInHours / 24)}d ago`;
     return formatDate(date);
   };
+
+  const confirmDelete = async () => {
+    if (cardToDelete) {
+      await removeFlashcard(cardToDelete);
+      setShowDeleteModal(false);
+      setCardToDelete(null);
+    }
+  };
   
   return (
     <div className="min-h-screen p-6 max-w-7xl mx-auto">
@@ -75,7 +60,7 @@ export default function FlashcardsPage() {
           Flashcards
         </h1>
         <p className="text-[var(--foreground-secondary)] text-lg">
-          {filteredCards.length} card{filteredCards.length !== 1 ? 's' : ''} • {sets.length} set{sets.length !== 1 ? 's' : ''}
+          {sets.length} set{sets.length !== 1 ? 's' : ''}
         </p>
       </div>
 
@@ -95,232 +80,230 @@ export default function FlashcardsPage() {
         </Link>
       </div>
 
-      {/* Search and Filters */}
-      <div className="mb-8 space-y-4">
-        {/* Search */}
-        <div className="relative max-w-md">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[var(--foreground-tertiary)] h-4 w-4" />
-          <input
-            type="text"
-            placeholder="Search flashcards..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 border border-[var(--border)] rounded-lg bg-[var(--background)] text-[var(--foreground)] focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent transition-all duration-200"
-          />
-        </div>
-        
-        {/* Set Filter */}
-        <div className="flex flex-wrap gap-2">
-          <Button
-            variant={selectedSet === 'all' ? 'default' : 'outline'}
-            size="sm"
-            onClick={() => handleSetChange('all')}
-            className={selectedSet === 'all' 
-              ? 'bg-[var(--primary)] text-white' 
-              : 'border-[var(--border)] text-[var(--foreground)] hover:bg-[var(--hover)]'
-            }
-          >
-            All Sets
-          </Button>
-          {sets.map((set) => (
-            <Button
-              key={set.id}
-              variant={selectedSet === set.id ? 'default' : 'outline'}
-              size="sm"
-              onClick={() => handleSetChange(set.id)}
-              className={selectedSet === set.id 
-                ? 'bg-[var(--primary)] text-white' 
-                : 'border-[var(--border)] text-[var(--foreground)] hover:bg-[var(--hover)]'
-              }
-            >
-              <div className={`w-3 h-3 ${set.color} rounded-full mr-2`}></div>
-              {set.name}
-            </Button>
-          ))}
-        </div>
+      {/* Content Display */}
+      <div className="space-y-6">
+        {sets.length === 0 ? (
+          <Card className="border-[var(--border)] bg-[var(--background)]">
+            <CardContent className="text-center py-16">
+              <div className="inline-flex items-center justify-center w-20 h-20 bg-[var(--background-secondary)] border border-[var(--border)] rounded-full mb-6">
+                <BookOpen className="h-10 w-10 text-[var(--foreground-tertiary)]" />
+              </div>
+              <h3 className="text-2xl font-semibold text-[var(--foreground)] mb-3">
+                No flashcard sets yet
+              </h3>
+              <p className="text-[var(--foreground-secondary)] mb-6 text-lg">
+                Create your first set to start organizing flashcards
+              </p>
+              <div className="flex gap-4 justify-center">
+                <Link href="/flashcards/sets">
+                  <Button className="bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white px-6 py-3">
+                    <Plus className="mr-2 h-5 w-5" />
+                    Create First Set
+                  </Button>
+                </Link>
+              </div>
+            </CardContent>
+          </Card>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {sets.map((set) => {
+              const cardCount = flashcards.filter(card => card.setId === set.id).length;
+              return (
+                <Card 
+                  key={set.id} 
+                  className="border-[var(--border)] bg-[var(--background)] hover:shadow-lg transition-all duration-200 hover:scale-105 group cursor-pointer"
+                  onClick={() => {
+                    const url = `/flashcards?set=${set.id}`;
+                    window.history.pushState({}, '', url);
+                  }}
+                >
+                  <CardContent className="p-6">
+                    <div className="flex items-start justify-between mb-4">
+                      <div className={`w-12 h-12 ${set.color} rounded-lg flex items-center justify-center`}>
+                        <BookOpen className="h-6 w-6 text-white" />
+                      </div>
+                      <div className="text-xs text-[var(--foreground-secondary)] bg-[var(--background-secondary)] px-2 py-1 rounded-full">
+                        {cardCount} card{cardCount !== 1 ? 's' : ''}
+                      </div>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <h3 className="text-lg font-semibold text-[var(--foreground)] group-hover:text-[var(--primary)] transition-colors">
+                        {set.name}
+                      </h3>
+                      {set.description && (
+                        <p className="text-sm text-[var(--foreground-secondary)] line-clamp-2">
+                          {set.description}
+                        </p>
+                      )}
+                                              <div className="flex items-center justify-between pt-2">
+                          <span className="text-sm text-[var(--foreground-secondary)]">
+                            Created {formatDate(set.createdAt)}
+                          </span>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSelectedSetForPreview(set.id);
+                              setShowPreviewModal(true);
+                            }}
+                            className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 text-[var(--foreground-secondary)] hover:text-[var(--foreground)] hover:bg-[var(--hover)]"
+                          >
+                            Preview
+                          </Button>
+                        </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
+        )}
       </div>
 
-      {/* Study Session Button */}
-      {filteredCards.length > 0 && (
-        <div className="mb-8">
-          <Link href={`/flashcards/study${selectedSet !== 'all' ? `?set=${selectedSet}` : ''}`}>
-            <Button className="bg-green-600 hover:bg-green-700 text-white px-6 py-3">
-              <Play className="mr-2 h-5 w-5" />
-              Start Study Session
-            </Button>
-          </Link>
+      {/* Delete Confirmation Modal */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-6 z-50">
+          <Card className="bg-[var(--background)] border-[var(--border)] shadow-2xl max-w-md w-full">
+            <CardHeader className="pb-4">
+              <CardTitle className="text-xl font-bold text-[var(--foreground)] flex items-center gap-2">
+                <Trash2 className="h-5 w-5 text-red-500" />
+                Delete Flashcard
+              </CardTitle>
+              <p className="text-[var(--foreground-secondary)]">
+                Are you sure you want to delete this flashcard? This action cannot be undone.
+              </p>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex gap-3 pt-2">
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setShowDeleteModal(false);
+                    setCardToDelete(null);
+                  }}
+                  className="flex-1 border-[var(--border)] text-[var(--foreground)] hover:bg-[var(--hover)]"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={confirmDelete}
+                  className="flex-1 bg-red-600 hover:bg-red-700 text-white"
+                >
+                  Delete
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       )}
 
-      {/* Content Display */}
-      <div className="space-y-6">
-        {selectedSet === 'all' ? (
-          // Show Flashcard Sets when no specific set is selected
-          <>
-            {sets.length === 0 ? (
-              <Card className="border-[var(--border)] bg-[var(--background)]">
-                <CardContent className="text-center py-16">
-                  <div className="inline-flex items-center justify-center w-20 h-20 bg-[var(--background-secondary)] border border-[var(--border)] rounded-full mb-6">
-                    <BookOpen className="h-10 w-10 text-[var(--foreground-tertiary)]" />
-                  </div>
-                  <h3 className="text-2xl font-semibold text-[var(--foreground)] mb-3">
-                    No flashcard sets yet
-                  </h3>
-                  <p className="text-[var(--foreground-secondary)] mb-6 text-lg">
-                    Create your first set to start organizing flashcards
+      {/* Preview Modal */}
+      {showPreviewModal && selectedSetForPreview && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-6 z-50">
+          <Card className="bg-[var(--background)] border-[var(--border)] shadow-2xl max-w-4xl w-full max-h-[90vh]">
+            <CardHeader className="pb-4 border-b border-[var(--border)]">
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="text-2xl font-bold text-[var(--foreground)] flex items-center gap-3">
+                    <div className={`w-8 h-8 ${sets.find(s => s.id === selectedSetForPreview)?.color || 'bg-gray-400'} rounded-lg flex items-center justify-center`}>
+                      <BookOpen className="h-5 w-5 text-white" />
+                    </div>
+                    {sets.find(s => s.id === selectedSetForPreview)?.name || 'Unknown Set'}
+                  </CardTitle>
+                  <p className="text-[var(--foreground-secondary)] mt-2">
+                    Preview all flashcards in this set
                   </p>
-                  <div className="flex gap-4 justify-center">
-                    <Link href="/flashcards/sets">
-                      <Button className="bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white px-6 py-3">
-                        <Plus className="mr-2 h-5 w-5" />
-                        Create First Set
-                      </Button>
-                    </Link>
-                  </div>
-                </CardContent>
-              </Card>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {sets.map((set) => {
-                  const cardCount = flashcards.filter(card => card.setId === set.id).length;
-                  return (
-                    <Card 
-                      key={set.id} 
-                      className="border-[var(--border)] bg-[var(--background)] hover:shadow-lg transition-all duration-200 hover:scale-105 group cursor-pointer"
-                      onClick={() => handleSetChange(set.id)}
+                </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    setShowPreviewModal(false);
+                    setSelectedSetForPreview(null);
+                  }}
+                  className="text-[var(--foreground-secondary)] hover:text-[var(--foreground)]"
+                >
+                  ✕
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent className="p-0">
+              <div className="max-h-[60vh] overflow-y-auto p-6 space-y-4">
+                {flashcards
+                  .filter(card => card.setId === selectedSetForPreview)
+                  .map((card, index) => (
+                    <div 
+                      key={card.id} 
+                      className="border border-[var(--border)] rounded-lg p-4 bg-[var(--background-secondary)] hover:bg-[var(--hover)] transition-colors"
                     >
-                      <CardContent className="p-6">
-                        <div className="flex items-start justify-between mb-4">
-                          <div className={`w-12 h-12 ${set.color} rounded-lg flex items-center justify-center`}>
-                            <BookOpen className="h-6 w-6 text-white" />
-                          </div>
-                          <div className="text-xs text-[var(--foreground-tertiary)] bg-[var(--background-secondary)] px-2 py-1 rounded-full">
-                            {cardCount} card{cardCount !== 1 ? 's' : ''}
-                          </div>
+                      <div className="flex items-start justify-between mb-3">
+                        <span className="text-sm font-medium text-[var(--foreground-secondary)] bg-[var(--background)] px-2 py-1 rounded">
+                          Card {index + 1}
+                        </span>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => {
+                            setCardToDelete(card.id);
+                            setShowDeleteModal(true);
+                            setShowPreviewModal(false);
+                          }}
+                          className="text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {/* Question Side */}
+                        <div className="space-y-2">
+                          <h4 className="text-sm font-semibold text-[var(--foreground)] flex items-center gap-2">
+                            <div className="w-2 h-2 bg-[var(--primary)] rounded-full"></div>
+                            Question
+                          </h4>
+                          {card.questionImage && card.questionImage !== "placeholder_url" && !card.questionImage.endsWith('.png') && !card.questionImage.endsWith('.jpg') && !card.questionImage.endsWith('.jpeg') && !card.questionImage.endsWith('.gif') && (
+                            <div className="mb-2">
+                              <img 
+                                src={card.questionImage} 
+                                alt="Question" 
+                                className="w-full h-24 object-cover rounded border border-[var(--border)]"
+                              />
+                            </div>
+                          )}
+                          <p className="text-[var(--foreground)] text-sm leading-relaxed">
+                            {card.front}
+                          </p>
                         </div>
                         
+                        {/* Answer Side */}
                         <div className="space-y-2">
-                          <h3 className="text-lg font-semibold text-[var(--foreground)] group-hover:text-[var(--primary)] transition-colors">
-                            {set.name}
-                          </h3>
-                          {set.description && (
-                            <p className="text-sm text-[var(--foreground-secondary)] line-clamp-2">
-                              {set.description}
-                            </p>
-                          )}
-                          <div className="flex items-center justify-between pt-2">
-                            <span className="text-sm text-[var(--foreground-tertiary)]">
-                              Created {formatDate(set.createdAt)}
-                            </span>
-                            <div className="text-[var(--foreground-secondary)] group-hover:text-[var(--primary)] transition-colors">
-                              →
+                          <h4 className="text-sm font-semibold text-[var(--foreground)] flex items-center gap-2">
+                            <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                            Answer
+                          </h4>
+                          {card.answerImage && card.answerImage !== "placeholder_url" && !card.answerImage.endsWith('.png') && !card.answerImage.endsWith('.jpg') && !card.answerImage.endsWith('.jpeg') && !card.answerImage.endsWith('.gif') && (
+                            <div className="mb-2">
+                              <img 
+                                src={card.answerImage} 
+                                alt="Answer" 
+                                className="w-full h-24 object-cover rounded border border-[var(--border)]"
+                              />
                             </div>
-                          </div>
+                          )}
+                          <p className="text-[var(--foreground)] text-sm leading-relaxed">
+                            {card.back}
+                          </p>
                         </div>
-                      </CardContent>
-                    </Card>
-                  );
-                })}
+                      </div>
+                    </div>
+                  ))}
               </div>
-            )}
-          </>
-        ) : (
-          // Show individual flashcards when a specific set is selected
-          <>
-            {filteredCards.length === 0 ? (
-              <Card className="border-[var(--border)] bg-[var(--background)]">
-                <CardContent className="text-center py-16">
-                  <div className="inline-flex items-center justify-center w-20 h-20 bg-[var(--background-secondary)] border border-[var(--border)] rounded-full mb-6">
-                    <BookOpen className="h-10 w-10 text-[var(--foreground-tertiary)]" />
-                  </div>
-                  <h3 className="text-2xl font-semibold text-[var(--foreground)] mb-3">
-                    {searchTerm 
-                      ? 'No flashcards found' 
-                      : `No cards in ${currentSet?.name || 'this set'}`
-                    }
-                  </h3>
-                  <p className="text-[var(--foreground-secondary)] mb-6 text-lg">
-                    {searchTerm 
-                      ? 'Try adjusting your search'
-                      : 'Create your first flashcard to start studying'
-                    }
-                  </p>
-                  <div className="flex gap-4 justify-center">
-                    <Link href="/flashcards/create">
-                      <Button className="bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white px-6 py-3">
-                        <Plus className="mr-2 h-5 w-5" />
-                        Create Your First Flashcard
-                      </Button>
-                    </Link>
-                    {searchTerm && (
-                      <Button 
-                        variant="outline" 
-                        onClick={() => setSearchTerm('')}
-                        className="border-[var(--border)] text-[var(--foreground)] hover:bg-[var(--hover)] px-6 py-3"
-                      >
-                        Clear Search
-                      </Button>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filteredCards.map((card) => (
-                  <Card 
-                    key={card.id} 
-                    className="border-[var(--border)] bg-[var(--background)] hover:shadow-lg transition-all duration-200 hover:scale-105 group cursor-pointer"
-                  >
-                    <CardHeader className="pb-3">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <div className={`w-3 h-3 ${sets.find(s => s.id === card.setId)?.color || 'bg-gray-400'} rounded-full`}></div>
-                          <span className="text-sm text-[var(--foreground-secondary)]">
-                            {sets.find(s => s.id === card.setId)?.name || 'Unknown Set'}
-                          </span>
-                        </div>
-                      </div>
-                    </CardHeader>
-                    
-                    <CardContent className="space-y-4">
-                      <div className="space-y-2">
-                        <div className="flex items-center gap-2">
-                          <span className="text-sm font-medium text-[var(--foreground-secondary)]">Question:</span>
-                        </div>
-                        <p className="text-[var(--foreground)] font-medium leading-relaxed">
-                          {card.front}
-                        </p>
-                      </div>
-                      
-                      <div className="space-y-2">
-                        <div className="flex items-center gap-2">
-                          <span className="text-sm font-medium text-[var(--foreground-secondary)]">Answer:</span>
-                        </div>
-                        <p className="text-[var(--foreground-secondary)] leading-relaxed line-clamp-3">
-                          {card.back}
-                        </p>
-                      </div>
-                      
-                      <div className="flex items-center justify-between text-sm text-[var(--foreground-tertiary)]">
-                        <div className="flex items-center gap-1">
-                          <Calendar className="h-4 w-4" />
-                          {formatDate(card.createdAt)}
-                        </div>
-                        {card.lastStudied && (
-                          <div className="flex items-center gap-1">
-                            <Clock className="h-4 w-4" />
-                            {formatTimeAgo(card.lastStudied)}
-                          </div>
-                        )}
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            )}
-          </>
-        )}
-      </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
     </div>
   );
 }
