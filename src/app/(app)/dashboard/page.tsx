@@ -200,7 +200,6 @@ export default function DashboardPage() {
                 <div className="text-center py-6">
                   <Clock className="w-12 h-12 text-[var(--foreground-tertiary)] mx-auto mb-3" />
                   <p className="text-[var(--foreground-secondary)] mb-3">No exams scheduled yet</p>
-                  <button className="text-sm text-[var(--primary)] hover:underline">Add your first exam</button>
                 </div>
               ) : (
                 <div className="space-y-3">
