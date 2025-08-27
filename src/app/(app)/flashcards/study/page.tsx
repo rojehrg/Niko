@@ -363,12 +363,11 @@ export default function StudyPage() {
           <div className="mb-8 flex justify-center">
             <div className="flex items-center gap-4">
               <Button
-                variant="outline"
                 onClick={() => {
                   markAsIncorrect();
                   setTimeout(() => handleNext(), 500);
                 }}
-                className="border-red-300 text-red-700 hover:bg-red-200 dark:border-red-700 dark:text-red-400 dark:hover:bg-red-950/20 h-12 px-6 transition-all duration-200"
+                className="bg-red-500 hover:bg-red-600 text-white h-12 px-6 transition-all duration-200 font-medium"
                 disabled={studiedCards.has(currentCard.id)}
               >
                 <img 

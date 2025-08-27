@@ -296,7 +296,7 @@ export default function CreateFlashcardPage() {
                   </Button>
                   <Link
                     href="/flashcards"
-                    className="inline-flex items-center justify-center rounded-lg text-sm font-medium bg-red-100 hover:bg-red-200 text-[var(--foreground)] border border-red-300 px-6 py-3 transition-all duration-200 h-12 dark:bg-red-900/30 dark:hover:bg-red-800/40 dark:border-red-700"
+                    className="inline-flex items-center justify-center rounded-lg text-sm font-medium bg-red-500 hover:bg-red-600 text-white px-6 py-3 transition-all duration-200 h-12"
                   >
                     Cancel
                   </Link>
@@ -478,7 +478,7 @@ export default function CreateFlashcardPage() {
                 <Button
                   variant="outline"
                   onClick={() => setShowSetCreator(false)}
-                  className="flex-1 bg-red-100 hover:bg-red-200 text-[var(--foreground)] py-2.5 px-4 rounded-lg transition-all duration-200 font-medium dark:bg-red-900/30 dark:hover:bg-red-800/40"
+                  className="flex-1 bg-red-500 hover:bg-red-600 text-white py-2.5 px-4 rounded-lg transition-all duration-200 font-medium"
                 >
                   Cancel
                 </Button>

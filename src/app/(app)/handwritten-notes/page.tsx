@@ -384,12 +384,12 @@ export default function HandwrittenNotesPage() {
               </div>
               
               <div className="flex gap-3 mt-6">
-                <button
-                  onClick={() => setIsUploadModalOpen(false)}
-                  className="flex-1 bg-red-100 hover:bg-red-200 text-[var(--foreground)] py-2.5 px-4 rounded-lg transition-all duration-200 font-medium dark:bg-red-900/30 dark:hover:bg-red-800/40"
-                >
-                  Cancel
-                </button>
+                                  <button
+                    onClick={() => setIsUploadModalOpen(false)}
+                    className="flex-1 bg-red-500 hover:bg-red-600 text-white py-2.5 px-4 rounded-lg transition-all duration-200 font-medium"
+                  >
+                    Cancel
+                  </button>
                 <button
                   onClick={() => setIsUploadModalOpen(false)}
                   className="flex-1 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white px-4 py-2 rounded-lg transition-colors"
@@ -436,12 +436,12 @@ export default function HandwrittenNotesPage() {
               </div>
               
               <div className="flex gap-3 mt-6">
-                <button
-                  onClick={() => setIsCreateSetModalOpen(false)}
-                  className="flex-1 bg-red-100 hover:bg-red-200 text-[var(--foreground)] py-2.5 px-4 rounded-lg transition-all duration-200 font-medium dark:bg-red-900/30 dark:hover:bg-red-800/40"
-                >
-                  Cancel
-                </button>
+                                  <button
+                    onClick={() => setIsCreateSetModalOpen(false)}
+                    className="flex-1 bg-red-500 hover:bg-red-600 text-white py-2.5 px-4 rounded-lg transition-all duration-200 font-medium"
+                  >
+                    Cancel
+                  </button>
                 <button
                   onClick={() => setIsCreateSetModalOpen(false)}
                   className="flex-1 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white px-4 py-2 rounded-lg transition-colors"

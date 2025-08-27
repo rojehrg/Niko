@@ -155,7 +155,7 @@ export default function JobForm({ onSubmit, onCancel, initialData }: JobFormProp
           <Button
             type="button"
             onClick={onCancel}
-            className="flex-1 bg-red-100 hover:bg-red-200 text-[var(--foreground)] py-2.5 px-4 rounded-lg transition-all duration-200 font-medium dark:bg-red-900/30 dark:hover:bg-red-800/40"
+            className="flex-1 bg-red-500 hover:bg-red-600 text-white py-2.5 px-4 rounded-lg transition-all duration-200 font-medium"
           >
             Cancel
           </Button>
