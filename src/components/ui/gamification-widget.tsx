@@ -105,7 +105,7 @@ export function GamificationWidget() {
                 setIsAddingGoal(false)
                 setNewGoalText('')
               }}
-              className="p-1 text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors"
+              className="p-1 text-red-500 hover:text-red-600 hover:bg-red-200 dark:hover:bg-red-900/20 rounded transition-colors"
             >
               <img 
                 src="/sprites/x.png" 
@@ -153,7 +153,7 @@ export function GamificationWidget() {
             </span>
             <button
               onClick={() => removeGoal(goal.id)}
-              className="opacity-0 group-hover:opacity-100 p-1 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-all duration-200"
+              className="opacity-0 group-hover:opacity-100 p-1 text-red-500 hover:bg-red-200 dark:hover:bg-red-900/20 rounded transition-all duration-200"
             >
               <img 
                 src="/sprites/x.png" 

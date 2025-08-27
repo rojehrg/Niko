@@ -81,7 +81,7 @@ export function JobCard({ job, onEdit, onDelete }: JobCardProps) {
                   onDelete(job.id);
                   setShowActions(false);
                 }}
-                className="w-full px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50 rounded-b-lg"
+                className="w-full px-3 py-2 text-left text-sm text-red-600 hover:bg-red-200 rounded-b-lg"
               >
                 <Trash2 className="h-3 w-3 mr-2 inline" />
                 Delete

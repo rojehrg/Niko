@@ -2,9 +2,9 @@
 
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { BookOpen, Plus, Calendar, Clock, Trash2, Eye } from "lucide-react";
+import { BookOpen, Plus, Calendar, Clock, Trash2, Eye, Brain } from "lucide-react";
 import Link from "next/link";
-import { useFlashcardStore, type Flashcard } from "@/lib/stores/flashcard-store";
+import { useFlashcardStore } from "@/lib/stores/flashcard-store";
 import { Button } from "@/components/ui/button";
 
 export default function FlashcardsPage() {
@@ -13,11 +13,11 @@ export default function FlashcardsPage() {
     sets, 
     fetchFlashcards,
     fetchSets,
-    removeFlashcard
+    removeFlashcard,
+    isLoading
   } = useFlashcardStore();
   
-  // Ensure flashcards are properly typed
-  const typedFlashcards: Flashcard[] = flashcards;
+
   
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [cardToDelete, setCardToDelete] = useState<string | null>(null);
@@ -63,7 +63,7 @@ export default function FlashcardsPage() {
           Flashcards
         </h1>
         <p className="text-[var(--foreground-secondary)] text-lg">
-          {sets.length} set{sets.length !== 1 ? 's' : ''}
+          {isLoading ? 'Loading...' : `${sets.length} set${sets.length !== 1 ? 's' : ''}`}
         </p>
       </div>
 
@@ -73,6 +73,12 @@ export default function FlashcardsPage() {
           <Button className="bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white px-6 py-3">
             <Plus className="mr-2 h-5 w-5" />
             Create Flashcard
+          </Button>
+        </Link>
+        <Link href="/flashcards/study">
+          <Button className="bg-green-600 hover:bg-green-700 text-white px-6 py-3">
+            <img src="/sprites/notes.png" alt="Study" className="mr-2 h-5 w-5" />
+            Study Mode
           </Button>
         </Link>
         <Link href="/flashcards/sets">
@@ -85,11 +91,25 @@ export default function FlashcardsPage() {
 
       {/* Content Display */}
       <div className="space-y-6">
-        {sets.length === 0 ? (
+        {isLoading ? (
           <Card className="border-[var(--border)] bg-[var(--background)]">
             <CardContent className="text-center py-16">
               <div className="inline-flex items-center justify-center w-20 h-20 bg-[var(--background-secondary)] border border-[var(--border)] rounded-full mb-6">
-                <BookOpen className="h-10 w-10 text-[var(--foreground-tertiary)]" />
+                <div className="w-10 h-10 border-4 border-[var(--border)] border-t-[var(--primary)] rounded-full animate-spin"></div>
+              </div>
+              <h3 className="text-2xl font-semibold text-[var(--foreground)] mb-3">
+                Loading flashcards...
+              </h3>
+              <p className="text-[var(--foreground-secondary)] text-lg">
+                Please wait while we fetch your flashcard sets
+              </p>
+            </CardContent>
+          </Card>
+        ) : sets.length === 0 ? (
+          <Card className="border-[var(--border)] bg-[var(--background)]">
+            <CardContent className="text-center py-16">
+              <div className="inline-flex items-center justify-center mb-6">
+                <img src="/sprites/flashcards.png" alt="Flashcards" className="h-16 w-16" />
               </div>
               <h3 className="text-2xl font-semibold text-[var(--foreground)] mb-3">
                 No flashcard sets yet
@@ -99,7 +119,7 @@ export default function FlashcardsPage() {
               </p>
               <div className="flex gap-4 justify-center">
                 <Link href="/flashcards/sets">
-                  <Button className="bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white px-6 py-3">
+                                      <Button className="bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white px-6 py-3">
                     <Plus className="mr-2 h-5 w-5" />
                     Create First Set
                   </Button>
@@ -110,7 +130,7 @@ export default function FlashcardsPage() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                             {sets.map((set) => {
-                  const cardCount = typedFlashcards.filter(card => card.setId === set.id).length;
+                  const cardCount = flashcards.filter(card => card.setId === set.id).length;
               return (
                 <Card 
                   key={set.id} 
@@ -180,14 +200,13 @@ export default function FlashcardsPage() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex gap-3 pt-2">
-                <Button
-                  variant="outline"
-                  onClick={() => {
-                    setShowDeleteModal(false);
-                    setCardToDelete(null);
-                  }}
-                  className="flex-1 border-[var(--border)] text-[var(--foreground)] hover:bg-[var(--hover)]"
-                >
+                                  <Button
+                    onClick={() => {
+                      setShowDeleteModal(false);
+                      setCardToDelete(null);
+                    }}
+                    className="flex-1 bg-red-100 hover:bg-red-200 text-[var(--foreground)] py-2.5 px-4 rounded-lg transition-all duration-200 font-medium dark:bg-red-900/30 dark:hover:bg-red-800/40"
+                  >
                   Cancel
                 </Button>
                 <Button
@@ -234,7 +253,7 @@ export default function FlashcardsPage() {
             </CardHeader>
             <CardContent className="p-0">
               <div className="max-h-[60vh] overflow-y-auto p-6 space-y-4">
-                {typedFlashcards
+                {flashcards
                   .filter(card => card.setId === selectedSetForPreview)
                   .map((card, index) => (
                     <div 
@@ -253,7 +272,7 @@ export default function FlashcardsPage() {
                             setShowDeleteModal(true);
                             setShowPreviewModal(false);
                           }}
-                          className="text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20"
+                          className="text-red-500 hover:text-red-600 hover:bg-red-200 dark:hover:bg-red-950/20"
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>

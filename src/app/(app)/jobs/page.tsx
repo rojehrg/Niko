@@ -105,7 +105,7 @@ export default function JobsPage() {
       case 'screen': return 'bg-[var(--icon-bg-orange)] text-orange-700 dark:text-orange-300 border-orange-200 dark:border-orange-700';
       case 'interview': return 'bg-[var(--icon-bg-purple)] text-purple-700 dark:text-purple-300 border-purple-200 dark:border-purple-700';
       case 'offer': return 'bg-[var(--icon-bg-green)] text-green-700 dark:text-green-300 border-green-200 dark:border-green-700';
-      case 'rejected': return 'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 border-red-200 dark:border-red-700';
+      case 'rejected': return 'bg-red-100 dark:bg-red-900/20 text-red-700 dark:text-red-300 border-red-300 dark:border-red-700';
       default: return 'bg-[var(--background-secondary)] text-[var(--foreground-secondary)] border-[var(--border)]';
     }
   };
@@ -326,7 +326,7 @@ export default function JobsPage() {
                         </button>
                         <button
                           onClick={() => deleteJob(job.id)}
-                          className="p-1 text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors"
+                          className="p-1 text-red-500 hover:text-red-700 hover:bg-red-200 dark:hover:bg-red-900/20 rounded transition-colors"
                         >
                           <TrashIcon className="w-4 h-4" />
                         </button>

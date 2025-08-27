@@ -30,8 +30,8 @@ export function ConfirmationModal({
       case 'danger':
         return {
           icon: 'text-red-500',
-          confirmButton: 'bg-red-500 hover:bg-red-600 text-white',
-          iconBg: 'bg-red-50 dark:bg-red-900/20'
+          confirmButton: 'bg-red-1000 hover:bg-red-600 text-white',
+          iconBg: 'bg-red-100 dark:bg-red-900/20'
         };
       case 'warning':
         return {
@@ -48,8 +48,8 @@ export function ConfirmationModal({
       default:
         return {
           icon: 'text-red-500',
-          confirmButton: 'bg-red-500 hover:bg-red-600 text-white',
-          iconBg: 'bg-red-50 dark:bg-red-900/20'
+          confirmButton: 'bg-red-1000 hover:bg-red-600 text-white',
+          iconBg: 'bg-red-100 dark:bg-red-900/20'
         };
     }
   };
@@ -90,7 +90,7 @@ export function ConfirmationModal({
           <div className="flex gap-3 justify-end">
             <button
               onClick={onClose}
-              className="px-4 py-2 border border-[var(--border)] text-[var(--foreground-secondary)] rounded-lg hover:bg-[var(--hover)] hover:text-[var(--foreground)] transition-all duration-200 font-medium"
+              className="px-4 py-2 bg-red-100 hover:bg-red-200 text-[var(--foreground)] rounded-lg transition-all duration-200 font-medium dark:bg-red-900/30 dark:hover:bg-red-800/40"
             >
               {cancelText}
             </button>

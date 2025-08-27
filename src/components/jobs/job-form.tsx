@@ -63,7 +63,7 @@ export default function JobForm({ onSubmit, onCancel, initialData }: JobFormProp
         {/* Company & Position Section */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-2">
-            <Label htmlFor="company" className="text-sm font-medium text-[var(--foreground)]">
+            <Label htmlFor="company" className="text-sm font-medium text-[var(--foreground)] mb-3">
               Company Name
             </Label>
             <Input
@@ -76,7 +76,7 @@ export default function JobForm({ onSubmit, onCancel, initialData }: JobFormProp
           </div>
           
           <div className="space-y-2">
-            <Label htmlFor="position" className="text-sm font-medium text-[var(--foreground)]">
+            <Label htmlFor="position" className="text-sm font-medium text-[var(--foreground)] mb-3">
               Job Position
             </Label>
             <Input
@@ -92,7 +92,7 @@ export default function JobForm({ onSubmit, onCancel, initialData }: JobFormProp
         {/* Location & Status Section */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-2">
-            <Label htmlFor="location" className="text-sm font-medium text-[var(--foreground)]">
+            <Label htmlFor="location" className="text-sm font-medium text-[var(--foreground)] mb-3">
               Location
             </Label>
             <Input
@@ -105,7 +105,7 @@ export default function JobForm({ onSubmit, onCancel, initialData }: JobFormProp
           </div>
           
           <div className="space-y-2">
-            <Label htmlFor="status" className="text-sm font-medium text-[var(--foreground)]">
+            <Label htmlFor="status" className="text-sm font-medium text-[var(--foreground)] mb-3">
               Application Status
             </Label>
             <select
@@ -123,10 +123,10 @@ export default function JobForm({ onSubmit, onCancel, initialData }: JobFormProp
         </div>
 
         {/* URL Section */}
-        <div className="space-y-2">
-          <Label htmlFor="url" className="text-sm font-medium text-[var(--foreground)]">
-            Job Posting URL
-          </Label>
+                  <div className="space-y-2">
+                         <Label htmlFor="url" className="text-sm font-medium text-[var(--foreground)] mb-3">
+               Job Posting URL
+             </Label>
           <Input
             id="url"
             value={formData.url}
@@ -137,10 +137,10 @@ export default function JobForm({ onSubmit, onCancel, initialData }: JobFormProp
         </div>
 
         {/* Notes Section */}
-        <div className="space-y-2">
-          <Label htmlFor="notes" className="text-sm font-medium text-[var(--foreground)]">
-            Notes & Observations
-          </Label>
+                  <div className="space-y-2">
+                         <Label htmlFor="notes" className="text-sm font-medium text-[var(--foreground)] mb-3">
+               Notes & Observations
+             </Label>
           <Textarea
             id="notes"
             value={formData.notes}
@@ -154,9 +154,8 @@ export default function JobForm({ onSubmit, onCancel, initialData }: JobFormProp
         <div className="flex gap-3 pt-4">
           <Button
             type="button"
-            variant="outline"
             onClick={onCancel}
-            className="flex-1 bg-[var(--hover)] hover:bg-[var(--active)] text-[var(--foreground)] py-2.5 px-4 rounded-lg transition-all duration-200 font-medium border-[var(--border)]"
+            className="flex-1 bg-red-100 hover:bg-red-200 text-[var(--foreground)] py-2.5 px-4 rounded-lg transition-all duration-200 font-medium dark:bg-red-900/30 dark:hover:bg-red-800/40"
           >
             Cancel
           </Button>

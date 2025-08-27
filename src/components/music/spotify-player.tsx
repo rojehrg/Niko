@@ -351,7 +351,7 @@ export default function SpotifyPlayer() {
   return (
     <Card className="w-full max-w-lg">
       {/* TEST ELEMENT - This should always be visible */}
-      <div className="bg-red-500 text-white p-4 text-center font-bold">
+      <div className="bg-red-1000 text-white p-4 text-center font-bold">
         🎵 SPOTIFY PLAYER IS RENDERING! 🎵
       </div>
       

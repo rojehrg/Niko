@@ -145,38 +145,38 @@ export function BunnyEnvironment() {
           <div className="fixed top-190 left-0 right-0 bottom-0 z-0 pointer-events-none">
             <div className={`w-full h-full transition-all duration-1000 ${
               isDaytime 
-                ? 'bg-gradient-to-b from-sky-100/80 via-blue-50/60 to-blue-100/40 dark:from-sky-200/60 dark:via-blue-100/40 dark:to-blue-50/30' 
-                : 'bg-gradient-to-b from-slate-900/90 via-slate-800/70 to-slate-700/50 dark:from-slate-800/80 dark:via-slate-700/60 dark:to-slate-600/40'
+                ? 'bg-gradient-to-b from-[var(--background)] from-0% via-gray-200/60 via-10% to-gray-100/50 to-100% dark:from-[var(--background)] dark:via-sky-200/60 dark:via-10% dark:to-blue-100/50 dark:to-100%' 
+                : 'bg-gradient-to-b from-[var(--background)] from-0% via-slate-800/60 via-10% to-slate-700/50 to-100% dark:from-[var(--background)] dark:via-slate-900/60 dark:via-10% dark:to-slate-800/50 dark:to-100%'
             }`}>
               {/* Day sky elements */}
               {isDaytime && (
                 <>
-                  <div className="absolute top-10 left-20 w-2 h-2 bg-yellow-400/80 dark:bg-yellow-300/90 rounded-full animate-pulse shadow-lg"></div>
-                  <div className="absolute top-15 left-40 w-1 h-1 bg-yellow-300/70 dark:bg-yellow-200/80 rounded-full animate-pulse shadow-md"></div>
-                  <div className="absolute top-8 left-60 w-1.5 h-1.5 bg-yellow-400/80 dark:bg-yellow-300/90 rounded-full animate-pulse shadow-lg"></div>
-                  <div className="absolute top-12 left-80 w-1 h-1 bg-yellow-200/60 dark:bg-yellow-100/70 rounded-full animate-pulse shadow-sm"></div>
-                  <div className="absolute top-6 left-100 w-1.5 h-1.5 bg-yellow-300/70 dark:bg-yellow-200/80 rounded-full animate-pulse shadow-md"></div>
+                  <div className="absolute top-10 left-20 w-2 h-2 bg-gray-300/80 dark:bg-yellow-300/90 rounded-full animate-pulse shadow-lg"></div>
+                  <div className="absolute top-15 left-40 w-1 h-1 bg-gray-200/70 dark:bg-yellow-200/80 rounded-full animate-pulse shadow-md"></div>
+                  <div className="absolute top-8 left-60 w-1.5 h-1.5 bg-gray-300/80 dark:bg-yellow-300/90 rounded-full animate-pulse shadow-lg"></div>
+                  <div className="absolute top-12 left-80 w-1 h-1 bg-gray-200/60 dark:bg-yellow-100/70 rounded-full animate-pulse shadow-sm"></div>
+                  <div className="absolute top-6 left-100 w-1.5 h-1.5 bg-gray-300/70 dark:bg-yellow-200/80 rounded-full animate-pulse shadow-md"></div>
                 </>
               )}
               {/* Night sky elements */}
               {!isDaytime && (
                 <>
                   {/* Constellation 1 - Left side */}
-                  <div className="absolute top-8 left-10 w-1 h-1 bg-blue-100/90 dark:bg-blue-200/80 rounded-full animate-pulse shadow-sm"></div>
-                  <div className="absolute top-20 left-30 w-0.5 h-0.5 bg-blue-50/80 dark:bg-blue-100/70 rounded-full animate-pulse shadow-sm"></div>
-                  <div className="absolute top-12 left-50 w-1 h-1 bg-blue-100/90 dark:bg-blue-200/80 rounded-full animate-pulse shadow-sm"></div>
-                  <div className="absolute top-25 left-70 w-0.5 h-0.5 bg-blue-50/80 dark:bg-blue-100/70 rounded-full animate-pulse shadow-sm"></div>
-                  <div className="absolute top-15 left-90 w-1 h-1 bg-blue-100/90 dark:bg-blue-200/80 rounded-full animate-pulse shadow-sm"></div>
-                  <div className="absolute top-35 left-15 w-0.5 h-0.5 bg-blue-50/80 dark:bg-blue-100/70 rounded-full animate-pulse shadow-sm"></div>
-                  <div className="absolute top-18 left-45 w-1 h-1 bg-blue-100/90 dark:bg-blue-200/80 rounded-full animate-pulse shadow-sm"></div>
-                  <div className="absolute top-30 left-65 w-0.5 h-0.5 bg-blue-50/80 dark:bg-blue-100/70 rounded-full animate-pulse shadow-sm"></div>
-                  <div className="absolute top-22 left-85 w-1 h-1 bg-blue-100/90 dark:bg-blue-200/80 rounded-full animate-pulse shadow-sm"></div>
-                  <div className="absolute top-40 left-25 w-0.5 h-0.5 bg-blue-50/80 dark:bg-blue-100/70 rounded-full animate-pulse shadow-sm"></div>
-                  <div className="absolute top-28 left-55 w-1 h-1 bg-blue-100/90 dark:bg-blue-200/80 rounded-full animate-pulse shadow-sm"></div>
-                  <div className="absolute top-32 left-75 w-0.5 h-0.5 bg-blue-50/80 dark:bg-blue-100/70 rounded-full animate-pulse shadow-sm"></div>
-                  <div className="absolute top-16 left-95 w-1 h-1 bg-blue-100/90 dark:bg-blue-200/80 rounded-full animate-pulse shadow-sm"></div>
-                  <div className="absolute top-38 left-35 w-0.5 h-0.5 bg-blue-50/80 dark:bg-blue-100/70 rounded-full animate-pulse shadow-sm"></div>
-                  <div className="absolute top-26 left-80 w-1 h-1 bg-blue-100/90 dark:bg-blue-200/80 rounded-full animate-pulse shadow-sm"></div>
+                  <div className="absolute top-8 left-10 w-1 h-1 bg-gray-100/90 dark:bg-blue-200/80 rounded-full animate-pulse shadow-sm"></div>
+                  <div className="absolute top-20 left-30 w-0.5 h-0.5 bg-gray-50/80 dark:bg-blue-100/70 rounded-full animate-pulse shadow-sm"></div>
+                  <div className="absolute top-12 left-50 w-1 h-1 bg-gray-100/90 dark:bg-blue-200/80 rounded-full animate-pulse shadow-sm"></div>
+                  <div className="absolute top-25 left-70 w-0.5 h-0.5 bg-gray-50/80 dark:bg-blue-100/70 rounded-full animate-pulse shadow-sm"></div>
+                  <div className="absolute top-15 left-90 w-1 h-1 bg-gray-100/90 dark:bg-blue-200/80 rounded-full animate-pulse shadow-sm"></div>
+                  <div className="absolute top-35 left-15 w-0.5 h-0.5 bg-gray-50/80 dark:bg-blue-100/70 rounded-full animate-pulse shadow-sm"></div>
+                  <div className="absolute top-18 left-45 w-1 h-1 bg-gray-100/90 dark:bg-blue-200/80 rounded-full animate-pulse shadow-sm"></div>
+                  <div className="absolute top-30 left-65 w-0.5 h-0.5 bg-gray-50/80 dark:bg-blue-100/70 rounded-full animate-pulse shadow-sm"></div>
+                  <div className="absolute top-22 left-85 w-1 h-1 bg-gray-100/90 dark:bg-blue-200/80 rounded-full animate-pulse shadow-sm"></div>
+                  <div className="absolute top-40 left-25 w-0.5 h-0.5 bg-gray-50/80 dark:bg-blue-100/70 rounded-full animate-pulse shadow-sm"></div>
+                  <div className="absolute top-28 left-55 w-1 h-1 bg-gray-100/90 dark:bg-blue-200/80 rounded-full animate-pulse shadow-sm"></div>
+                  <div className="absolute top-32 left-75 w-0.5 h-0.5 bg-gray-50/80 dark:bg-blue-100/70 rounded-full animate-pulse shadow-sm"></div>
+                  <div className="absolute top-16 left-95 w-1 h-1 bg-gray-100/90 dark:bg-blue-200/80 rounded-full animate-pulse shadow-sm"></div>
+                  <div className="absolute top-38 left-35 w-0.5 h-0.5 bg-gray-50/80 dark:bg-blue-100/70 rounded-full animate-pulse shadow-sm"></div>
+                  <div className="absolute top-26 left-80 w-1 h-1 bg-gray-100/90 dark:bg-blue-200/80 rounded-full animate-pulse shadow-sm"></div>
                   
                   {/* Constellation 2 - Center */}
                   <div className="absolute top-10 left-[20%] w-1 h-1 bg-blue-100/90 dark:bg-blue-200/80 rounded-full animate-pulse shadow-sm"></div>

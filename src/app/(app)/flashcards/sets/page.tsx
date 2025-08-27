@@ -24,7 +24,7 @@ export default function FlashcardSetsPage() {
 
   const colors = [
     'bg-blue-500', 'bg-purple-500', 'bg-green-500', 'bg-orange-500',
-    'bg-pink-500', 'bg-indigo-500', 'bg-teal-500', 'bg-red-500'
+    'bg-pink-500', 'bg-indigo-500', 'bg-teal-500', 'bg-red-1000'
   ];
 
   const handleCreateSet = async () => {
@@ -143,10 +143,10 @@ export default function FlashcardSetsPage() {
               </div>
               
               <div className="space-y-3">
-                <label className="text-sm font-medium text-[var(--foreground)] text-center">
-                  Color Theme
-                </label>
                 <div className="flex gap-2 flex-wrap justify-center">
+                  <label className="text-sm font-medium text-[var(--foreground)] text-center w-full mb-2">
+                    Color Theme
+                  </label>
                   {colors.map((color) => (
                     <button
                       key={color}
@@ -185,9 +185,8 @@ export default function FlashcardSetsPage() {
                 {editingSet ? 'Update Set' : 'Create Set'}
               </Button>
               <Button
-                variant="outline"
                 onClick={resetForm}
-                className="border-[var(--border)] text-[var(--foreground)] hover:bg-[var(--hover)]"
+                className="bg-red-100 hover:bg-red-200 text-[var(--foreground)] dark:bg-red-900/30 dark:hover:bg-red-800/40"
               >
                 Cancel
               </Button>
@@ -201,7 +200,7 @@ export default function FlashcardSetsPage() {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <Card className="w-full max-w-md mx-4 bg-[var(--background)] border-[var(--border)] shadow-xl">
             <CardHeader className="text-center pb-4">
-              <div className="w-16 h-16 bg-red-100 dark:bg-red-950/20 rounded-full flex items-center justify-center mx-auto mb-4">
+              <div className="w-16 h-16 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Trash2 className="h-8 w-8 text-red-600" />
               </div>
               <CardTitle className="text-xl text-[var(--foreground)]">
@@ -212,16 +211,15 @@ export default function FlashcardSetsPage() {
               </CardDescription>
             </CardHeader>
             <CardContent className="text-center pb-6">
-              <div className="bg-red-50 dark:bg-red-950/10 border border-red-200 dark:border-red-800 rounded-lg p-4 mb-4">
+              <div className="bg-red-100 dark:bg-red-950/10 border border-red-300 dark:border-red-700 rounded-lg p-4 mb-4">
                 <p className="text-sm text-red-700 dark:text-red-300">
                   ⚠️ This action cannot be undone. All {getFlashcardsBySet(deletingSet.id).length} flashcards in this set will also be deleted.
                 </p>
               </div>
               <div className="flex gap-3 justify-center">
                 <Button
-                  variant="outline"
                   onClick={() => setDeletingSet(null)}
-                  className="border-[var(--border)] text-[var(--foreground)] hover:bg-[var(--hover)]"
+                  className="flex-1 bg-red-100 hover:bg-red-200 text-[var(--foreground)] py-2.5 px-4 rounded-lg transition-all duration-200 font-medium dark:bg-red-900/30 dark:hover:bg-red-800/40"
                 >
                   Cancel
                 </Button>
@@ -306,8 +304,8 @@ export default function FlashcardSetsPage() {
       {/* Empty State */}
       {sets.length === 0 && (
         <div className="text-center py-16">
-          <div className="inline-flex items-center justify-center w-20 h-20 bg-[var(--background)] border border-[var(--border)] rounded-lg mb-6">
-            <BookOpen className="h-10 w-10 text-[var(--foreground-tertiary)]" />
+          <div className="inline-flex items-center justify-center mb-6">
+            <img src="/sprites/flashcards.png" alt="Flashcards" className="h-16 w-16" />
           </div>
           <h3 className="text-xl font-medium text-[var(--foreground)] mb-2">
             No sets created yet

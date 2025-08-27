@@ -59,7 +59,7 @@ export default function ExamsPage() {
     const diffTime = examDate.getTime() - now.getTime()
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
     
-    if (diffDays < 0) return { text: `Overdue by ${Math.abs(diffDays)} days`, color: 'text-red-600', bg: 'bg-red-50 dark:bg-red-900/20' }
+    if (diffDays < 0) return { text: `Overdue by ${Math.abs(diffDays)} days`, color: 'text-red-600', bg: 'bg-red-100 dark:bg-red-900/20' }
     if (diffDays === 0) return { text: 'Today!', color: 'text-orange-600', bg: 'bg-orange-50 dark:bg-orange-900/20' }
     if (diffDays === 1) return { text: 'Tomorrow', color: 'text-orange-600', bg: 'bg-orange-50 dark:bg-orange-900/20' }
     if (diffDays <= 7) return { text: `${diffDays} days`, color: 'text-blue-600', bg: 'bg-blue-50 dark:bg-blue-900/20' }
@@ -68,7 +68,7 @@ export default function ExamsPage() {
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
-      case 'high': return 'text-red-600 bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800'
+      case 'high': return 'text-red-600 bg-red-100 dark:bg-red-900/20 border-red-300 dark:border-red-700'
       case 'medium': return 'text-orange-600 bg-orange-50 dark:bg-orange-900/20 border-orange-200 dark:border-orange-800'
       case 'low': return 'text-green-600 bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800'
       default: return 'text-gray-600 bg-gray-50 dark:bg-gray-900/20 border-gray-200 dark:border-gray-800'
@@ -287,7 +287,7 @@ export default function ExamsPage() {
                           </button>
                           <button
                             onClick={() => deleteExam(exam.id)}
-                            className="p-1 text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors"
+                            className="p-1 text-red-500 hover:text-red-700 hover:bg-red-200 dark:hover:bg-red-900/20 rounded transition-colors"
                             title="Delete"
                           >
                             <Trash2 className="w-4 h-4" />
@@ -308,19 +308,10 @@ export default function ExamsPage() {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
           <div className="bg-[var(--background)] rounded-2xl shadow-2xl border border-[var(--border)] w-full max-w-md max-h-[90vh] overflow-y-auto">
             <div className="p-6">
-              <div className="flex items-center justify-between mb-6">
+              <div className="mb-6">
                 <h3 className="text-xl font-semibold text-[var(--foreground)]">
                   {editingExam ? 'Edit Exam/Deadline' : 'Add New Exam/Deadline'}
                 </h3>
-                <button
-                  onClick={() => {
-                    setIsAddModalOpen(false)
-                    setEditingExam(null)
-                  }}
-                  className="p-2 text-[var(--foreground-tertiary)] hover:text-[var(--foreground)] hover:bg-[var(--hover)] rounded-lg transition-colors"
-                >
-                  <div className="w-5 h-5">×</div>
-                </button>
               </div>
               
               <ExamForm
@@ -520,7 +511,7 @@ function ExamForm({ exam, onSubmit, onCancel }: {
         <button
           type="button"
           onClick={onCancel}
-          className="flex-1 bg-[var(--hover)] hover:bg-[var(--active)] text-[var(--foreground)] py-2.5 px-4 rounded-lg transition-all duration-200 font-medium"
+          className="flex-1 bg-red-100 hover:bg-red-200 text-[var(--foreground)] py-2.5 px-4 rounded-lg transition-all duration-200 font-medium dark:bg-red-900/30 dark:hover:bg-red-800/40"
         >
           Cancel
         </button>

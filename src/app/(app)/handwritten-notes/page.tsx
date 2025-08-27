@@ -163,7 +163,7 @@ export default function HandwrittenNotesPage() {
                   </span>
                   <button
                     onClick={handleBulkDelete}
-                    className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm transition-colors flex items-center gap-1"
+                    className="bg-red-1000 hover:bg-red-600 text-white px-3 py-1 rounded text-sm transition-colors flex items-center gap-1"
                   >
                     <Trash2 className="w-3 h-3" />
                     Delete
@@ -293,7 +293,7 @@ export default function HandwrittenNotesPage() {
                     </button>
                     <button 
                       onClick={() => deleteNote(note.id)}
-                      className="bg-red-500/80 hover:bg-red-600/80 text-white p-2 rounded-lg transition-colors"
+                      className="bg-red-1000/80 hover:bg-red-600/80 text-white p-2 rounded-lg transition-colors"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
@@ -386,7 +386,7 @@ export default function HandwrittenNotesPage() {
               <div className="flex gap-3 mt-6">
                 <button
                   onClick={() => setIsUploadModalOpen(false)}
-                  className="flex-1 bg-[var(--hover)] hover:bg-[var(--active)] text-[var(--foreground)] px-4 py-2 rounded-lg transition-colors"
+                  className="flex-1 bg-red-100 hover:bg-red-200 text-[var(--foreground)] py-2.5 px-4 rounded-lg transition-all duration-200 font-medium dark:bg-red-900/30 dark:hover:bg-red-800/40"
                 >
                   Cancel
                 </button>
@@ -438,7 +438,7 @@ export default function HandwrittenNotesPage() {
               <div className="flex gap-3 mt-6">
                 <button
                   onClick={() => setIsCreateSetModalOpen(false)}
-                  className="flex-1 bg-[var(--hover)] hover:bg-[var(--active)] text-[var(--foreground)] px-4 py-2 rounded-lg transition-colors"
+                  className="flex-1 bg-red-100 hover:bg-red-200 text-[var(--foreground)] py-2.5 px-4 rounded-lg transition-all duration-200 font-medium dark:bg-red-900/30 dark:hover:bg-red-800/40"
                 >
                   Cancel
                 </button>

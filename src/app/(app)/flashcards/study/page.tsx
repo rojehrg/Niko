@@ -368,7 +368,7 @@ export default function StudyPage() {
                   markAsIncorrect();
                   setTimeout(() => handleNext(), 500);
                 }}
-                className="border-red-200 text-red-700 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-950/20 h-12 px-6 transition-all duration-200"
+                className="border-red-300 text-red-700 hover:bg-red-200 dark:border-red-700 dark:text-red-400 dark:hover:bg-red-950/20 h-12 px-6 transition-all duration-200"
                 disabled={studiedCards.has(currentCard.id)}
               >
                 <img 
@@ -415,7 +415,7 @@ export default function StudyPage() {
                 {correctCards.size} correct
               </span>
               <span className="flex items-center gap-2 text-red-600">
-                <div className="w-3 h-3 bg-red-500 rounded-full"></div>
+                <div className="w-3 h-3 bg-red-1000 rounded-full"></div>
                 {incorrectCards.size} to review
               </span>
             </div>
