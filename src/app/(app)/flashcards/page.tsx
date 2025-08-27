@@ -2,10 +2,13 @@
 
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { BookOpen, Plus, Calendar, Clock, Trash2, Eye, Brain } from "lucide-react";
+import { BookOpen, Plus, Calendar, Clock, Trash2, Eye, Brain, Edit } from "lucide-react";
 import Link from "next/link";
 import { useFlashcardStore } from "@/lib/stores/flashcard-store";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 
 export default function FlashcardsPage() {
   const { 
@@ -23,6 +26,12 @@ export default function FlashcardsPage() {
   const [cardToDelete, setCardToDelete] = useState<string | null>(null);
   const [showPreviewModal, setShowPreviewModal] = useState(false);
   const [selectedSetForPreview, setSelectedSetForPreview] = useState<string | null>(null);
+  const [showCreateSetModal, setShowCreateSetModal] = useState(false);
+  const [newSetData, setNewSetData] = useState({
+    name: '',
+    description: '',
+    color: 'bg-blue-500'
+  });
 
   useEffect(() => {
     fetchFlashcards();
@@ -54,6 +63,17 @@ export default function FlashcardsPage() {
       setCardToDelete(null);
     }
   };
+
+  const handleCreateSet = async () => {
+    if (newSetData.name.trim()) {
+      await useFlashcardStore.getState().addSet(newSetData.name, newSetData.description, newSetData.color);
+      setShowCreateSetModal(false);
+      setNewSetData({ name: '', description: '', color: 'bg-blue-500' });
+      fetchSets();
+    }
+  };
+
+  const colors = ['bg-blue-500', 'bg-green-500', 'bg-purple-500', 'bg-orange-500', 'bg-red-500', 'bg-pink-500', 'bg-indigo-500', 'bg-yellow-500'];
   
   return (
     <div className="min-h-screen p-6 max-w-7xl mx-auto">

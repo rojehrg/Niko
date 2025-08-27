@@ -53,9 +53,7 @@ export default function HomePage() {
             Made by Mr.Slime himself, to Nikho
           </div>
           
-          <h2 className="text-lg font-medium text-[var(--foreground)] mb-4 text-center">
-            Enter Passcode to Continue
-          </h2>
+
           <form onSubmit={handlePasscodeSubmit} className="space-y-4">
             <div>
               <input
