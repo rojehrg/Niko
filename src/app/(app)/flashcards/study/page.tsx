@@ -240,7 +240,7 @@ export default function StudyPage() {
 
         {/* Flashcard */}
         <div className="mb-8 flex justify-center">
-          <div className="w-full max-w-3xl">
+          <div className="w-full max-w-2xl">
             <div className="aspect-[4/3] relative">
               <div 
                 className="w-full h-full relative cursor-pointer group"
@@ -249,22 +249,32 @@ export default function StudyPage() {
                 <div className={`w-full h-full transition-all duration-700 transform-style-preserve-3d ${isFlipped ? 'rotate-y-180' : ''}`}>
                   {/* Front */}
                   <div className={`absolute inset-0 w-full h-full backface-hidden ${isFlipped ? 'opacity-0' : 'opacity-100'} transition-opacity duration-300`}>
-                    <Card className="w-full h-full bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-blue-950/30 dark:via-indigo-950/30 dark:to-purple-950/30 border-blue-200 dark:border-blue-800 hover:shadow-lg transition-all duration-300 group-hover:scale-[1.02]">
+                    <Card className="w-full h-full bg-white dark:bg-[var(--background-secondary)] border-2 border-[var(--border)] hover:shadow-xl transition-all duration-300 group-hover:scale-[1.02] shadow-lg">
                       <CardContent className="p-8 h-full flex flex-col">
-                        <div className="flex items-center gap-2 mb-4">
-                          <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
-                          <span className="text-sm font-medium text-[var(--foreground-secondary)]">Question</span>
+                        {/* Header */}
+                        <div className="flex items-center justify-between mb-6">
+                          <div className="flex items-center gap-3">
+                            <div className="w-4 h-4 bg-[var(--primary)] rounded-full"></div>
+                            <span className="text-sm font-semibold text-[var(--foreground-secondary)] uppercase tracking-wide">Question</span>
+                          </div>
+                          <div className="text-xs text-[var(--foreground-tertiary)] bg-[var(--background)] px-2 py-1 rounded-full">
+                            {currentCardIndex + 1} of {currentCards.length}
+                          </div>
                         </div>
-                        <div className="flex-1 flex items-center justify-center">
-                          <p className="text-center text-[var(--foreground)] text-xl font-medium leading-relaxed max-w-2xl">
+                        
+                        {/* Question Content */}
+                        <div className="flex-1 flex items-center justify-center text-center">
+                          <p className="text-[var(--foreground)] text-xl font-medium leading-relaxed max-w-lg">
                             {currentCard.front}
                           </p>
                         </div>
-                        <div className="text-center mt-4">
-                          <p className="text-sm text-[var(--foreground-tertiary)] flex items-center justify-center gap-2">
-                            <Brain className="w-4 h-4" />
-                            Click to reveal answer
-                          </p>
+                        
+                        {/* Footer */}
+                        <div className="text-center mt-6">
+                          <div className="inline-flex items-center gap-2 bg-[var(--background)] px-4 py-2 rounded-full border border-[var(--border)]">
+                            <BookOpen className="w-4 h-4 text-[var(--foreground-secondary)]" />
+                            <span className="text-sm text-[var(--foreground-secondary)] font-medium">Click to reveal answer</span>
+                          </div>
                         </div>
                       </CardContent>
                     </Card>
@@ -272,22 +282,32 @@ export default function StudyPage() {
 
                   {/* Back */}
                   <div className={`absolute inset-0 w-full h-full backface-hidden rotate-y-180 ${isFlipped ? 'opacity-100' : 'opacity-0'} transition-opacity duration-300`}>
-                    <Card className="w-full h-full bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 dark:from-green-950/30 dark:via-emerald-950/30 dark:to-teal-950/30 border-green-200 dark:border-green-800 hover:shadow-lg transition-all duration-300 group-hover:scale-[1.02]">
+                    <Card className="w-full h-full bg-white dark:bg-[var(--background-secondary)] border-2 border-[var(--border)] hover:shadow-xl transition-all duration-300 group-hover:scale-[1.02] shadow-lg">
                       <CardContent className="p-8 h-full flex flex-col">
-                        <div className="flex items-center gap-2 mb-4">
-                          <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                          <span className="text-sm font-medium text-[var(--foreground-secondary)]">Answer</span>
+                        {/* Header */}
+                        <div className="flex items-center justify-between mb-6">
+                          <div className="flex items-center gap-3">
+                            <div className="w-4 h-4 bg-green-500 rounded-full"></div>
+                            <span className="text-sm font-semibold text-[var(--foreground-secondary)] uppercase tracking-wide">Answer</span>
+                          </div>
+                          <div className="text-xs text-[var(--foreground-tertiary)] bg-[var(--background)] px-2 py-1 rounded-full">
+                            {currentCardIndex + 1} of {currentCards.length}
+                          </div>
                         </div>
-                        <div className="flex-1 flex items-center justify-center">
-                          <p className="text-center text-[var(--foreground)] text-xl font-medium leading-relaxed max-w-2xl">
+                        
+                        {/* Answer Content */}
+                        <div className="flex-1 flex items-center justify-center text-center">
+                          <p className="text-[var(--foreground)] text-xl font-medium leading-relaxed max-w-lg">
                             {currentCard.back}
                           </p>
                         </div>
-                        <div className="text-center mt-4">
-                          <p className="text-sm text-[var(--foreground-tertiary)] flex items-center justify-center gap-2">
-                            <Target className="w-4 h-4" />
-                            How did you do?
-                          </p>
+                        
+                        {/* Footer */}
+                        <div className="text-center mt-6">
+                          <div className="inline-flex items-center gap-2 bg-[var(--background)] px-4 py-1 rounded-full border border-[var(--border)]">
+                            <Check className="w-4 h-4 text-green-600" />
+                            <span className="text-sm text-green-600 font-medium">Answer revealed</span>
+                          </div>
                         </div>
                       </CardContent>
                     </Card>
@@ -367,73 +387,64 @@ export default function StudyPage() {
           </Button>
         </div>
 
-        {/* Completion Message */}
+                {/* Completion Overlay */}
         {isLastCard && studiedCards.has(currentCard.id) && (
-          <div className="text-center">
-            <Card className="bg-gradient-to-br from-green-50 via-blue-50 to-purple-50 dark:from-green-950/20 dark:via-blue-950/20 dark:to-purple-950/20 border-green-200 dark:border-green-800 max-w-2xl mx-auto">
-              <CardContent className="py-12">
-                <div className="flex justify-center mb-6">
-                  <div className="w-20 h-20 bg-gradient-to-br from-green-500 via-blue-500 to-purple-500 rounded-full flex items-center justify-center animate-pulse">
-                    <Sparkles className="h-10 w-10 text-white" />
-                  </div>
-                </div>
-                <h3 className="text-2xl font-bold text-[var(--foreground)] mb-3">
-                  Study Session Complete! 🎉
-                </h3>
-                <p className="text-[var(--foreground-secondary)] mb-6 text-lg">
-                  Great work! You studied for {formatTime(studyTime)} and mastered {correctCards.size} out of {currentCards.length} cards.
-                </p>
-                
-                {!showStats && (
-                  <Button
-                    onClick={() => setShowStats(true)}
-                    className="bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white mb-4"
-                  >
-                    View Detailed Stats
-                  </Button>
-                )}
-                
-                {showStats && (
-                  <div className="bg-[var(--background)] rounded-lg p-4 mb-6 border border-[var(--border)]">
-                    <h4 className="font-semibold text-[var(--foreground)] mb-3">Session Summary</h4>
-                    <div className="grid grid-cols-2 gap-4 text-sm">
-                      <div className="text-center">
-                        <div className="text-2xl font-bold text-green-600">{correctCards.size}</div>
-                        <div className="text-[var(--foreground-secondary)]">Correct</div>
-                      </div>
-                      <div className="text-center">
-                        <div className="text-2xl font-bold text-red-600">{incorrectCards.size}</div>
-                        <div className="text-[var(--foreground-secondary)]">Need Review</div>
-                      </div>
-                      <div className="text-center">
-                        <div className="text-2xl font-bold text-blue-600">{Math.round((correctCards.size / currentCards.length) * 100)}%</div>
-                        <div className="text-[var(--foreground-secondary)]">Success Rate</div>
-                      </div>
-                      <div className="text-center">
-                        <div className="text-2xl font-bold text-purple-600">{formatTime(studyTime)}</div>
-                        <div className="text-[var(--foreground-secondary)]">Study Time</div>
-                      </div>
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+            <div className="w-full max-w-2xl mx-4">
+              <Card className="bg-[var(--background)] border-[var(--border)] shadow-xl">
+                <CardContent className="py-8">
+                  <div className="flex justify-center mb-6">
+                    <div className="w-16 h-16 bg-[var(--primary)] rounded-full flex items-center justify-center">
+                      <Check className="h-8 w-8 text-white" />
                     </div>
                   </div>
-                )}
-                
-                <div className="flex items-center justify-center gap-4">
-                  <Button
-                    onClick={handleRestart}
-                    variant="outline"
-                    className="border-[var(--border)] text-[var(--foreground)] hover:bg-[var(--hover)] h-11 px-6"
-                  >
-                    <RotateCcw className="mr-2 h-4 w-4" />
-                    Study Again
-                  </Button>
-                  <Link href="/flashcards">
-                    <Button className="bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white h-11 px-6">
-                      Back to Flashcards
+                  
+                  <h3 className="text-2xl font-bold text-[var(--foreground)] mb-2 text-center">
+                    Study Session Complete! 🎉
+                  </h3>
+                  <p className="text-[var(--foreground-secondary)] mb-6 text-center">
+                    Great work! Here's your performance summary.
+                  </p>
+                  
+                  {/* Stats Grid */}
+                  <div className="grid grid-cols-2 gap-4 mb-6">
+                    <div className="bg-[var(--background-secondary)] rounded-lg p-4 border border-[var(--border)]">
+                      <div className="text-2xl font-bold text-green-600">{correctCards.size}</div>
+                      <div className="text-sm text-[var(--foreground-secondary)]">Correct</div>
+                    </div>
+                    <div className="bg-[var(--background-secondary)] rounded-lg p-4 border border-[var(--border)]">
+                      <div className="text-2xl font-bold text-red-600">{incorrectCards.size}</div>
+                      <div className="text-sm text-[var(--foreground-secondary)]">Need Review</div>
+                    </div>
+                    <div className="bg-[var(--background-secondary)] rounded-lg p-4 border border-[var(--border)]">
+                      <div className="text-2xl font-bold text-blue-600">{Math.round((correctCards.size / currentCards.length) * 100)}%</div>
+                      <div className="text-sm text-[var(--foreground-secondary)]">Success Rate</div>
+                    </div>
+                    <div className="bg-[var(--background-secondary)] rounded-lg p-4 border border-[var(--border)]">
+                      <div className="text-2xl font-bold text-[var(--primary)]">{formatTime(studyTime)}</div>
+                      <div className="text-sm text-[var(--foreground-secondary)]">Study Time</div>
+                    </div>
+                  </div>
+                  
+                  {/* Action Buttons */}
+                  <div className="flex items-center justify-center gap-4">
+                    <Button
+                      onClick={handleRestart}
+                      variant="outline"
+                      className="border-[var(--border)] text-[var(--foreground)] hover:bg-[var(--hover)] h-11 px-6"
+                    >
+                      <RotateCcw className="mr-2 h-4 w-4" />
+                      Study Again
                     </Button>
-                  </Link>
-                </div>
-              </CardContent>
-            </Card>
+                    <Link href="/flashcards">
+                      <Button className="bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white h-11 px-6">
+                        Back to Flashcards
+                      </Button>
+                    </Link>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
           </div>
         )}
       </div>

@@ -7,7 +7,6 @@ export interface FlashcardSet {
   description?: string;
   color: string;
   createdAt: Date;
-  cardCount: number;
 }
 
 export interface Flashcard {
@@ -17,23 +16,27 @@ export interface Flashcard {
   setId: string;
   createdAt: Date;
   lastStudied?: Date;
-  difficulty: 'easy' | 'medium' | 'hard';
 }
 
 interface FlashcardStore {
   flashcards: Flashcard[];
   sets: FlashcardSet[];
   isLoading: boolean;
+  
+  // Flashcard operations
   addFlashcard: (front: string, back: string, setId: string) => Promise<void>;
   removeFlashcard: (id: string) => Promise<void>;
   updateFlashcard: (id: string, updates: Partial<Flashcard>) => Promise<void>;
   getFlashcard: (id: string) => Flashcard | undefined;
+  
+  // Set operations
   addSet: (name: string, description?: string, color?: string) => Promise<void>;
   removeSet: (id: string) => Promise<void>;
   updateSet: (id: string, updates: Partial<FlashcardSet>) => Promise<void>;
   getSet: (id: string) => FlashcardSet | undefined;
+  
+  // Utility functions
   getFlashcardsBySet: (setId: string) => Flashcard[];
-  getDefaultSet: () => FlashcardSet;
   fetchFlashcards: () => Promise<void>;
   fetchSets: () => Promise<void>;
 }
@@ -74,7 +77,6 @@ export const useFlashcardStore = create<FlashcardStore>((set, get) => ({
         setId: card.set_id,
         createdAt: new Date(card.created_at),
         lastStudied: card.last_studied ? new Date(card.last_studied) : undefined,
-        difficulty: card.difficulty || 'medium',
       })) || [];
 
       set({ flashcards, isLoading: false });
@@ -103,21 +105,7 @@ export const useFlashcardStore = create<FlashcardStore>((set, get) => ({
         description: set.description,
         color: set.color,
         createdAt: new Date(set.created_at),
-        cardCount: set.card_count || 0,
       })) || [];
-
-      // If no sets exist, create a default one
-      if (sets.length === 0) {
-        const defaultSet = {
-          id: 'default',
-          name: 'General',
-          description: 'Default flashcard set',
-          color: 'bg-blue-500',
-          createdAt: new Date(),
-          cardCount: 0
-        };
-        sets.push(defaultSet);
-      }
 
       set({ sets, isLoading: false });
     } catch (error) {
@@ -135,7 +123,6 @@ export const useFlashcardStore = create<FlashcardStore>((set, get) => ({
           front,
           back,
           set_id: setId,
-          difficulty: 'medium',
         }])
         .select()
         .single();
@@ -151,21 +138,12 @@ export const useFlashcardStore = create<FlashcardStore>((set, get) => ({
         back: data.back,
         setId: data.set_id,
         createdAt: new Date(data.created_at),
-        difficulty: data.difficulty || 'medium',
       };
       
       set((state) => ({
         flashcards: [newFlashcard, ...state.flashcards],
         isLoading: false,
       }));
-
-      // Update set card count
-      const currentSet = get().sets.find(s => s.id === setId);
-      if (currentSet) {
-        await get().updateSet(setId, { 
-          cardCount: currentSet.cardCount + 1
-        });
-      }
     } catch (error) {
       console.error('Failed to add flashcard:', error);
       set({ isLoading: false });
@@ -176,9 +154,6 @@ export const useFlashcardStore = create<FlashcardStore>((set, get) => ({
   removeFlashcard: async (id: string) => {
     set({ isLoading: true });
     try {
-      const flashcard = get().flashcards.find(card => card.id === id);
-      if (!flashcard) throw new Error('Flashcard not found');
-
       const { error } = await supabase
         .from('flashcards')
         .delete()
@@ -193,16 +168,6 @@ export const useFlashcardStore = create<FlashcardStore>((set, get) => ({
         flashcards: state.flashcards.filter((card) => card.id !== id),
         isLoading: false,
       }));
-
-      // Update set card count
-      if (flashcard.setId) {
-        const currentSet = get().sets.find(s => s.id === flashcard.setId);
-        if (currentSet) {
-          await get().updateSet(flashcard.setId, { 
-            cardCount: Math.max(0, currentSet.cardCount - 1)
-          });
-        }
-      }
     } catch (error) {
       console.error('Failed to remove flashcard:', error);
       set({ isLoading: false });
@@ -218,7 +183,6 @@ export const useFlashcardStore = create<FlashcardStore>((set, get) => ({
       if (updates.front !== undefined) updateData.front = updates.front;
       if (updates.back !== undefined) updateData.back = updates.back;
       if (updates.setId !== undefined) updateData.set_id = updates.setId;
-      if (updates.difficulty !== undefined) updateData.difficulty = updates.difficulty;
       if (updates.lastStudied !== undefined) updateData.last_studied = updates.lastStudied;
 
       const { data, error } = await supabase
@@ -240,7 +204,6 @@ export const useFlashcardStore = create<FlashcardStore>((set, get) => ({
         setId: data.set_id,
         createdAt: new Date(data.created_at),
         lastStudied: data.last_studied ? new Date(data.last_studied) : undefined,
-        difficulty: data.difficulty || 'medium',
       };
 
       set((state) => ({
@@ -269,7 +232,6 @@ export const useFlashcardStore = create<FlashcardStore>((set, get) => ({
           name,
           description,
           color: color || DEFAULT_COLORS[Math.floor(Math.random() * DEFAULT_COLORS.length)],
-          card_count: 0,
         }])
         .select()
         .single();
@@ -285,7 +247,6 @@ export const useFlashcardStore = create<FlashcardStore>((set, get) => ({
         description: data.description,
         color: data.color,
         createdAt: new Date(data.created_at),
-        cardCount: data.card_count || 0
       };
       
       set((state) => ({
@@ -344,7 +305,6 @@ export const useFlashcardStore = create<FlashcardStore>((set, get) => ({
       if (updates.name !== undefined) updateData.name = updates.name;
       if (updates.description !== undefined) updateData.description = updates.description;
       if (updates.color !== undefined) updateData.color = updates.color;
-      if (updates.cardCount !== undefined) updateData.card_count = updates.cardCount;
 
       const { data, error } = await supabase
         .from('flashcard_sets')
@@ -364,7 +324,6 @@ export const useFlashcardStore = create<FlashcardStore>((set, get) => ({
         description: data.description,
         color: data.color,
         createdAt: new Date(data.created_at),
-        cardCount: data.card_count || 0
       };
 
       set((state) => ({
@@ -386,16 +345,5 @@ export const useFlashcardStore = create<FlashcardStore>((set, get) => ({
   
   getFlashcardsBySet: (setId: string) => {
     return get().flashcards.filter(card => card.setId === setId);
-  },
-  
-  getDefaultSet: () => {
-    return get().sets[0] || {
-      id: 'default',
-      name: 'General',
-      description: 'Default flashcard set',
-      color: 'bg-blue-500',
-      createdAt: new Date(),
-      cardCount: 0
-    };
   },
 }));

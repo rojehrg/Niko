@@ -32,6 +32,30 @@ CREATE TABLE public.exams (
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
+-- Create flashcard_sets table
+CREATE TABLE public.flashcard_sets (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID NOT NULL,
+  name TEXT NOT NULL,
+  description TEXT,
+  color TEXT DEFAULT 'bg-blue-500',
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Create flashcards table
+CREATE TABLE public.flashcards (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID NOT NULL,
+  front TEXT NOT NULL,
+  back TEXT NOT NULL,
+  set_id UUID NOT NULL REFERENCES public.flashcard_sets(id) ON DELETE CASCADE,
+  difficulty TEXT DEFAULT 'medium' CHECK (difficulty IN ('easy', 'medium', 'hard')),
+  last_studied TIMESTAMP WITH TIME ZONE,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
 -- Create events table for holidays/events with countdown functionality
 CREATE TABLE public.events (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -52,6 +76,10 @@ CREATE TABLE public.events (
 CREATE INDEX idx_exams_user_id ON public.exams(user_id);
 CREATE INDEX idx_exams_exam_date ON public.exams(exam_date);
 CREATE INDEX idx_exams_status ON public.exams(status);
+CREATE INDEX idx_flashcard_sets_user_id ON public.flashcard_sets(user_id);
+CREATE INDEX idx_flashcards_user_id ON public.flashcards(user_id);
+CREATE INDEX idx_flashcards_set_id ON public.flashcards(set_id);
+CREATE INDEX idx_flashcards_difficulty ON public.flashcards(difficulty);
 CREATE INDEX idx_events_user_id ON public.events(user_id);
 CREATE INDEX idx_events_event_date ON public.events(event_date);
 CREATE INDEX idx_events_category ON public.events(category);
@@ -59,6 +87,8 @@ CREATE INDEX idx_events_category ON public.events(category);
 -- Enable Row Level Security
 ALTER TABLE public.user_profiles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.exams ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.flashcard_sets ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.flashcards ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.events ENABLE ROW LEVEL SECURITY;
 
 -- Create RLS policies
@@ -75,6 +105,12 @@ CREATE POLICY "Users can view own exams" ON public.exams
   FOR ALL USING (auth.uid()::text = user_id::text);
 
 CREATE POLICY "Users can view own events" ON public.events
+  FOR ALL USING (auth.uid()::text = user_id::text);
+
+CREATE POLICY "Users can view own flashcard sets" ON public.flashcard_sets
+  FOR ALL USING (auth.uid()::text = user_id::text);
+
+CREATE POLICY "Users can view own flashcards" ON public.flashcards
   FOR ALL USING (auth.uid()::text = user_id::text);
 
 -- Create function to create user profile
@@ -123,6 +159,8 @@ CREATE TRIGGER update_events_updated_at
 -- Grant permissions
 GRANT ALL ON public.user_profiles TO authenticated;
 GRANT ALL ON public.exams TO authenticated;
+GRANT ALL ON public.flashcard_sets TO authenticated;
+GRANT ALL ON public.flashcards TO authenticated;
 GRANT ALL ON public.events TO authenticated;
 GRANT EXECUTE ON FUNCTION public.create_user_profile TO authenticated;
 GRANT EXECUTE ON FUNCTION public.update_updated_at_column TO authenticated;

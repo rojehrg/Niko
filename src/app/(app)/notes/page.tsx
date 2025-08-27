@@ -18,8 +18,7 @@ export default function NotesPage() {
   const [editingNote, setEditingNote] = useState<Note | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState<"date" | "title" | "pinned">("date");
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const [noteToDelete, setNoteToDelete] = useState<string | null>(null);
+
   const [selectedNotes, setSelectedNotes] = useState<Set<string>>(new Set());
   const [isMultiSelectMode, setIsMultiSelectMode] = useState(false);
   const [showBulkDeleteConfirm, setShowBulkDeleteConfirm] = useState(false);
@@ -66,19 +65,7 @@ export default function NotesPage() {
   };
 
   const handleDelete = (id: string) => {
-    setNoteToDelete(id);
-    setShowDeleteConfirm(true);
-  };
-
-  const confirmDelete = async () => {
-    if (noteToDelete) {
-      try {
-        await deleteNote(noteToDelete);
-      } catch (error) {
-        console.error('Failed to delete note:', error);
-      }
-      setNoteToDelete(null);
-    }
+    deleteNote(id);
   };
 
   const handleCloseEditor = () => {
@@ -155,7 +142,7 @@ export default function NotesPage() {
           <select
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value as "date" | "title" | "pinned")}
-            className="px-3 py-2 border border-[var(--border)] rounded-md bg-[var(--background)] text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[#2e75cc]"
+            className="px-4 py-2 pr-8 border border-[var(--border)] rounded-md bg-[var(--background)] text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[#2e75cc] appearance-none cursor-pointer"
           >
             <option value="date">By Date</option>
             <option value="title">By Title</option>
@@ -283,6 +270,9 @@ export default function NotesPage() {
                       note={note}
                       onEdit={handleEdit}
                       onDelete={handleDelete}
+                      isMultiSelectMode={isMultiSelectMode}
+                      isSelected={selectedNotes.has(note.id)}
+                      onToggleSelection={toggleNoteSelection}
                     />
                   ))}
                 </div>
@@ -304,6 +294,9 @@ export default function NotesPage() {
                       note={note}
                       onEdit={handleEdit}
                       onDelete={handleDelete}
+                      isMultiSelectMode={isMultiSelectMode}
+                      isSelected={selectedNotes.has(note.id)}
+                      onToggleSelection={toggleNoteSelection}
                     />
                   ))}
                 </div>
@@ -317,19 +310,19 @@ export default function NotesPage() {
       <NoteEditor
         isOpen={isEditorOpen}
         onClose={handleCloseEditor}
+        editingNote={editingNote}
       />
 
-      {/* Delete Confirmation Modal */}
+
+
+      {/* Bulk Delete Confirmation Modal */}
       <ConfirmationModal
-        isOpen={showDeleteConfirm}
-        onClose={() => {
-          setShowDeleteConfirm(false);
-          setNoteToDelete(null);
-        }}
-        onConfirm={confirmDelete}
-        title="Delete Note"
-        message="Are you sure you want to delete this note? This action cannot be undone."
-        confirmText="Delete"
+        isOpen={showBulkDeleteConfirm}
+        onClose={() => setShowBulkDeleteConfirm(false)}
+        onConfirm={handleBulkDelete}
+        title="Delete Multiple Notes"
+        message={`Are you sure you want to delete ${selectedNotes.size} note${selectedNotes.size !== 1 ? 's' : ''}? This action cannot be undone.`}
+        confirmText="Delete All"
         cancelText="Cancel"
         type="danger"
       />

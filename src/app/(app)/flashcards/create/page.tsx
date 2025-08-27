@@ -6,17 +6,23 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
-import { BookOpen, RotateCcw } from "lucide-react";
+import { BookOpen, RotateCcw, Plus, FolderOpen } from "lucide-react";
 import { useFlashcardStore } from "@/lib/stores/flashcard-store";
 import Link from "next/link";
 
 export default function CreateFlashcardPage() {
-  const { addFlashcard, sets, fetchSets, getDefaultSet } = useFlashcardStore();
+  const { addFlashcard, sets, fetchSets, addSet } = useFlashcardStore();
   const [front, setFront] = useState("");
   const [back, setBack] = useState("");
   const [selectedSetId, setSelectedSetId] = useState("");
   const [isFlipped, setIsFlipped] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showSetCreator, setShowSetCreator] = useState(false);
+  const [newSetData, setNewSetData] = useState({
+    name: "",
+    description: "",
+    color: "bg-blue-500"
+  });
 
   useEffect(() => {
     fetchSets();
@@ -28,7 +34,19 @@ export default function CreateFlashcardPage() {
     }
   }, [sets, selectedSetId]);
 
-  const selectedSet = sets.find(set => set.id === selectedSetId) || getDefaultSet();
+  const selectedSet = sets.find(set => set.id === selectedSetId);
+
+  const handleCreateSet = async () => {
+    if (!newSetData.name.trim()) return;
+    
+    try {
+      await addSet(newSetData.name.trim(), newSetData.description.trim() || undefined, newSetData.color);
+      setNewSetData({ name: "", description: "", color: "bg-blue-500" });
+      setShowSetCreator(false);
+    } catch (error) {
+      console.error("Failed to create set:", error);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -41,21 +59,18 @@ export default function CreateFlashcardPage() {
     
     try {
       await addFlashcard(front.trim(), back.trim(), selectedSetId);
-      
-      // Reset form
-      setFront("");
-      setBack("");
-      setIsFlipped(false);
-      
-      // Show success message or redirect
-      alert("Flashcard created successfully!");
+      window.location.href = '/flashcards';
     } catch (error) {
       console.error("Failed to create flashcard:", error);
       alert("Failed to create flashcard. Please try again.");
-    } finally {
       setIsSubmitting(false);
     }
   };
+
+  const colors = [
+    'bg-blue-500', 'bg-purple-500', 'bg-green-500', 'bg-orange-500',
+    'bg-pink-500', 'bg-indigo-500', 'bg-teal-500', 'bg-red-500'
+  ];
 
   return (
     <div className="min-h-screen p-6 max-w-7xl mx-auto">
@@ -87,66 +102,95 @@ export default function CreateFlashcardPage() {
                 
                 {/* Flashcard Set Selection */}
                 <div className="space-y-3">
-                  <Label htmlFor="set" className="text-sm font-semibold text-[var(--foreground)]">
-                    Flashcard Set
-                  </Label>
-                  <select
-                    id="set"
-                    value={selectedSetId}
-                    onChange={(e) => setSelectedSetId(e.target.value)}
-                    className="w-full px-3 py-2.5 border border-[var(--border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent transition-all duration-200 bg-[var(--background-secondary)] text-[var(--foreground)]"
-                  >
-                    {sets.map((set) => (
-                      <option key={set.id} value={set.id}>
-                        {set.name}
-                      </option>
-                    ))}
-                  </select>
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="set" className="text-sm font-semibold text-[var(--foreground)] flex items-center gap-2">
+                      <FolderOpen className="h-4 w-4 text-[var(--primary)]" />
+                      Study Set
+                    </Label>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setShowSetCreator(true)}
+                      className="border-[var(--border)] text-[var(--foreground)] hover:bg-[var(--hover)] px-3 py-1"
+                    >
+                      <Plus className="mr-2 h-4 w-4" />
+                      New Set
+                    </Button>
+                  </div>
+                  
+                  {sets.length === 0 ? (
+                    <div className="text-center py-8 border-2 border-dashed border-[var(--border)] rounded-lg">
+                      <FolderOpen className="h-12 w-12 text-[var(--foreground-tertiary)] mx-auto mb-4" />
+                      <p className="text-[var(--foreground-secondary)] mb-4">No study sets yet</p>
+                      <Button
+                        type="button"
+                        onClick={() => setShowSetCreator(true)}
+                        className="bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white"
+                      >
+                        <Plus className="mr-2 h-4 w-4" />
+                        Create Your First Set
+                      </Button>
+                    </div>
+                  ) : (
+                    <select
+                      id="set"
+                      value={selectedSetId}
+                      onChange={(e) => setSelectedSetId(e.target.value)}
+                      className="w-full px-3 py-2.5 border border-[var(--border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent transition-all duration-200 bg-[var(--background)] text-[var(--foreground)]"
+                    >
+                      {sets.map((set) => (
+                        <option key={set.id} value={set.id}>
+                          {set.name}
+                        </option>
+                      ))}
+                    </select>
+                  )}
                 </div>
 
-                {/* Question (Front Side) */}
+                {/* Question Input */}
                 <div className="space-y-3">
                   <Label htmlFor="front" className="text-sm font-semibold text-[var(--foreground)]">
-                    Question (Front Side)
+                    Question
                   </Label>
                   <Textarea
                     id="front"
+                    placeholder="What would you like to learn?"
                     value={front}
                     onChange={(e) => setFront(e.target.value)}
-                    placeholder="Enter your question here..."
-                    className="min-h-32 border-[var(--border)] bg-[var(--background)] text-[var(--foreground)] focus:ring-2 focus:ring-[var(--primary)] focus:border-[var(--primary)] resize-none transition-all duration-200 rounded-lg"
+                    className="min-h-[120px] px-3 py-2.5 border border-[var(--border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent transition-all duration-200 bg-[var(--background)] text-[var(--foreground)] placeholder:text-[var(--foreground-tertiary)] resize-none"
                   />
                 </div>
 
-                {/* Answer (Back Side) */}
+                {/* Answer Input */}
                 <div className="space-y-3">
                   <Label htmlFor="back" className="text-sm font-semibold text-[var(--foreground)]">
-                    Answer (Back Side)
+                    Answer
                   </Label>
                   <Textarea
                     id="back"
+                    placeholder="What's the answer or explanation?"
                     value={back}
                     onChange={(e) => setBack(e.target.value)}
-                    placeholder="Enter your answer here..."
-                    className="min-h-32 border-[var(--border)] bg-[var(--background)] text-[var(--foreground)] focus:ring-2 focus:ring-[var(--primary)] focus:border-[var(--primary)] resize-none transition-all duration-200 rounded-lg"
+                    className="min-h-[120px] px-3 py-2.5 border border-[var(--border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent transition-all duration-200 bg-[var(--background)] text-[var(--foreground)] placeholder:text-[var(--foreground-tertiary)] resize-none"
                   />
                 </div>
 
-                {/* Action Buttons */}
-                <div className="flex items-center gap-4 pt-8 border-t border-[var(--border)]">
+                {/* Submit Buttons */}
+                <div className="flex flex-col sm:flex-row gap-4 pt-4">
                   <Button
                     type="submit"
                     disabled={!front.trim() || !back.trim() || !selectedSetId || isSubmitting}
-                    className="flex-1 h-12 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                    className="flex-1 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white px-6 py-3"
                   >
                     {isSubmitting ? (
-                      <div className="flex items-center gap-2">
-                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                      <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-3"></div>
                         Creating...
-                      </div>
+                      </>
                     ) : (
                       <>
-                        <BookOpen className="mr-2 h-4 w-4" />
+                        <BookOpen className="mr-2 h-5 w-5" />
                         Create Flashcard
                       </>
                     )}
@@ -176,21 +220,28 @@ export default function CreateFlashcardPage() {
                   onClick={() => setIsFlipped(!isFlipped)}
                   className="text-[var(--foreground-secondary)] hover:text-[var(--foreground)]"
                 >
-                  <RotateCcw className="mr-2 h-3 w-3" />
+                  <RotateCcw className="mr-2 h-4 w-4" />
                   Flip
                 </Button>
               )}
             </div>
             
             {/* Set Info */}
-            <div className="mb-4 p-3 bg-[var(--hover)] rounded-lg">
-              <div className="flex items-center gap-2">
-                <div className={`w-3 h-3 ${selectedSet.color} rounded-full`}></div>
-                <span className="text-sm font-medium text-[var(--foreground)]">
-                  {selectedSet.name}
-                </span>
+            {selectedSet && (
+              <div className="mb-4 p-3 bg-[var(--hover)] rounded-lg">
+                <div className="flex items-center gap-2">
+                  <div className={`w-3 h-3 ${selectedSet.color} rounded-full`}></div>
+                  <span className="text-sm font-medium text-[var(--foreground)]">
+                    {selectedSet.name}
+                  </span>
+                  {selectedSet.description && (
+                    <span className="text-[var(--foreground-secondary)] text-sm">
+                      • {selectedSet.description}
+                    </span>
+                  )}
+                </div>
               </div>
-            </div>
+            )}
             
             {!front.trim() && !back.trim() ? (
               <div className="aspect-[3/2] border-2 border-dashed border-[var(--border)] rounded-lg flex items-center justify-center">
@@ -207,9 +258,9 @@ export default function CreateFlashcardPage() {
                 >
                   <div className={`flashcard-inner ${isFlipped ? 'flipped' : ''}`}>
                     {/* Front */}
-                    <div className="flashcard-face flashcard-front bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 border border-blue-200 dark:border-blue-800">
+                    <div className="flashcard-face flashcard-front bg-[var(--background-secondary)] border border-[var(--border)] rounded-lg">
                       <div className="absolute top-4 left-4">
-                        <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
+                        <div className="w-3 h-3 bg-[var(--primary)] rounded-full"></div>
                       </div>
                       <div className="flex items-center justify-center h-full p-6">
                         <p className="text-center text-[var(--foreground)] font-medium">
@@ -219,7 +270,7 @@ export default function CreateFlashcardPage() {
                     </div>
 
                     {/* Back */}
-                    <div className="flashcard-face flashcard-back bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 border border-green-200 dark:border-green-800">
+                    <div className="flashcard-face flashcard-back bg-[var(--background-secondary)] border border-[var(--border)] rounded-lg">
                       <div className="absolute top-4 left-4">
                         <div className="w-3 h-3 bg-green-500 rounded-full"></div>
                       </div>
@@ -242,6 +293,87 @@ export default function CreateFlashcardPage() {
           </div>
         </div>
       </div>
+
+      {/* Set Creator Modal */}
+      {showSetCreator && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-6 z-50">
+          <Card className="bg-[var(--background)] border-[var(--border)] shadow-2xl max-w-md w-full">
+            <CardHeader className="pb-4">
+              <CardTitle className="text-2xl font-bold text-[var(--foreground)]">
+                Create New Study Set
+              </CardTitle>
+              <p className="text-[var(--foreground-secondary)]">
+                Organize your flashcards by subject or topic
+              </p>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="space-y-3">
+                <Label htmlFor="setName" className="text-sm font-semibold text-[var(--foreground)]">
+                  Set Name
+                </Label>
+                <Input
+                  id="setName"
+                  placeholder="e.g., Biology, Math, History"
+                  value={newSetData.name}
+                  onChange={(e) => setNewSetData({...newSetData, name: e.target.value})}
+                  className="px-3 py-2.5 border border-[var(--border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent transition-all duration-200 bg-[var(--background)] text-[var(--foreground)]"
+                />
+              </div>
+              
+              <div className="space-y-3">
+                <Label htmlFor="setDescription" className="text-sm font-semibold text-[var(--foreground)]">
+                  Description (optional)
+                </Label>
+                <Textarea
+                  id="setDescription"
+                  placeholder="Brief description of this set"
+                  value={newSetData.description}
+                  onChange={(e) => setNewSetData({...newSetData, description: e.target.value})}
+                  className="px-3 py-2.5 border border-[var(--border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent transition-all duration-200 bg-[var(--background)] text-[var(--foreground)] resize-none"
+                  rows={3}
+                />
+              </div>
+              
+              <div className="space-y-3">
+                <Label className="text-sm font-semibold text-[var(--foreground)]">
+                  Color Theme
+                </Label>
+                <div className="grid grid-cols-4 gap-3">
+                  {colors.map((color) => (
+                    <button
+                      key={color}
+                      type="button"
+                      onClick={() => setNewSetData({...newSetData, color})}
+                      className={`w-12 h-12 ${color} rounded-lg border-2 transition-all duration-300 ${
+                        newSetData.color === color 
+                          ? 'border-[var(--foreground)] scale-110' 
+                          : 'border-[var(--border)] hover:scale-105'
+                      }`}
+                    />
+                  ))}
+                </div>
+              </div>
+              
+              <div className="flex gap-3 pt-4">
+                <Button
+                  onClick={handleCreateSet}
+                  disabled={!newSetData.name.trim()}
+                  className="flex-1 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white"
+                >
+                  Create Set
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => setShowSetCreator(false)}
+                  className="flex-1 border-[var(--border)] text-[var(--foreground)] hover:bg-[var(--hover)]"
+                >
+                  Cancel
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
     </div>
   );
 }

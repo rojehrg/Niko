@@ -335,14 +335,16 @@ export default function JobsPage() {
       {isFormOpen && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50 overflow-y-auto">
           <div className="w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-            <JobForm
-              onSubmit={handleSaveJob}
-              onCancel={() => {
-                setIsFormOpen(false)
-                setEditingJob(null)
-              }}
-              initialData={editingJob || undefined}
-            />
+            <div className="bg-[var(--background)] rounded-2xl shadow-2xl border border-[var(--border)] p-6">
+              <JobForm
+                onSubmit={handleSaveJob}
+                onCancel={() => {
+                  setIsFormOpen(false)
+                  setEditingJob(null)
+                }}
+                initialData={editingJob || undefined}
+              />
+            </div>
           </div>
         </div>
       )}

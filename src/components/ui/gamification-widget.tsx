@@ -11,20 +11,7 @@ interface Goal {
 }
 
 export function GamificationWidget() {
-  const [goals, setGoals] = useState<Goal[]>([
-    {
-      id: '1',
-      text: 'Create 5 notes this week',
-      completed: false,
-      createdAt: new Date().toISOString()
-    },
-    {
-      id: '2',
-      text: 'Study flashcards daily',
-      completed: false,
-      createdAt: new Date().toISOString()
-    }
-  ])
+  const [goals, setGoals] = useState<Goal[]>([])
 
   const [isAddingGoal, setIsAddingGoal] = useState(false)
   const [newGoalText, setNewGoalText] = useState('')

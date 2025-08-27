@@ -17,8 +17,7 @@ export default function ExamsPage() {
     addExam,
     updateExam,
     deleteExam,
-    toggleComplete,
-    sendReminder
+    toggleComplete
   } = useExamsStore()
 
   useEffect(() => {
@@ -285,22 +284,13 @@ export default function ExamsPage() {
                       <td className="py-3 px-4">
                         <div className="flex items-center gap-2">
                           {!exam.completed && (
-                            <>
-                              <button
-                                onClick={() => sendReminder(exam.id)}
-                                className="p-1 text-[var(--foreground-secondary)] hover:text-[var(--foreground)] hover:bg-[var(--hover)] rounded transition-colors"
-                                title="Send reminder"
-                              >
-                                <Bell className="w-4 h-4" />
-                              </button>
-                              <button
-                                onClick={() => setEditingExam(exam)}
-                                className="p-1 text-[var(--foreground-secondary)] hover:text-[var(--foreground)] hover:bg-[var(--hover)] rounded transition-colors"
-                                title="Edit"
-                              >
-                                <Edit3 className="w-4 h-4" />
-                              </button>
-                            </>
+                            <button
+                              onClick={() => setEditingExam(exam)}
+                              className="p-1 text-[var(--foreground-secondary)] hover:text-[var(--foreground)] hover:bg-[var(--hover)] rounded transition-colors"
+                              title="Edit"
+                            >
+                              <Edit3 className="w-4 h-4" />
+                            </button>
                           )}
                           <button
                             onClick={() => toggleComplete(exam.id)}
@@ -388,9 +378,7 @@ function ExamForm({ exam, onSubmit, onCancel }: {
     date: exam?.date ? new Date(exam.date).toISOString().split('T')[0] : '',
     time: exam?.time || '',
     location: exam?.location || '',
-    priority: exam?.priority || 'medium',
-    reminderEnabled: exam?.reminderEnabled || true,
-    reminderDays: exam?.reminderDays || [1, 3, 7]
+    priority: exam?.priority || 'medium'
   })
 
   const [isLoading, setIsLoading] = useState(false)
@@ -457,15 +445,22 @@ function ExamForm({ exam, onSubmit, onCancel }: {
           <label className="block text-sm font-medium text-[var(--foreground)] mb-2">
             Priority
           </label>
-          <select
-            value={formData.priority}
-            onChange={(e) => setFormData({ ...formData, priority: e.target.value })}
-            className="w-full px-3 py-2.5 bg-[var(--background-secondary)] border border-[var(--border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent transition-all duration-200"
-          >
-            <option value="low">Low</option>
-            <option value="medium">Medium</option>
-            <option value="high">High</option>
-          </select>
+          <div className="relative">
+            <select
+              value={formData.priority}
+              onChange={(e) => setFormData({ ...formData, priority: e.target.value })}
+              className="w-full px-3 py-2.5 pr-10 bg-[var(--background-secondary)] border border-[var(--border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent transition-all duration-200 appearance-none"
+            >
+              <option value="low">Low</option>
+              <option value="medium">Medium</option>
+              <option value="high">High</option>
+            </select>
+            <div className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
+              <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="m19 9-7 7-7-7" />
+              </svg>
+            </div>
+          </div>
         </div>
       </div>
       
@@ -474,25 +469,53 @@ function ExamForm({ exam, onSubmit, onCancel }: {
           <label className="block text-sm font-medium text-[var(--foreground)] mb-2">
             Date *
           </label>
-          <input
-            type="date"
-            value={formData.date}
-            onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-            className="w-full px-3 py-2.5 bg-[var(--background-secondary)] border border-[var(--border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent transition-all duration-200"
-            required
-          />
+          <div className="relative">
+            <input
+              type="date"
+              value={formData.date}
+              onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+              className="w-full px-3 py-2.5 pr-10 bg-[var(--background-secondary)] border border-[var(--border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent transition-all duration-200 [&::-webkit-calendar-picker-indicator]:opacity-0"
+              required
+            />
+            <button
+              type="button"
+              onClick={() => {
+                const dateInput = document.querySelector('input[type="date"]') as HTMLInputElement;
+                if (dateInput && 'showPicker' in dateInput) {
+                  dateInput.showPicker();
+                }
+              }}
+              className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-white hover:text-[var(--primary)] transition-colors cursor-pointer"
+            >
+              <Calendar className="w-full h-full" />
+            </button>
+          </div>
         </div>
         
         <div>
           <label className="block text-sm font-medium text-[var(--foreground)] mb-2">
             Time
           </label>
-          <input
-            type="time"
-            value={formData.time}
-            onChange={(e) => setFormData({ ...formData, time: e.target.value })}
-            className="w-full px-3 py-2.5 bg-[var(--background-secondary)] border border-[var(--border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent transition-all duration-200"
-          />
+          <div className="relative">
+            <input
+              type="time"
+              value={formData.time}
+              onChange={(e) => setFormData({ ...formData, time: e.target.value })}
+              className="w-full px-3 py-2.5 pr-10 bg-[var(--background-secondary)] border border-[var(--border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent transition-all duration-200 [&::-webkit-calendar-picker-indicator]:opacity-0"
+            />
+            <button
+              type="button"
+              onClick={() => {
+                const timeInput = document.querySelector('input[type="time"]') as HTMLInputElement;
+                if (timeInput && 'showPicker' in timeInput) {
+                  timeInput.showPicker();
+                }
+              }}
+              className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-white hover:text-[var(--primary)] transition-colors cursor-pointer"
+            >
+              <Clock className="w-full h-full" />
+            </button>
+          </div>
         </div>
       </div>
       
@@ -509,18 +532,7 @@ function ExamForm({ exam, onSubmit, onCancel }: {
         />
       </div>
       
-      <div className="flex items-center gap-3 p-3 bg-[var(--background-secondary)] rounded-lg border border-[var(--border)]">
-        <input
-          type="checkbox"
-          id="reminderEnabled"
-          checked={formData.reminderEnabled}
-          onChange={(e) => setFormData({ ...formData, reminderEnabled: e.target.checked })}
-          className="w-4 h-4 text-[var(--primary)] rounded border-[var(--border)] focus:ring-[var(--primary)]"
-        />
-        <label htmlFor="reminderEnabled" className="text-sm text-[var(--foreground)]">
-          Enable SMS reminders for this exam
-        </label>
-      </div>
+
       
       <div className="flex gap-3 pt-4">
         <button

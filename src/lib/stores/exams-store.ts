@@ -10,8 +10,6 @@ export interface Exam {
   time?: string
   location?: string
   priority: 'low' | 'medium' | 'high'
-  reminderEnabled: boolean
-  reminderDays: number
   completed: boolean
   createdAt: string
   updatedAt: string
@@ -25,8 +23,6 @@ export interface ExamInput {
   time?: string
   location?: string
   priority: 'low' | 'medium' | 'high'
-  reminderEnabled: boolean
-  reminderDays: number
 }
 
 interface ExamsStore {
@@ -38,7 +34,6 @@ interface ExamsStore {
   updateExam: (id: string, updates: Partial<ExamInput>) => Promise<void>
   deleteExam: (id: string) => Promise<void>
   toggleComplete: (id: string) => Promise<void>
-  sendReminder: (id: string) => Promise<void>
 }
 
 // Helper functions for local storage fallback
@@ -88,9 +83,24 @@ export const useExamsStore = create<ExamsStore>((set, get) => ({
           throw error;
         }
 
-        // Update local storage with Supabase data
-        setLocalExams(data || [])
-        set({ exams: data || [], isLoading: false })
+        // Convert Supabase data (snake_case) back to our format (camelCase)
+        const convertedData = (data || []).map((exam: any) => ({
+          id: exam.id,
+          title: exam.title,
+          description: exam.description,
+          subject: exam.subject,
+          date: exam.date,
+          time: exam.time,
+          location: exam.location,
+          priority: exam.priority,
+          completed: exam.completed,
+          createdAt: exam.created_at,
+          updatedAt: exam.updated_at
+        }))
+
+        // Update local storage with converted data
+        setLocalExams(convertedData)
+        set({ exams: convertedData, isLoading: false })
         return
       }
     } catch (error) {
@@ -117,17 +127,45 @@ export const useExamsStore = create<ExamsStore>((set, get) => ({
       // Try to save to Supabase
       if (supabase) {
         try {
+          // Convert to Supabase format (snake_case)
+          const supabaseExam = {
+            title: newExam.title,
+            description: newExam.description,
+            subject: newExam.subject,
+            date: newExam.date,
+            time: newExam.time,
+            location: newExam.location,
+            priority: newExam.priority,
+            completed: newExam.completed,
+            created_at: newExam.createdAt,
+            updated_at: newExam.updatedAt
+          }
+
           const { data, error } = await supabase
             .from('exams')
-            .insert([newExam])
+            .insert([supabaseExam])
             .select()
             .single()
 
           if (error) throw error
           
-          // Update local storage
+          // Convert Supabase response back to our format and update local storage
+          const convertedExam = {
+            id: data.id,
+            title: data.title,
+            description: data.description,
+            subject: data.subject,
+            date: data.date,
+            time: data.time,
+            location: data.location,
+            priority: data.priority,
+            completed: data.completed,
+            createdAt: data.created_at,
+            updatedAt: data.updated_at
+          }
+          
           const currentExams = get().exams
-          const updatedExams = [...currentExams, data]
+          const updatedExams = [...currentExams, convertedExam]
           setLocalExams(updatedExams)
           set({ exams: updatedExams, isLoading: false })
           return
@@ -159,12 +197,20 @@ export const useExamsStore = create<ExamsStore>((set, get) => ({
       // Try to update in Supabase
       if (supabase) {
         try {
+          // Convert to Supabase format (snake_case)
+          const supabaseUpdates: Record<string, unknown> = {}
+          if (updates.title !== undefined) supabaseUpdates.title = updates.title
+          if (updates.description !== undefined) supabaseUpdates.description = updates.description
+          if (updates.subject !== undefined) supabaseUpdates.subject = updates.subject
+          if (updates.date !== undefined) supabaseUpdates.date = updates.date
+          if (updates.time !== undefined) supabaseUpdates.time = updates.time
+          if (updates.location !== undefined) supabaseUpdates.location = updates.location
+          if (updates.priority !== undefined) supabaseUpdates.priority = updates.priority
+          supabaseUpdates.updated_at = new Date().toISOString()
+
           const { error } = await supabase
             .from('exams')
-            .update({
-              ...updates,
-              updatedAt: new Date().toISOString()
-            })
+            .update(supabaseUpdates)
             .eq('id', id)
 
           if (error) throw error

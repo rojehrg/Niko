@@ -5,11 +5,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { X, Save, Palette, Pin, Tag, Calendar } from "lucide-react";
-import { useNotesStore } from "@/lib/stores/notes-store";
+import { useNotesStore, Note } from "@/lib/stores/notes-store";
 
 interface NoteEditorProps {
   isOpen: boolean;
   onClose: () => void;
+  editingNote?: Note | null;
 }
 
 const NOTE_COLORS = [
@@ -99,8 +100,9 @@ const NOTE_COLORS = [
   }
 ];
 
-export function NoteEditor({ isOpen, onClose }: NoteEditorProps) {
+export function NoteEditor({ isOpen, onClose, editingNote }: NoteEditorProps) {
   const addNote = useNotesStore((state) => state.addNote);
+  const updateNote = useNotesStore((state) => state.updateNote);
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [selectedColor, setSelectedColor] = useState(NOTE_COLORS[0]);
@@ -120,26 +122,49 @@ export function NoteEditor({ isOpen, onClose }: NoteEditorProps) {
     }
   }, [isOpen]);
 
+  // Populate form when editing a note
+  useEffect(() => {
+    if (editingNote) {
+      setTitle(editingNote.title);
+      setContent(editingNote.content);
+      setSelectedColor(NOTE_COLORS.find(color => color.value === editingNote.color) || NOTE_COLORS[0]);
+      setTags(editingNote.tags);
+      setIsPinned(editingNote.isPinned);
+    } else {
+      // Reset form for new note
+      setTitle("");
+      setContent("");
+      setSelectedColor(NOTE_COLORS[0]);
+      setTags([]);
+      setIsPinned(false);
+    }
+  }, [editingNote]);
+
   const handleSave = async () => {
     setIsSaving(true);
     
     // Simulate save delay for animation
     await new Promise(resolve => setTimeout(resolve, 800));
 
-    addNote({
-      title: title.trim() || "Untitled Note",
-      content: content.trim() || "No content",
-      color: selectedColor.value,
-      tags,
-      isPinned,
-    });
-
-    // Reset form
-    setTitle("");
-    setContent("");
-    setSelectedColor(NOTE_COLORS[0]);
-    setTags([]);
-    setIsPinned(false);
+    if (editingNote) {
+      // Update existing note
+      await updateNote(editingNote.id, {
+        title: title.trim() || "Untitled Note",
+        content: content.trim() || "No content",
+        color: selectedColor.value,
+        tags,
+        isPinned,
+      });
+    } else {
+      // Create new note
+      await addNote({
+        title: title.trim() || "Untitled Note",
+        content: content.trim() || "No content",
+        color: selectedColor.value,
+        tags,
+        isPinned,
+      });
+    }
     
     setIsSaving(false);
     onClose();
@@ -174,6 +199,9 @@ export function NoteEditor({ isOpen, onClose }: NoteEditorProps) {
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-[var(--border)]">
           <div className="flex items-center gap-3">
+            <h2 className="text-xl font-semibold text-[var(--foreground)]">
+              {editingNote ? 'Edit Note' : 'Create Note'}
+            </h2>
             {/* Color Picker */}
             <div className="relative">
               <button
@@ -338,7 +366,7 @@ export function NoteEditor({ isOpen, onClose }: NoteEditorProps) {
               ) : (
                 <>
                   <Save className="mr-2 h-4 w-4 group-hover:scale-110 transition-transform duration-200" />
-                  <span className="font-medium">Save Note</span>
+                  <span className="font-medium">{editingNote ? 'Update Note' : 'Save Note'}</span>
                 </>
               )}
             </Button>

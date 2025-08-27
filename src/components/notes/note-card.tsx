@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { Note } from "@/lib/stores/notes-store";
 import { formatDistanceToNow } from "date-fns";
+import { ConfirmationModal } from "@/components/ui/confirmation-modal";
 
 interface NoteCardProps {
   note: Note;
@@ -33,6 +34,7 @@ export function NoteCard({
   onToggleSelection 
 }: NoteCardProps) {
   const [isHovered, setIsHovered] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   const getColorClasses = (color: string) => {
     // Enhanced color mapping with proper names
@@ -204,6 +206,11 @@ export function NoteCard({
         </div>
       )}
 
+      {/* Selection indicator - shaded overlay instead of checkbox */}
+      {isMultiSelectMode && isSelected && (
+        <div className="absolute inset-0 bg-[var(--primary)]/20 border-2 border-[var(--primary)] rounded-xl z-10 pointer-events-none" />
+      )}
+
       <Card 
         className={`
           relative overflow-hidden transition-all duration-300 cursor-pointer
@@ -211,7 +218,13 @@ export function NoteCard({
           hover:border-[var(--border-hover)] hover:shadow-lg
           ${isHovered ? 'scale-[1.02]' : 'shadow-sm'}
         `}
-        onClick={() => onEdit(note)}
+        onClick={() => {
+          if (isMultiSelectMode) {
+            onToggleSelection?.(note.id);
+          } else {
+            onEdit(note);
+          }
+        }}
       >
         {/* Color accent bar */}
         <div className={`h-1 w-full ${colorClasses.accent}`} />
@@ -235,7 +248,7 @@ export function NoteCard({
               variant="ghost"
               onClick={(e) => {
                 e.stopPropagation();
-                onDelete(note.id);
+                setShowDeleteConfirm(true);
               }}
               className="h-8 w-8 p-0 bg-white/80 dark:bg-black/80 hover:bg-red-50 dark:hover:bg-red-900/20 border border-gray-200 dark:border-gray-700 hover:border-red-300 dark:hover:border-red-700 hover:scale-110 transition-all duration-200"
             >
@@ -294,6 +307,21 @@ export function NoteCard({
           </div>
         </CardContent>
       </Card>
+
+      {/* Delete Confirmation Modal */}
+      <ConfirmationModal
+        isOpen={showDeleteConfirm}
+        onClose={() => setShowDeleteConfirm(false)}
+        onConfirm={() => {
+          onDelete(note.id);
+          setShowDeleteConfirm(false);
+        }}
+        title="Delete Note"
+        message={`Are you sure you want to delete "${note.title}"? This action cannot be undone.`}
+        confirmText="Delete"
+        cancelText="Cancel"
+        type="danger"
+      />
     </div>
   );
 }
