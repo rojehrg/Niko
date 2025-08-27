@@ -60,7 +60,7 @@ export default function DashboardPage() {
         <div className="mb-8">
           <h1 className="text-4xl font-bold text-[var(--foreground)] mb-2">
             <span className="inline-block">
-              {'Welcome back, Niko!'.split('').map((char, index) => (
+              {'Welcome back, Nikho!'.split('').map((char, index) => (
                 <span
                   key={index}
                   className="inline-block"

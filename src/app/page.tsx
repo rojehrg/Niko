@@ -22,7 +22,7 @@ export default function HomePage() {
           LETS GET THESE GRADES!!!!!
         </div>
         <div className="text-[var(--foreground-secondary)]">
-          Made by Mr.Slime himself, to Niko
+          Made by Mr.Slime himself, to Nikho
         </div>
       </div>
     </div>
