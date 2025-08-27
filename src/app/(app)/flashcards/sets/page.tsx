@@ -143,10 +143,10 @@ export default function FlashcardSetsPage() {
               </div>
               
               <div className="space-y-3">
-                <label className="text-sm font-medium text-[var(--foreground)]">
+                <label className="text-sm font-medium text-[var(--foreground)] text-center">
                   Color Theme
                 </label>
-                <div className="flex gap-2 flex-wrap">
+                <div className="flex gap-2 flex-wrap justify-center">
                   {colors.map((color) => (
                     <button
                       key={color}

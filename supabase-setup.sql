@@ -167,3 +167,27 @@ GRANT EXECUTE ON FUNCTION public.update_updated_at_column TO authenticated;
 
 -- Note: Email confirmation settings can be configured in Supabase Dashboard > Authentication > Settings
 -- For single-user use, you may want to disable email confirmation in the dashboard
+
+-- Create weekly_goals table for tracking weekly goals
+CREATE TABLE public.weekly_goals (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID NOT NULL,
+  text TEXT NOT NULL,
+  completed BOOLEAN DEFAULT false,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Create indexes for weekly_goals
+CREATE INDEX idx_weekly_goals_user_id ON public.weekly_goals(user_id);
+CREATE INDEX idx_weekly_goals_completed ON public.weekly_goals(completed);
+
+-- Enable RLS for weekly_goals
+ALTER TABLE public.weekly_goals ENABLE ROW LEVEL SECURITY;
+
+-- Create RLS policy for weekly_goals
+CREATE POLICY "Users can manage own weekly goals" ON public.weekly_goals
+  FOR ALL USING (auth.uid()::text = user_id::text);
+
+-- Grant permissions for weekly_goals
+GRANT ALL ON public.weekly_goals TO authenticated;

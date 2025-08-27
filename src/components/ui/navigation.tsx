@@ -2,7 +2,6 @@
 
 import { 
   BookOpen, 
-  StickyNote, 
   Briefcase, 
   Home,
   Calendar
@@ -14,7 +13,6 @@ import { cn } from '@/lib/utils'
 const navigation = [
   { name: "Dashboard", href: "/dashboard", icon: Home },
   { name: "Flashcards", href: "/flashcards", icon: BookOpen },
-  { name: "Notes", href: "/notes", icon: StickyNote },
   { name: "Exams", href: "/exams", icon: Calendar },
   { name: "Jobs", href: "/jobs", icon: Briefcase },
 ];
@@ -27,7 +25,10 @@ export function Navigation({ isCollapsed = false }: NavigationProps) {
   const pathname = usePathname();
 
   return (
-    <nav className="flex flex-col space-y-1 px-3 py-4">
+    <nav className={cn(
+      "flex flex-col space-y-1 py-4",
+      isCollapsed ? "px-2" : "px-3"
+    )}>
       {navigation.map((item) => {
         const isActive = pathname === item.href;
         return (
@@ -35,7 +36,8 @@ export function Navigation({ isCollapsed = false }: NavigationProps) {
             key={item.name}
             href={item.href}
             className={cn(
-              "group flex items-center gap-3 px-3 py-3 rounded-lg text-base font-medium transition-all duration-200 ease-out relative",
+              "group flex items-center gap-3 py-3 rounded-lg text-base font-medium transition-all duration-200 ease-out relative",
+              isCollapsed ? "px-2 justify-start" : "px-3",
               isActive
                 ? "bg-[var(--primary)]/10 text-[var(--primary)]"
                 : "text-[var(--foreground-secondary)] hover:text-[var(--foreground)] hover:bg-[var(--hover)]"
@@ -43,15 +45,53 @@ export function Navigation({ isCollapsed = false }: NavigationProps) {
             title={isCollapsed ? item.name : undefined}
           >
             {/* Icon container - fixed size to prevent snapping */}
-            <div className="w-6 h-6 flex items-center justify-center flex-shrink-0">
-              <item.icon 
-                className={cn(
-                  "w-5 h-5 transition-colors duration-200",
-                  isActive 
-                    ? "text-[var(--primary)]" 
-                    : "text-[var(--foreground-tertiary)] group-hover:text-[var(--foreground-secondary)]"
-                )} 
-              />
+            <div className="w-10 h-10 flex items-center justify-center flex-shrink-0">
+              {item.name === "Dashboard" ? (
+                <img 
+                  src="/sprites/dashboard.png" 
+                  alt="Dashboard" 
+                  className={cn(
+                    "w-8 h-8 transition-all duration-200",
+                    isActive && "brightness-125"
+                  )}
+                />
+              ) : item.name === "Flashcards" ? (
+                <img 
+                  src="/sprites/flashcards.png" 
+                  alt="Flashcards" 
+                  className={cn(
+                    "w-8 h-8 transition-all duration-200",
+                    isActive && "brightness-125"
+                  )}
+                />
+              ) : item.name === "Exams" ? (
+                <img 
+                  src="/sprites/exam.png" 
+                  alt="Exams" 
+                  className={cn(
+                    "w-8 h-8 transition-all duration-200",
+                    isActive && "brightness-125"
+                  )}
+                />
+              ) : item.name === "Jobs" ? (
+                <img 
+                  src="/sprites/jobs.png" 
+                  alt="Jobs" 
+                  className={cn(
+                    "w-8 h-8 transition-all duration-200",
+                    isActive && "brightness-125"
+                  )}
+                />
+              ) : (
+                <item.icon 
+                  className={cn(
+                    "w-8 h-8 transition-colors duration-200",
+                    isActive 
+                      ? "text-[var(--primary)]" 
+                      : "text-[var(--foreground-tertiary)] group-hover:text-[var(--foreground-secondary)]"
+                  )} 
+                />
+              )}
             </div>
             
             {/* Text - only show when not collapsed */}

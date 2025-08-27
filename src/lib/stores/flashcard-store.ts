@@ -13,6 +13,8 @@ export interface Flashcard {
   id: string;
   front: string;
   back: string;
+  questionImage?: string;
+  answerImage?: string;
   setId: string;
   createdAt: Date;
   lastStudied?: Date;
@@ -24,7 +26,7 @@ interface FlashcardStore {
   isLoading: boolean;
   
   // Flashcard operations
-  addFlashcard: (front: string, back: string, setId: string) => Promise<void>;
+  addFlashcard: (front: string, back: string, setId: string, questionImage?: string, answerImage?: string) => Promise<void>;
   removeFlashcard: (id: string) => Promise<void>;
   updateFlashcard: (id: string, updates: Partial<Flashcard>) => Promise<void>;
   getFlashcard: (id: string) => Flashcard | undefined;
@@ -77,6 +79,8 @@ export const useFlashcardStore = create<FlashcardStore>((set, get) => ({
         setId: card.set_id,
         createdAt: new Date(card.created_at),
         lastStudied: card.last_studied ? new Date(card.last_studied) : undefined,
+        questionImage: card.question_image,
+        answerImage: card.answer_image,
       })) || [];
 
       set({ flashcards, isLoading: false });
@@ -114,7 +118,7 @@ export const useFlashcardStore = create<FlashcardStore>((set, get) => ({
     }
   },
   
-  addFlashcard: async (front: string, back: string, setId: string) => {
+  addFlashcard: async (front: string, back: string, setId: string, questionImage?: string, answerImage?: string) => {
     set({ isLoading: true });
     try {
       const { data, error } = await supabase
@@ -123,6 +127,8 @@ export const useFlashcardStore = create<FlashcardStore>((set, get) => ({
           front,
           back,
           set_id: setId,
+          question_image: questionImage,
+          answer_image: answerImage,
         }])
         .select()
         .single();
@@ -138,6 +144,8 @@ export const useFlashcardStore = create<FlashcardStore>((set, get) => ({
         back: data.back,
         setId: data.set_id,
         createdAt: new Date(data.created_at),
+        questionImage: data.question_image,
+        answerImage: data.answer_image,
       };
       
       set((state) => ({
@@ -184,6 +192,8 @@ export const useFlashcardStore = create<FlashcardStore>((set, get) => ({
       if (updates.back !== undefined) updateData.back = updates.back;
       if (updates.setId !== undefined) updateData.set_id = updates.setId;
       if (updates.lastStudied !== undefined) updateData.last_studied = updates.lastStudied;
+      if (updates.questionImage !== undefined) updateData.question_image = updates.questionImage;
+      if (updates.answerImage !== undefined) updateData.answer_image = updates.answerImage;
 
       const { data, error } = await supabase
         .from('flashcards')
@@ -204,6 +214,8 @@ export const useFlashcardStore = create<FlashcardStore>((set, get) => ({
         setId: data.set_id,
         createdAt: new Date(data.created_at),
         lastStudied: data.last_studied ? new Date(data.last_studied) : undefined,
+        questionImage: data.question_image,
+        answerImage: data.answer_image,
       };
 
       set((state) => ({

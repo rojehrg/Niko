@@ -6,28 +6,107 @@ export function BunnyEnvironment() {
   const [isVisible, setIsVisible] = useState(false);
   const [isDaytime, setIsDaytime] = useState(true);
 
-  // Cute sound effect when touching bunnies
-  const playBunnySound = useCallback(() => {
+  // Sound effects for bunnies
+  const playBrownBunnySound = useCallback(() => {
     try {
-      // Create audio context for cute beep sound
-      const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
-      const oscillator = audioContext.createOscillator();
-      const gainNode = audioContext.createGain();
+      // Stop any currently playing brown bunny audio
+      if ((window as any).currentBrownBunnyAudio) {
+        (window as any).currentBrownBunnyAudio.pause();
+        (window as any).currentBrownBunnyAudio.currentTime = 0;
+      }
       
-      oscillator.connect(gainNode);
-      gainNode.connect(audioContext.destination);
+      const audio = new Audio('/sprites/brownbunnytalking.mp3');
+      audio.volume = 0.7;
+      audio.loop = false; // Ensure it doesn't loop
       
-      // Cute high-pitched beep
-      oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
-      oscillator.frequency.exponentialRampToValueAtTime(1200, audioContext.currentTime + 0.1);
+      // Store reference to current audio
+      (window as any).currentBrownBunnyAudio = audio;
       
-      gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-      gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+      audio.play().catch(error => {
+        console.log('Audio playback failed:', error);
+      });
       
-      oscillator.start(audioContext.currentTime);
-      oscillator.stop(audioContext.currentTime + 0.1);
+      // Stop audio after 5 seconds
+      setTimeout(() => {
+        if (audio) {
+          audio.pause();
+          audio.currentTime = 0;
+        }
+      }, 5000);
     } catch (error) {
-      console.log('Audio not supported, but bunny was touched! 🐰');
+      console.log('Audio not supported, but brown bunny was touched! 🐰');
+    }
+  }, []);
+
+  const playWhiteBunnySound = useCallback(() => {
+    try {
+      // Stop any currently playing white bunny audio
+      if ((window as any).currentWhiteBunnyAudio) {
+        (window as any).currentWhiteBunnyAudio.pause();
+        (window as any).currentWhiteBunnyAudio.currentTime = 0;
+      }
+      
+      const audio = new Audio('/sprites/whitebunnytalking.mp3');
+      audio.volume = 0.7;
+      audio.loop = false; // Ensure it doesn't loop
+      
+      // Store reference to current audio
+      (window as any).currentWhiteBunnyAudio = audio;
+      
+      audio.play().catch(error => {
+        console.log('Audio playback failed:', error);
+      });
+      
+      // Stop audio after 5 seconds
+      setTimeout(() => {
+        if (audio) {
+          audio.pause();
+          audio.currentTime = 0;
+        }
+      }, 5000);
+    } catch (error) {
+      console.log('Audio not supported, but white bunny was touched! 🐰');
+    }
+  }, []);
+
+  // Sound effects for flashcard answers
+  const playCorrectSound = useCallback(() => {
+    try {
+      const audio = new Audio('/sprites/correct.mp3');
+      audio.volume = 0.8;
+      audio.play().catch(error => {
+        console.log('Audio playback failed:', error);
+      });
+      
+      // Stop audio after 5 seconds
+      setTimeout(() => {
+        if (audio) {
+          audio.pause();
+          audio.currentTime = 0;
+        }
+      }, 5000);
+    } catch (error) {
+      console.log('Audio not supported');
+    }
+  }, []);
+
+  const playWrongSound = useCallback(() => {
+    try {
+      const audio = new Audio('/sprites/wrong.mp3');
+      audio.volume = 0.8;
+      audio.play().catch(error => {
+        console.log('Audio playback failed:', error);
+      });
+      
+      // Stop audio after 5 seconds
+      setTimeout(() => {
+        if (audio) {
+          audio.pause();
+          audio.currentTime = 0;
+        }
+      }, 5000);
+    } catch (error) {
+      console.log('Audio not supported');
     }
   }, []);
 
@@ -47,240 +126,570 @@ export function BunnyEnvironment() {
     return () => clearInterval(interval);
   }, []);
 
+  useEffect(() => {
+    // Listen for toggle event from the bunny button in layout
+    const handleToggle = () => setIsVisible(!isVisible);
+    window.addEventListener('toggleBunnyEnvironment', handleToggle);
+    
+    return () => window.removeEventListener('toggleBunnyEnvironment', handleToggle);
+  }, [isVisible]);
+
   return (
     <>
-      {/* Toggle Button - Bottom Right */}
-      <button
-        onClick={() => setIsVisible(!isVisible)}
-        className="fixed bottom-4 right-4 w-12 h-12 rounded-2xl bg-white/90 dark:bg-gray-800/90 border border-gray-200 dark:border-gray-600 shadow-lg z-50 flex items-center justify-center backdrop-blur-sm hover:shadow-xl transition-all duration-200"
-      >
-        <span className="text-xl">🐰</span>
-      </button>
+
 
       {/* Simple Running Bunnies - Only show when visible */}
       {isVisible && (
-        <div className="fixed bottom-0 left-0 right-0 h-20 z-40 overflow-hidden">
-          {/* Grass background - at the very bottom */}
-          <div className="absolute bottom-0 left-0 right-0 h-full" style={{
-            backgroundImage: 'url(/sprites/grass.png)',
-            backgroundSize: 'auto 100%',
-            backgroundPosition: 'bottom',
-            backgroundRepeat: 'repeat-x'
-          }} />
-          
-          {/* Sun/Moon above the grass field with clouds - LARGE and CENTERED */}
-          <div className="absolute top-20 left-1/2 transform -translate-x-1/2 z-30">
-            {/* Cloud behind sun/moon */}
-            <div className="absolute -top-4 -left-4 z-20">
-              <img 
-                src="/sprites/cloud.png" 
-                alt="Cloud" 
-                className="w-24 h-24"
-                style={{ imageRendering: 'pixelated' }}
-              />
+        <>
+          {/* Dynamic Sky Background - Day/Night based on timezone */}
+          <div className="fixed top-190 left-0 right-0 bottom-0 z-0 pointer-events-none">
+            <div className={`w-full h-full transition-all duration-1000 ${
+              isDaytime 
+                ? 'bg-gradient-to-b from-sky-100/80 via-blue-50/60 to-blue-100/40 dark:from-sky-200/60 dark:via-blue-100/40 dark:to-blue-50/30' 
+                : 'bg-gradient-to-b from-slate-900/90 via-slate-800/70 to-slate-700/50 dark:from-slate-800/80 dark:via-slate-700/60 dark:to-slate-600/40'
+            }`}>
+              {/* Day sky elements */}
+              {isDaytime && (
+                <>
+                  <div className="absolute top-10 left-20 w-2 h-2 bg-yellow-400/80 dark:bg-yellow-300/90 rounded-full animate-pulse shadow-lg"></div>
+                  <div className="absolute top-15 left-40 w-1 h-1 bg-yellow-300/70 dark:bg-yellow-200/80 rounded-full animate-pulse shadow-md"></div>
+                  <div className="absolute top-8 left-60 w-1.5 h-1.5 bg-yellow-400/80 dark:bg-yellow-300/90 rounded-full animate-pulse shadow-lg"></div>
+                  <div className="absolute top-12 left-80 w-1 h-1 bg-yellow-200/60 dark:bg-yellow-100/70 rounded-full animate-pulse shadow-sm"></div>
+                  <div className="absolute top-6 left-100 w-1.5 h-1.5 bg-yellow-300/70 dark:bg-yellow-200/80 rounded-full animate-pulse shadow-md"></div>
+                </>
+              )}
+              {/* Night sky elements */}
+              {!isDaytime && (
+                <>
+                  {/* Constellation 1 - Left side */}
+                  <div className="absolute top-8 left-10 w-1 h-1 bg-blue-100/90 dark:bg-blue-200/80 rounded-full animate-pulse shadow-sm"></div>
+                  <div className="absolute top-20 left-30 w-0.5 h-0.5 bg-blue-50/80 dark:bg-blue-100/70 rounded-full animate-pulse shadow-sm"></div>
+                  <div className="absolute top-12 left-50 w-1 h-1 bg-blue-100/90 dark:bg-blue-200/80 rounded-full animate-pulse shadow-sm"></div>
+                  <div className="absolute top-25 left-70 w-0.5 h-0.5 bg-blue-50/80 dark:bg-blue-100/70 rounded-full animate-pulse shadow-sm"></div>
+                  <div className="absolute top-15 left-90 w-1 h-1 bg-blue-100/90 dark:bg-blue-200/80 rounded-full animate-pulse shadow-sm"></div>
+                  <div className="absolute top-35 left-15 w-0.5 h-0.5 bg-blue-50/80 dark:bg-blue-100/70 rounded-full animate-pulse shadow-sm"></div>
+                  <div className="absolute top-18 left-45 w-1 h-1 bg-blue-100/90 dark:bg-blue-200/80 rounded-full animate-pulse shadow-sm"></div>
+                  <div className="absolute top-30 left-65 w-0.5 h-0.5 bg-blue-50/80 dark:bg-blue-100/70 rounded-full animate-pulse shadow-sm"></div>
+                  <div className="absolute top-22 left-85 w-1 h-1 bg-blue-100/90 dark:bg-blue-200/80 rounded-full animate-pulse shadow-sm"></div>
+                  <div className="absolute top-40 left-25 w-0.5 h-0.5 bg-blue-50/80 dark:bg-blue-100/70 rounded-full animate-pulse shadow-sm"></div>
+                  <div className="absolute top-28 left-55 w-1 h-1 bg-blue-100/90 dark:bg-blue-200/80 rounded-full animate-pulse shadow-sm"></div>
+                  <div className="absolute top-32 left-75 w-0.5 h-0.5 bg-blue-50/80 dark:bg-blue-100/70 rounded-full animate-pulse shadow-sm"></div>
+                  <div className="absolute top-16 left-95 w-1 h-1 bg-blue-100/90 dark:bg-blue-200/80 rounded-full animate-pulse shadow-sm"></div>
+                  <div className="absolute top-38 left-35 w-0.5 h-0.5 bg-blue-50/80 dark:bg-blue-100/70 rounded-full animate-pulse shadow-sm"></div>
+                  <div className="absolute top-26 left-80 w-1 h-1 bg-blue-100/90 dark:bg-blue-200/80 rounded-full animate-pulse shadow-sm"></div>
+                  
+                  {/* Constellation 2 - Center */}
+                  <div className="absolute top-10 left-[20%] w-1 h-1 bg-blue-100/90 dark:bg-blue-200/80 rounded-full animate-pulse shadow-sm"></div>
+                  <div className="absolute top-25 left-[25%] w-0.5 h-0.5 bg-blue-50/80 dark:bg-blue-100/70 rounded-full animate-pulse shadow-sm"></div>
+                  <div className="absolute top-15 left-[30%] w-1 h-1 bg-blue-100/90 dark:bg-blue-200/80 rounded-full animate-pulse shadow-sm"></div>
+                  <div className="absolute top-35 left-[35%] w-0.5 h-0.5 bg-blue-50/80 dark:bg-blue-100/70 rounded-full animate-pulse shadow-sm"></div>
+                  <div className="absolute top-20 left-[40%] w-1 h-1 bg-blue-100/90 dark:bg-blue-200/80 rounded-full animate-pulse shadow-sm"></div>
+                  <div className="absolute top-30 left-[45%] w-0.5 h-0.5 bg-blue-50/80 dark:bg-blue-100/70 rounded-full animate-pulse shadow-sm"></div>
+                  <div className="absolute top-18 left-[50%] w-1 h-1 bg-blue-100/90 dark:bg-blue-200/80 rounded-full animate-pulse shadow-sm"></div>
+                  <div className="absolute top-28 left-[55%] w-0.5 h-0.5 bg-blue-50/80 dark:bg-blue-100/70 rounded-full animate-pulse shadow-sm"></div>
+                  <div className="absolute top-22 left-[60%] w-1 h-1 bg-blue-100/90 dark:bg-blue-200/80 rounded-full animate-pulse shadow-sm"></div>
+                  <div className="absolute top-32 left-[65%] w-0.5 h-0.5 bg-blue-50/80 dark:bg-blue-100/70 rounded-full animate-pulse shadow-sm"></div>
+                  
+                  {/* Constellation 3 - Right side */}
+                  <div className="absolute top-12 left-[70%] w-1 h-1 bg-blue-100/90 dark:bg-blue-200/80 rounded-full animate-pulse shadow-sm"></div>
+                  <div className="absolute top-26 left-[75%] w-0.5 h-0.5 bg-blue-50/80 dark:bg-blue-100/70 rounded-full animate-pulse shadow-sm"></div>
+                  <div className="absolute top-16 left-[80%] w-1 h-1 bg-blue-100/90 dark:bg-blue-200/80 rounded-full animate-pulse shadow-sm"></div>
+                  <div className="absolute top-34 left-[85%] w-0.5 h-0.5 bg-blue-50/80 dark:bg-blue-100/70 rounded-full animate-pulse shadow-sm"></div>
+                  <div className="absolute top-24 left-[90%] w-1 h-1 bg-blue-100/90 dark:bg-blue-200/80 rounded-full animate-pulse shadow-sm"></div>
+                  <div className="absolute top-36 left-[95%] w-0.5 h-0.5 bg-blue-50/80 dark:bg-blue-100/70 rounded-full animate-pulse shadow-sm"></div>
+                  
+                  {/* Scattered stars across the sky */}
+                  <div className="absolute top-5 left-[15%] w-0.5 h-0.5 bg-blue-50/80 dark:bg-blue-100/70 rounded-full animate-pulse shadow-sm"></div>
+                  <div className="absolute top-42 left-[5%] w-1 h-1 bg-blue-100/90 dark:bg-blue-200/80 rounded-full animate-pulse shadow-sm"></div>
+                  <div className="absolute top-8 left-[80%] w-0.5 h-0.5 bg-blue-50/80 dark:bg-blue-100/70 rounded-full animate-pulse shadow-sm"></div>
+                  <div className="absolute top-45 left-[90%] w-1 h-1 bg-blue-100/90 dark:bg-blue-200/80 rounded-full animate-pulse shadow-sm"></div>
+                  <div className="absolute top-3 left-[45%] w-0.5 h-0.5 bg-blue-50/80 dark:bg-blue-100/70 rounded-full animate-pulse shadow-sm"></div>
+                  <div className="absolute top-38 left-[10%] w-1 h-1 bg-blue-100/90 dark:bg-blue-200/80 rounded-full animate-pulse shadow-sm"></div>
+                  <div className="absolute top-6 left-[85%] w-0.5 h-0.5 bg-blue-50/80 dark:bg-blue-100/70 rounded-full animate-pulse shadow-sm"></div>
+                  <div className="absolute top-40 left-[95%] w-1 h-1 bg-blue-100/90 dark:bg-blue-200/80 rounded-full animate-pulse shadow-sm"></div>
+                </>
+              )}
             </div>
-            {/* Sun/Moon */}
+          </div>
+          
+          {/* Individual grass field PNGs - positioned side by side with no gaps */}
+          {/* Grass field background - responsive coverage that scales with viewport */}
+          <div className="fixed bottom-[-63px] left-0 z-1 pointer-events-none">
             <img 
-              src={isDaytime ? "/sprites/sun.png" : "/sprites/moon.png"}
+              src="/sprites/acgrassfield.png" 
+              alt="Grass field" 
+              className="h-48"
+            />
+          </div>
+          <div className="fixed bottom-[-63px] left-[10vw] z-1 pointer-events-none">
+            <img 
+              src="/sprites/acgrassfield.png" 
+              alt="Grass field" 
+              className="h-48"
+            />
+          </div>
+          <div className="fixed bottom-[-63px] left-[20vw] z-1 pointer-events-none">
+            <img 
+              src="/sprites/acgrassfield.png" 
+              alt="Grass field" 
+              className="h-48"
+            />
+          </div>
+          <div className="fixed bottom-[-63px] left-[30vw] z-1 pointer-events-none">
+            <img 
+              src="/sprites/acgrassfield.png" 
+              alt="Grass field" 
+              className="h-48"
+            />
+          </div>
+          <div className="fixed bottom-[-63px] left-[40vw] z-1 pointer-events-none">
+            <img 
+              src="/sprites/acgrassfield.png" 
+              alt="Grass field" 
+              className="h-48"
+            />
+          </div>
+          <div className="fixed bottom-[-63px] left-[50vw] z-1 pointer-events-none">
+            <img 
+              src="/sprites/acgrassfield.png" 
+              alt="Grass field" 
+              className="h-48"
+            />
+          </div>
+          <div className="fixed bottom-[-63px] left-[60vw] z-1 pointer-events-none">
+            <img 
+              src="/sprites/acgrassfield.png" 
+              alt="Grass field" 
+              className="h-48"
+            />
+          </div>
+          <div className="fixed bottom-[-63px] left-[70vw] z-1 pointer-events-none">
+            <img 
+              src="/sprites/acgrassfield.png" 
+              alt="Grass field" 
+              className="h-48"
+            />
+          </div>
+          <div className="fixed bottom-[-63px] left-[80vw] z-1 pointer-events-none">
+            <img 
+              src="/sprites/acgrassfield.png" 
+              alt="Grass field" 
+              className="h-48"
+            />
+          </div>
+          <div className="fixed bottom-[-63px] left-[90vw] z-1 pointer-events-none">
+            <img 
+              src="/sprites/acgrassfield.png" 
+              alt="Grass field" 
+              className="h-48"
+            />
+          </div>
+          <div className="fixed bottom-[-63px] left-[100vw] z-1 pointer-events-none">
+            <img 
+              src="/sprites/acgrassfield.png" 
+              alt="Grass field" 
+              className="h-48"
+            />
+          </div>
+          <div className="fixed bottom-[-63px] left-[110vw] z-1 pointer-events-none">
+            <img 
+              src="/sprites/acgrassfield.png" 
+              alt="Grass field" 
+              className="h-48"
+            />
+          </div>
+          <div className="fixed bottom-[-63px] left-[120vw] z-1 pointer-events-none">
+            <img 
+              src="/sprites/acgrassfield.png" 
+              alt="Grass field" 
+              className="h-48"
+            />
+          </div>
+          <div className="fixed bottom-[-63px] left-[130vw] z-1 pointer-events-none">
+            <img 
+              src="/sprites/acgrassfield.png" 
+              alt="Grass field" 
+              className="h-48"
+            />
+          </div>
+          <div className="fixed bottom-[-63px] left-[140vw] z-1 pointer-events-none">
+            <img 
+              src="/sprites/acgrassfield.png" 
+              alt="Grass field" 
+              className="h-48"
+            />
+          </div>
+          <div className="fixed bottom-[-63px] left-[150vw] z-1 pointer-events-none">
+            <img 
+              src="/sprites/acgrassfield.png" 
+              alt="Grass field" 
+              className="h-48"
+            />
+          </div>
+          <div className="fixed bottom-[-63px] left-[160vw] z-1 pointer-events-none">
+            <img 
+              src="/sprites/acgrassfield.png" 
+              alt="Grass field" 
+              className="h-48"
+            />
+          </div>
+          <div className="fixed bottom-[-63px] left-[170vw] z-1 pointer-events-none">
+            <img 
+              src="/sprites/acgrassfield.png" 
+              alt="Grass field" 
+              className="h-48"
+            />
+          </div>
+          <div className="fixed bottom-[-63px] left-[180vw] z-1 pointer-events-none">
+            <img 
+              src="/sprites/acgrassfield.png" 
+              alt="Grass field" 
+              className="h-48"
+            />
+          </div>
+          <div className="fixed bottom-[-63px] left-[190vw] z-1 pointer-events-none">
+            <img 
+              src="/sprites/acgrassfield.png" 
+              alt="Grass field" 
+              className="h-48"
+            />
+          </div>
+          <div className="fixed bottom-[-63px] left-[200vw] z-1 pointer-events-none">
+            <img 
+              src="/sprites/acgrassfield.png" 
+              alt="Grass field" 
+              className="h-48"
+            />
+          </div>
+
+
+
+          
+          {/* Sun/Moon and clouds gliding above the grass field */}
+          <div className="fixed bottom-20 animate-sun-moon-glide z-30 pointer-events-none">
+            <img 
+              src={isDaytime ? "/sprites/acsun.png" : "/sprites/acmoon.png"}
               alt={isDaytime ? "Sun" : "Moon"}
-              className="w-20 h-20 relative z-30"
-              style={{ imageRendering: 'pixelated' }}
-            />
-            {/* Cloud in front of sun/moon */}
-            <div className="absolute -top-4 -right-4 z-40">
-              <img 
-                src="/sprites/cloud.png" 
-                alt="Cloud" 
-                className="w-20 h-20"
-                style={{ imageRendering: 'pixelated' }}
-              />
-            </div>
-          </div>
-          
-          {/* Flowers scattered across the grass */}
-          <div className="absolute bottom-2 left-20 z-20">
-            <img 
-              src="/sprites/flower.png" 
-              alt="Flower" 
-              className="w-6 h-6"
-              style={{ imageRendering: 'pixelated' }}
-            />
-          </div>
-          <div className="absolute bottom-2 left-80 z-20">
-            <img 
-              src="/sprites/flower.png" 
-              alt="Flower" 
-              className="w-6 h-6"
-              style={{ imageRendering: 'pixelated' }}
-            />
-          </div>
-          <div className="absolute bottom-2 left-140 z-20">
-            <img 
-              src="/sprites/flower.png" 
-              alt="Flower" 
-              className="w-6 h-6"
-              style={{ imageRendering: 'pixelated' }}
-            />
-          </div>
-          <div className="absolute bottom-2 right-40 z-20">
-            <img 
-              src="/sprites/flower.png" 
-              alt="Flower" 
-              className="w-6 h-6"
-              style={{ imageRendering: 'pixelated' }}
-            />
-          </div>
-          <div className="absolute bottom-2 right-100 z-20">
-            <img 
-              src="/sprites/flower.png" 
-              alt="Flower" 
-              className="w-6 h-6"
-              style={{ imageRendering: 'pixelated' }}
+              className="w-14 h-14"
             />
           </div>
           
-          {/* G-small plants scattered around */}
-          <div className="absolute bottom-1 left-50 z-20">
+          {/* Floating clouds above the grass field */}
+          <div className="fixed bottom-24 animate-cloud-glide-1 z-20 pointer-events-none">
             <img 
-              src="/sprites/gsmall.png" 
-              alt="Small plant" 
-              className="w-5 h-5"
-              style={{ imageRendering: 'pixelated' }}
-            />
-          </div>
-          <div className="absolute bottom-3 left-110 z-20">
-            <img 
-              src="/sprites/gsmall.png" 
-              alt="Small plant" 
-              className="w-5 h-5"
-              style={{ imageRendering: 'pixelated' }}
-            />
-          </div>
-          <div className="absolute bottom-1 right-60 z-20">
-            <img 
-              src="/sprites/gsmall.png" 
-              alt="Small plant" 
-              className="w-5 h-5"
-              style={{ imageRendering: 'pixelated' }}
+              src="/sprites/accloud.png" 
+              alt="Cloud" 
+              className="w-18 h-18"
             />
           </div>
           
-          {/* Plant-bushy scattered around */}
-          <div className="absolute bottom-2 left-35 z-20">
+          <div className="fixed bottom-28 animate-cloud-glide-2 z-20 pointer-events-none">
             <img 
-              src="/sprites/plant-bushy.png" 
-              alt="Bushy plant" 
-              className="w-7 h-7"
-              style={{ imageRendering: 'pixelated' }}
-            />
-          </div>
-          <div className="absolute bottom-2 left-95 z-20">
-            <img 
-              src="/sprites/plant-bushy.png" 
-              alt="Bushy plant" 
-              className="w-7 h-7"
-              style={{ imageRendering: 'pixelated' }}
-            />
-          </div>
-          <div className="absolute bottom-2 right-75 z-20">
-            <img 
-              src="/sprites/plant-bushy.png" 
-              alt="Bushy plant" 
-              className="w-7 h-7"
-              style={{ imageRendering: 'pixelated' }}
+              src="/sprites/accloud.png" 
+              alt="Cloud" 
+              className="w-14 h-14"
             />
           </div>
           
-          {/* Large trees scattered around */}
-          <div className="absolute bottom-0 left-30 z-30">
+          <div className="fixed bottom-22 animate-cloud-glide-3 z-20 pointer-events-none">
             <img 
-              src="/sprites/tree-large.png" 
-              alt="Large tree" 
+              src="/sprites/accloud.png" 
+              alt="Cloud" 
               className="w-16 h-16"
-              style={{ imageRendering: 'pixelated' }}
-            />
-          </div>
-          <div className="absolute bottom-0 left-90 z-30">
-            <img 
-              src="/sprites/tree-large.png" 
-              alt="Large tree" 
-              className="w-16 h-16"
-              style={{ imageRendering: 'pixelated' }}
-            />
-          </div>
-          <div className="absolute bottom-0 right-50 z-30">
-            <img 
-              src="/sprites/tree-large.png" 
-              alt="Large tree" 
-              className="w-16 h-16"
-              style={{ imageRendering: 'pixelated' }}
             />
           </div>
           
-          {/* White Bunny - Running left to right on top of grass */}
+          {/* Bigger bushes scattered randomly across the grass */}
+          <div className="fixed bottom-1 left-[5%] z-25 pointer-events-none">
+            <img 
+              src="/sprites/acbush.png" 
+              alt="Bush" 
+              className="w-10 h-10"
+            />
+          </div>
+          <div className="fixed bottom-0 left-[20%] z-20 pointer-events-none">
+            <img 
+              src="/sprites/acbush.png" 
+              alt="Bush" 
+              className="w-8 h-8"
+            />
+          </div>
+          <div className="fixed bottom-2 left-[40%] z-30 pointer-events-none">
+            <img 
+              src="/sprites/acbush.png" 
+              alt="Bush" 
+              className="w-12 h-12"
+            />
+          </div>
+          <div className="fixed bottom-0 left-[60%] z-25 pointer-events-none">
+            <img 
+              src="/sprites/acbush.png" 
+              alt="Bush" 
+              className="w-9 h-9"
+            />
+          </div>
+          <div className="fixed bottom-1 left-[80%] z-20 pointer-events-none">
+            <img 
+              src="/sprites/acbush.png" 
+              alt="Bush" 
+              className="w-11 h-11"
+            />
+          </div>
+          <div className="fixed bottom-0 right-[15%] z-30 pointer-events-none">
+            <img 
+              src="/sprites/acbush.png" 
+              alt="Bush" 
+              className="w-7 h-7"
+            />
+          </div>
+          
+          {/* Bigger flowers scattered randomly across the grass */}
+          <div className="fixed bottom-4 left-25 z-25 pointer-events-none">
+            <img 
+              src="/sprites/acflower.png" 
+              alt="Flower" 
+              className="w-8 h-8"
+            />
+          </div>
+          <div className="fixed bottom-2 left-85 z-20 pointer-events-none">
+            <img 
+              src="/sprites/acflower.png" 
+              alt="Flower" 
+              className="w-6 h-6"
+            />
+          </div>
+          <div className="fixed bottom-3 left-145 z-30 pointer-events-none">
+            <img 
+              src="/sprites/acflower.png" 
+              alt="Flower" 
+              className="w-9 h-9"
+            />
+          </div>
+          <div className="fixed bottom-1 right-25 z-25 pointer-events-none">
+            <img 
+              src="/sprites/acflower.png" 
+              alt="Flower" 
+              className="w-7 h-7"
+            />
+          </div>
+          <div className="fixed bottom-4 right-85 z-20 pointer-events-none">
+            <img 
+              src="/sprites/acflower.png" 
+              alt="Flower" 
+              className="w-10 h-10"
+            />
+          </div>
+          <div className="fixed bottom-2 right-125 z-30 pointer-events-none">
+            <img 
+              src="/sprites/acflower.png" 
+              alt="Flower" 
+              className="w-8 h-8"
+            />
+          </div>
+          <div className="fixed bottom-3 left-55 z-25 pointer-events-none">
+            <img 
+              src="/sprites/acflower.png" 
+              alt="Flower" 
+              className="w-6 h-6"
+            />
+          </div>
+          <div className="fixed bottom-1 left-115 z-20 pointer-events-none">
+            <img 
+              src="/sprites/acflower.png" 
+              alt="Flower" 
+              className="w-9 h-9"
+            />
+          </div>
+          
+          {/* Boba on the right side of the grass field */}
+          <div className="fixed bottom-0 right-8 z-20 pointer-events-none">
+            <img 
+              src="/sprites/boba.png" 
+              alt="Boba" 
+              className="w-40 h-40"
+            />
+          </div>
+          
+          {/* Bushes scattered around */}
+          <div className="fixed bottom-1 left-[10%] z-20 pointer-events-none">
+            <img 
+              src="/sprites/acbush.png" 
+              alt="Bush" 
+              className="w-5 h-5"
+              
+            />
+          </div>
+          <div className="fixed bottom-3 left-[30%] z-20 pointer-events-none">
+            <img 
+              src="/sprites/acbush.png" 
+              alt="Bush" 
+              className="w-5 h-5"
+              
+            />
+          </div>
+          <div className="fixed bottom-1 left-[90%] z-20 pointer-events-none">
+            <img 
+              src="/sprites/acbush.png" 
+              alt="Bush" 
+              className="w-5 h-5"
+              
+            />
+          </div>
+          
+          {/* Bushes scattered around */}
+          <div className="fixed bottom-2 left-[15%] z-20 pointer-events-none">
+            <img 
+              src="/sprites/acbush.png" 
+              alt="Bush" 
+              className="w-7 h-7"
+              
+            />
+          </div>
+          <div className="fixed bottom-2 left-[50%] z-20 pointer-events-none">
+            <img 
+              src="/sprites/acbush.png" 
+              alt="Bush" 
+              className="w-7 h-7"
+              
+            />
+          </div>
+          <div className="fixed bottom-2 left-[85%] z-20 pointer-events-none">
+            <img 
+              src="/sprites/acbush.png" 
+              alt="Bush" 
+              className="w-7 h-7"
+              
+            />
+          </div>
+          
+          {/* Trees scattered around - Always in front */}
+          <div className="fixed bottom-0 left-30 z-40 pointer-events-none">
+            <img 
+              src="/sprites/actree.png" 
+              alt="Tree" 
+              className="w-16 h-16"
+              
+            />
+          </div>
+          <div className="fixed bottom-0 left-90 z-40 pointer-events-none">
+            <img 
+              src="/sprites/actree.png" 
+              alt="Tree" 
+              className="w-16 h-16"
+              
+            />
+          </div>
+          <div className="fixed bottom-0 right-50 z-40 pointer-events-none">
+            <img 
+              src="/sprites/actree.png" 
+              alt="Tree" 
+              className="w-16 h-16"
+              
+            />
+          </div>
+          
+          {/* Brown Bunny - Random chaos on top of grass */}
           <div 
-            className="absolute bottom-4 animate-bunny-left-to-right z-10 cursor-pointer hover:scale-110 transition-transform duration-200"
-            onClick={playBunnySound}
+            className="fixed bottom-6 left-20 animate-bunny-chaos-1 z-35 cursor-pointer hover:scale-110 transition-transform duration-200"
+            onClick={playBrownBunnySound}
             title="Click me for a cute sound! 🐰"
           >
             <img 
-              src="/sprites/rabbit-white.png" 
+              src="/sprites/acbrownbunny.png" 
+              alt="Brown rabbit" 
+              className="w-16 h-16"
+              
+            />
+          </div>
+          
+          {/* White Bunny - Random chaos on top of grass */}
+          <div 
+            className="fixed bottom-6 right-20 animate-bunny-chaos-2 z-35 cursor-pointer hover:scale-110 transition-transform duration-200"
+            onClick={playWhiteBunnySound}
+            title="Click me for a cute sound! 🐰"
+          >
+            <img 
+              src="/sprites/acwhitebunny.png" 
               alt="White rabbit" 
               className="w-12 h-12"
-              style={{ imageRendering: 'pixelated' }}
+              
             />
           </div>
-          
-          {/* Brown Bunny - Running right to left on top of grass */}
-          <div 
-            className="absolute bottom-4 animate-bunny-right-to-left z-10 cursor-pointer hover:scale-110 transition-transform duration-200"
-            onClick={playBunnySound}
-            title="Click me for a cute sound! 🐰"
-          >
-            <img 
-              src="/sprites/rabbit-brown.png" 
-              alt="Brown rabbit" 
-              className="w-12 h-12"
-              style={{ imageRendering: 'pixelated' }}
-            />
-          </div>
-        </div>
+        </>
       )}
       
       <style jsx>{`
-        @keyframes bunny-left-to-right {
-          0% { left: -3rem; }
-          25% { left: 20%; }
-          50% { left: 45%; }
-          75% { left: 70%; }
-          100% { left: calc(100% + 3rem); }
-        }
-        
-        @keyframes bunny-right-to-left {
-          0% { right: -3rem; }
-          25% { right: 70%; }
-          50% { right: 45%; }
-          75% { right: 20%; }
-          100% { right: calc(100% + 3rem); }
-        }
-        
-        @keyframes bunny-hop {
-          0%, 100% { transform: translateY(0px); }
-          50% { transform: translateY(-8px); }
-        }
-        
-        .animate-bunny-left-to-right {
-          animation: 
-            bunny-left-to-right 25s ease-in-out infinite,
-            bunny-hop 0.8s ease-in-out infinite;
-        }
-        
-        .animate-bunny-right-to-left {
-          animation: 
-            bunny-right-to-left 30s ease-in-out infinite,
-            bunny-hop 0.9s ease-in-out infinite;
-        }
-      `}</style>
+  @keyframes bunny-walk-1 {
+    0% { left: 15%; bottom: 8; }
+    25% { left: 30%; bottom: 8; }
+    50% { left: 50%; bottom: 8; }
+    75% { left: 70%; bottom: 8; }
+    100% { left: 15%; bottom: 8; }
+  }
+  
+  @keyframes bunny-walk-2 {
+    0% { right: 15%; bottom: 8; }
+    25% { right: 35%; bottom: 8; }
+    50% { right: 55%; bottom: 8; }
+    75% { right: 75%; bottom: 8; }
+    100% { right: 15%; bottom: 8; }
+  }
+  
+  .animate-bunny-chaos-1 {
+    animation: bunny-walk-1 80s ease-in-out infinite;
+  }
+  
+  .animate-bunny-chaos-2 {
+    animation: bunny-walk-2 60s ease-in-out infinite;
+  }
+  
+  .animate-sun-moon-glide {
+    animation: sun-moon-glide 60s linear infinite;
+  }
+  
+  .animate-cloud-glide-1 {
+    animation: cloud-glide-1 45s linear infinite;
+  }
+  
+  .animate-cloud-glide-2 {
+    animation: cloud-glide-2 70s linear infinite;
+  }
+  
+  .animate-cloud-glide-3 {
+    animation: cloud-glide-3 55s linear infinite;
+  }
+  
+  @keyframes sun-moon-glide {
+    0% { left: 5%; }
+    50% { left: 85%; }
+    100% { left: 5%; }
+  }
+  
+  @keyframes cloud-glide-1 {
+    0% { left: 10%; }
+    50% { left: 80%; }
+    100% { left: 10%; }
+  }
+  
+  @keyframes cloud-glide-2 {
+    0% { left: 15%; }
+    50% { left: 75%; }
+    100% { left: 15%; }
+  }
+  
+  @keyframes cloud-glide-3 {
+    0% { left: 20%; }
+    50% { left: 70%; }
+    100% { left: 20%; }
+  }
+`}</style>
+      
+      {/* Export sound functions for use in other components */}
+      {(() => {
+        (window as any).playCorrectSound = playCorrectSound;
+        (window as any).playWrongSound = playWrongSound;
+        return null;
+      })()}
     </>
   );
 }

@@ -24,9 +24,19 @@ export default function AppLayout({
 
   return (
     <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)]">
-      {/* Theme Toggle */}
-      <div className="fixed top-4 right-4 z-50">
+      {/* Theme Toggle and Bunny Toggle */}
+      <div className="fixed top-4 right-4 z-50 flex gap-2">
         <ThemeToggle />
+        <button
+          onClick={() => {
+            const event = new CustomEvent('toggleBunnyEnvironment');
+            window.dispatchEvent(event);
+          }}
+          className="w-8 h-8 rounded-lg bg-[var(--hover)] hover:bg-[var(--active)] transition-all duration-200 hover-scale animate-fade-in flex items-center justify-center"
+          title="Toggle bunny environment"
+        >
+          <span className="text-sm">🐰</span>
+        </button>
       </div>
 
       {/* Beautiful Hover-based Sidebar */}

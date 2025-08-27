@@ -1,43 +1,45 @@
 'use client'
 
-import { useState } from 'react'
-import { Trophy, Target, Plus, X, CheckCircle } from 'lucide-react'
-
-interface Goal {
-  id: string
-  text: string
-  completed: boolean
-  createdAt: string
-}
+import { useState, useEffect } from 'react'
+import { Trophy, Target, Plus } from 'lucide-react'
+import { useWeeklyGoalsStore, WeeklyGoal } from '@/lib/stores/weekly-goals-store'
 
 export function GamificationWidget() {
-  const [goals, setGoals] = useState<Goal[]>([])
+  const { 
+    goals, 
+    isLoading, 
+    error, 
+    fetchGoals, 
+    addGoal: addGoalToStore, 
+    removeGoal: removeGoalFromStore, 
+ 
+    toggleGoal: toggleGoalInStore 
+  } = useWeeklyGoalsStore()
 
   const [isAddingGoal, setIsAddingGoal] = useState(false)
   const [newGoalText, setNewGoalText] = useState('')
 
-  const toggleGoal = (goalId: string) => {
-    setGoals(prev => prev.map(goal => 
-      goal.id === goalId ? { ...goal, completed: !goal.completed } : goal
-    ))
-  }
+  // Fetch goals from Supabase on component mount, but only if goals are empty
+  useEffect(() => {
+    if (goals.length === 0) {
+      fetchGoals()
+    }
+  }, [fetchGoals, goals.length])
 
-  const addGoal = () => {
+  const addGoal = async () => {
     if (newGoalText.trim()) {
-      const newGoal: Goal = {
-        id: Date.now().toString(),
-        text: newGoalText.trim(),
-        completed: false,
-        createdAt: new Date().toISOString()
-      }
-      setGoals(prev => [...prev, newGoal])
+      await addGoalToStore({ text: newGoalText.trim() })
       setNewGoalText('')
       setIsAddingGoal(false)
     }
   }
 
-  const removeGoal = (goalId: string) => {
-    setGoals(prev => prev.filter(goal => goal.id !== goalId))
+  const removeGoal = async (goalId: string) => {
+    await removeGoalFromStore(goalId)
+  }
+
+  const toggleGoal = async (goalId: string) => {
+    await toggleGoalInStore(goalId)
   }
 
   const completedGoals = goals.filter(goal => goal.completed).length
@@ -48,10 +50,14 @@ export function GamificationWidget() {
       {/* Simple Header */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
-          <div className="p-2 bg-blue-500 rounded-lg">
-            <Trophy className="w-5 h-5 text-white" />
+          <div className="w-28 h-28 flex items-center justify-center">
+            <img 
+              src="/sprites/trophy.png" 
+              alt="Trophy" 
+              className="w-20 h-20"
+            />
           </div>
-          <h3 className="text-lg font-semibold text-[var(--foreground)]">Weekly Goals</h3>
+          <h3 className="text-2xl font-semibold text-[var(--foreground)]">Weekly Goals</h3>
         </div>
         <button
           onClick={() => setIsAddingGoal(!isAddingGoal)}
@@ -60,6 +66,16 @@ export function GamificationWidget() {
           <Plus className="w-4 h-4" />
         </button>
       </div>
+
+      {/* Error Display */}
+      {error && (
+        <div className="mb-4 p-3 bg-red-100 dark:bg-red-900/20 border border-red-300 dark:border-red-700 rounded-lg">
+          <p className="text-sm text-red-700 dark:text-red-300">{error}</p>
+        </div>
+      )}
+
+      {/* Loading State - Only show during initial fetch */}
+
 
       {/* Add Goal Input */}
       {isAddingGoal && (
@@ -76,18 +92,26 @@ export function GamificationWidget() {
             />
             <button
               onClick={addGoal}
-              className="p-1 bg-green-500 hover:bg-green-600 text-white rounded transition-colors"
+              className="p-1 text-green-600 hover:text-green-700 hover:bg-green-50 dark:hover:bg-green-900/20 rounded transition-colors"
             >
-              <CheckCircle className="w-4 h-4" />
+              <img 
+                src="/sprites/check.png" 
+                alt="Check" 
+                className="w-5 h-5"
+              />
             </button>
             <button
               onClick={() => {
                 setIsAddingGoal(false)
                 setNewGoalText('')
               }}
-              className="p-1 bg-red-500 hover:bg-red-600 text-white rounded transition-colors"
+              className="p-1 text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors"
             >
-              <X className="w-4 h-4" />
+              <img 
+                src="/sprites/x.png" 
+                alt="Close" 
+                className="w-5 h-5"
+              />
             </button>
           </div>
         </div>
@@ -106,13 +130,17 @@ export function GamificationWidget() {
           >
             <button
               onClick={() => toggleGoal(goal.id)}
-              className={`flex-shrink-0 w-5 h-5 rounded-full border-2 transition-all duration-200 flex items-center justify-center ${
-                goal.completed
-                  ? 'bg-green-500 border-green-500 text-white'
-                  : 'border-[var(--border)] hover:border-[var(--primary)]'
-              }`}
+              className="flex-shrink-0 transition-all duration-200 hover:scale-105"
             >
-              {goal.completed && <CheckCircle className="w-3 h-3" />}
+              {goal.completed ? (
+                <img 
+                  src="/sprites/check.png" 
+                  alt="Check" 
+                  className="w-5 h-5"
+                />
+              ) : (
+                <div className="w-5 h-5 border-2 border-[var(--border)] hover:border-[var(--primary)] rounded transition-colors flex items-center justify-center" />
+              )}
             </button>
             <span
               className={`flex-1 text-sm transition-all duration-200 ${
@@ -125,9 +153,13 @@ export function GamificationWidget() {
             </span>
             <button
               onClick={() => removeGoal(goal.id)}
-              className="opacity-0 group-hover:opacity-100 p-1 text-red-500 hover:bg-red-100 dark:hover:bg-red-900/30 rounded transition-all duration-200"
+              className="opacity-0 group-hover:opacity-100 p-1 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-all duration-200"
             >
-              <X className="w-3 h-3" />
+              <img 
+                src="/sprites/x.png" 
+                alt="Delete" 
+                className="w-5 h-5"
+              />
             </button>
           </div>
         ))}

@@ -1,6 +1,6 @@
 "use client";
 
-import { AlertTriangle, X } from 'lucide-react';
+import { AlertTriangle } from 'lucide-react';
 
 interface ConfirmationModalProps {
   isOpen: boolean;
@@ -78,7 +78,11 @@ export function ConfirmationModal({
               className="flex-shrink-0 p-1 text-[var(--foreground-tertiary)] hover:text-[var(--foreground)] hover:bg-[var(--hover)] rounded-md transition-colors"
               title="Close"
             >
-              <X className="w-4 h-4" />
+              <img 
+                src="/sprites/x.png" 
+                alt="Close" 
+                className="w-4 h-4"
+              />
             </button>
           </div>
 

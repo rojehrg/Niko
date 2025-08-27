@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { BookOpen, Plus, Calendar, Clock, Trash2, Eye } from "lucide-react";
 import Link from "next/link";
-import { useFlashcardStore } from "@/lib/stores/flashcard-store";
+import { useFlashcardStore, type Flashcard } from "@/lib/stores/flashcard-store";
 import { Button } from "@/components/ui/button";
 
 export default function FlashcardsPage() {
@@ -15,6 +15,9 @@ export default function FlashcardsPage() {
     fetchSets,
     removeFlashcard
   } = useFlashcardStore();
+  
+  // Ensure flashcards are properly typed
+  const typedFlashcards: Flashcard[] = flashcards;
   
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [cardToDelete, setCardToDelete] = useState<string | null>(null);
@@ -106,8 +109,8 @@ export default function FlashcardsPage() {
           </Card>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {sets.map((set) => {
-              const cardCount = flashcards.filter(card => card.setId === set.id).length;
+                            {sets.map((set) => {
+                  const cardCount = typedFlashcards.filter(card => card.setId === set.id).length;
               return (
                 <Card 
                   key={set.id} 
@@ -148,7 +151,7 @@ export default function FlashcardsPage() {
                               setSelectedSetForPreview(set.id);
                               setShowPreviewModal(true);
                             }}
-                            className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 text-[var(--foreground-secondary)] hover:text-[var(--foreground)] hover:bg-[var(--hover)]"
+                            className="text-[var(--foreground-secondary)] hover:text-[var(--foreground)] hover:bg-[var(--hover)]"
                           >
                             Preview
                           </Button>
@@ -231,7 +234,7 @@ export default function FlashcardsPage() {
             </CardHeader>
             <CardContent className="p-0">
               <div className="max-h-[60vh] overflow-y-auto p-6 space-y-4">
-                {flashcards
+                {typedFlashcards
                   .filter(card => card.setId === selectedSetForPreview)
                   .map((card, index) => (
                     <div 

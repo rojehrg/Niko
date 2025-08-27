@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, RotateCcw, Check, X, ChevronLeft, ChevronRight, Brain, Target, Sparkles, BookOpen, Shuffle, Timer, BarChart3 } from "lucide-react";
+import { ArrowLeft, RotateCcw, Check, ChevronLeft, ChevronRight, Brain, Target, Sparkles, BookOpen, Shuffle, Timer, BarChart3 } from "lucide-react";
 import Link from "next/link";
 import { useFlashcardStore } from "@/lib/stores/flashcard-store";
 import { useSearchParams } from "next/navigation";
@@ -24,9 +24,11 @@ export default function StudyPage() {
   const [showStats, setShowStats] = useState(false);
 
   // Get cards to study based on set filter
-  const cardsToStudy = selectedSetId 
-    ? getFlashcardsBySet(selectedSetId)
-    : flashcards;
+  const cardsToStudy = useMemo(() => {
+    return selectedSetId 
+      ? getFlashcardsBySet(selectedSetId)
+      : flashcards;
+  }, [selectedSetId, flashcards, getFlashcardsBySet]);
 
   const currentSet = selectedSetId ? sets.find(set => set.id === selectedSetId) : null;
 
@@ -151,11 +153,19 @@ export default function StudyPage() {
   const markAsCorrect = () => {
     setCorrectCards(prev => new Set([...prev, currentCard.id]));
     setStudiedCards(prev => new Set([...prev, currentCard.id]));
+    // Play correct sound
+    if ((window as any).playCorrectSound) {
+      (window as any).playCorrectSound();
+    }
   };
 
   const markAsIncorrect = () => {
     setIncorrectCards(prev => new Set([...prev, currentCard.id]));
     setStudiedCards(prev => new Set([...prev, currentCard.id]));
+    // Play wrong sound
+    if ((window as any).playWrongSound) {
+      (window as any).playWrongSound();
+    }
   };
 
   const formatTime = (seconds: number) => {
@@ -240,8 +250,8 @@ export default function StudyPage() {
 
         {/* Flashcard */}
         <div className="mb-8 flex justify-center">
-          <div className="w-full max-w-2xl">
-            <div className="aspect-[4/3] relative">
+          <div className="w-full max-w-md">
+            <div className="aspect-[3/2] relative">
               <div 
                 className="w-full h-full relative cursor-pointer group"
                 onClick={() => setIsFlipped(!isFlipped)}
@@ -250,7 +260,7 @@ export default function StudyPage() {
                   {/* Front */}
                   <div className={`absolute inset-0 w-full h-full backface-hidden ${isFlipped ? 'opacity-0' : 'opacity-100'} transition-opacity duration-300`}>
                     <Card className="w-full h-full bg-white dark:bg-[var(--background-secondary)] border-2 border-[var(--border)] hover:shadow-xl transition-all duration-300 group-hover:scale-[1.02] shadow-lg">
-                      <CardContent className="p-8 h-full flex flex-col">
+                      <CardContent className="p-6 h-full flex flex-col">
                         {/* Header */}
                         <div className="flex items-center justify-between mb-6">
                           <div className="flex items-center gap-3">
@@ -264,13 +274,28 @@ export default function StudyPage() {
                         
                         {/* Question Content */}
                         <div className="flex-1 flex items-center justify-center text-center">
-                          <p className="text-[var(--foreground)] text-xl font-medium leading-relaxed max-w-lg">
-                            {currentCard.front}
-                          </p>
+                          {currentCard.questionImage ? (
+                            <div className="space-y-3">
+                              <img 
+                                src={currentCard.questionImage} 
+                                alt="Question" 
+                                className="max-w-full max-h-48 object-contain rounded-lg border border-[var(--border)]"
+                              />
+                              {currentCard.front && (
+                                <p className="text-[var(--foreground)] text-lg font-medium leading-relaxed max-w-lg">
+                                  {currentCard.front}
+                                </p>
+                              )}
+                            </div>
+                          ) : (
+                            <p className="text-[var(--foreground)] text-xl font-medium leading-relaxed max-w-lg">
+                              {currentCard.front}
+                            </p>
+                          )}
                         </div>
                         
                         {/* Footer */}
-                        <div className="text-center mt-6">
+                        <div className="text-center mt-4">
                           <div className="inline-flex items-center gap-2 bg-[var(--background)] px-4 py-2 rounded-full border border-[var(--border)]">
                             <BookOpen className="w-4 h-4 text-[var(--foreground-secondary)]" />
                             <span className="text-sm text-[var(--foreground-secondary)] font-medium">Click to reveal answer</span>
@@ -283,7 +308,7 @@ export default function StudyPage() {
                   {/* Back */}
                   <div className={`absolute inset-0 w-full h-full backface-hidden rotate-y-180 ${isFlipped ? 'opacity-100' : 'opacity-0'} transition-opacity duration-300`}>
                     <Card className="w-full h-full bg-white dark:bg-[var(--background-secondary)] border-2 border-[var(--border)] hover:shadow-xl transition-all duration-300 group-hover:scale-[1.02] shadow-lg">
-                      <CardContent className="p-8 h-full flex flex-col">
+                      <CardContent className="p-6 h-full flex flex-col">
                         {/* Header */}
                         <div className="flex items-center justify-between mb-6">
                           <div className="flex items-center gap-3">
@@ -297,13 +322,28 @@ export default function StudyPage() {
                         
                         {/* Answer Content */}
                         <div className="flex-1 flex items-center justify-center text-center">
-                          <p className="text-[var(--foreground)] text-xl font-medium leading-relaxed max-w-lg">
-                            {currentCard.back}
-                          </p>
+                          {currentCard.answerImage ? (
+                            <div className="space-y-3">
+                              <img 
+                                src={currentCard.answerImage} 
+                                alt="Answer" 
+                                className="max-w-full max-h-48 object-contain rounded-lg border border-[var(--border)]"
+                              />
+                              {currentCard.back && (
+                                <p className="text-[var(--foreground)] text-lg font-medium leading-relaxed max-w-lg">
+                                  {currentCard.back}
+                                </p>
+                              )}
+                            </div>
+                          ) : (
+                            <p className="text-[var(--foreground)] text-xl font-medium leading-relaxed max-w-lg">
+                              {currentCard.back}
+                            </p>
+                          )}
                         </div>
                         
                         {/* Footer */}
-                        <div className="text-center mt-6">
+                        <div className="text-center mt-4">
                           <div className="inline-flex items-center gap-2 bg-[var(--background)] px-4 py-1 rounded-full border border-[var(--border)]">
                             <Check className="w-4 h-4 text-green-600" />
                             <span className="text-sm text-green-600 font-medium">Answer revealed</span>
@@ -331,7 +371,11 @@ export default function StudyPage() {
                 className="border-red-200 text-red-700 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-950/20 h-12 px-6 transition-all duration-200"
                 disabled={studiedCards.has(currentCard.id)}
               >
-                <X className="mr-2 h-5 w-5" />
+                <img 
+                  src="/sprites/x.png" 
+                  alt="Need Review" 
+                  className="mr-2 h-5 w-5"
+                />
                 Need Review
               </Button>
               <Button

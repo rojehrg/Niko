@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Phone, Mail, Shield, Bell, CheckCircle, ArrowRight, Sparkles } from 'lucide-react'
+import { Phone, Mail, Shield, Bell, ArrowRight, Sparkles } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 
 export default function SignupPage() {
@@ -292,7 +292,11 @@ export default function SignupPage() {
           <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8">
             <div className="text-center mb-6">
               <div className="w-16 h-16 bg-purple-100 dark:bg-purple-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
-                <CheckCircle className="w-8 h-8 text-purple-600 dark:text-purple-400" />
+                <img 
+                  src="/sprites/check.png" 
+                  alt="Check" 
+                  className="w-8 h-8"
+                />
               </div>
               <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
                 Enter verification code
@@ -363,7 +367,11 @@ export default function SignupPage() {
         <div className="max-w-md w-full">
           <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 text-center">
             <div className="w-20 h-20 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-6">
-              <CheckCircle className="w-10 h-10 text-green-600 dark:text-green-400" />
+                              <img 
+                  src="/sprites/check.png" 
+                  alt="Check" 
+                  className="w-10 h-10"
+                />
             </div>
             
             <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
@@ -380,7 +388,11 @@ export default function SignupPage() {
                 <span className="text-sm text-gray-700 dark:text-gray-300">Study reminders and motivation</span>
               </div>
               <div className="flex items-center gap-3 text-left">
-                <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400" />
+                <img 
+                  src="/sprites/check.png" 
+                  alt="Check" 
+                  className="w-5 h-5"
+                />
                 <span className="text-sm text-gray-700 dark:text-gray-300">Exam and deadline alerts</span>
               </div>
               <div className="flex items-center gap-3 text-left">

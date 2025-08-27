@@ -2,16 +2,18 @@
 
 import { useEffect, useState } from 'react';
 import { Calendar, BookOpen, Briefcase, Target, TrendingUp, Clock, CheckCircle, XCircle } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import { useFlashcardStore } from '@/lib/stores/flashcard-store';
-import { useNotesStore } from '@/lib/stores/notes-store';
+
 import { useJobsStore } from '@/lib/stores/jobs-store';
 import { useExamsStore } from '@/lib/stores/exams-store';
 
 import { GamificationWidget } from '@/components/ui/gamification-widget';
 
 export default function DashboardPage() {
+  const router = useRouter();
   const { flashcards, fetchFlashcards } = useFlashcardStore();
-  const { notes, fetchNotes } = useNotesStore();
+
   const { jobs, fetchJobs } = useJobsStore();
   const { exams, fetchExams } = useExamsStore();
 
@@ -22,7 +24,6 @@ export default function DashboardPage() {
       try {
         await Promise.all([
           fetchFlashcards(),
-          fetchNotes(),
           fetchJobs(),
           fetchExams()
         ]);
@@ -34,7 +35,7 @@ export default function DashboardPage() {
     };
 
     fetchData();
-  }, [fetchFlashcards, fetchNotes, fetchJobs, fetchExams]);
+  }, [fetchFlashcards, fetchJobs, fetchExams]);
 
   if (isLoading) {
     return (
@@ -48,7 +49,6 @@ export default function DashboardPage() {
   }
 
   const totalFlashcards = flashcards.length;
-  const totalNotes = notes.length;
   const totalJobs = jobs.length;
   const upcomingExams = exams.filter(exam => !exam.completed).length;
 
@@ -111,14 +111,19 @@ export default function DashboardPage() {
 
         {/* Stats Overview */}
         <div className="mb-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {/* Flashcards */}
-            <div className="group bg-[var(--background-secondary)] border border-[var(--border)] rounded-xl p-5 hover:border-[var(--border-hover)] hover:shadow-md transition-all duration-200">
+            <div 
+              className="group bg-[var(--background-secondary)] border border-[var(--border)] rounded-xl p-5 hover:border-[var(--border-hover)] hover:shadow-md transition-all duration-200 cursor-pointer"
+              onClick={() => router.push('/flashcards')}
+            >
               <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-gradient-to-br from-blue-400 to-blue-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform duration-200">
-                  <span className="text-2xl">
-                    {totalFlashcards >= 50 ? '📚' : '📖'}
-                  </span>
+                <div className="w-28 h-28 flex items-center justify-center group-hover:scale-105 transition-transform duration-200">
+                  <img 
+                    src="/sprites/flashcards.png" 
+                    alt="Flashcards" 
+                    className="w-20 h-20"
+                  />
                 </div>
                 <div className="flex-1">
                   <p className="text-sm font-medium text-[var(--foreground-secondary)] mb-1">Flashcards</p>
@@ -130,31 +135,18 @@ export default function DashboardPage() {
               </div>
             </div>
 
-            {/* Notes */}
-            <div className="group bg-[var(--background-secondary)] border border-[var(--border)] rounded-xl p-5 hover:border-[var(--border-hover)] hover:shadow-md transition-all duration-200">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-gradient-to-br from-green-400 to-green-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform duration-200">
-                  <span className="text-2xl">
-                    {totalNotes >= 20 ? '📝' : '✏️'}
-                  </span>
-                </div>
-                <div className="flex-1">
-                  <p className="text-sm font-medium text-[var(--foreground-secondary)] mb-1">Notes</p>
-                  <p className="text-2xl font-bold text-[var(--foreground)]">{totalNotes}</p>
-                  <p className="text-xs text-[var(--foreground-tertiary)]">
-                    {totalNotes >= 20 ? 'Note taker' : 'Start writing'}
-                  </p>
-                </div>
-              </div>
-            </div>
-
             {/* Job Applications */}
-            <div className="group bg-[var(--background-secondary)] border border-[var(--border)] rounded-xl p-5 hover:border-[var(--border-hover)] hover:shadow-md transition-all duration-200">
+            <div 
+              className="group bg-[var(--background-secondary)] border border-[var(--border)] rounded-xl p-5 hover:border-[var(--border-hover)] hover:shadow-md transition-all duration-200 cursor-pointer"
+              onClick={() => router.push('/jobs')}
+            >
               <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-gradient-to-br from-purple-400 to-purple-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform duration-200">
-                  <span className="text-2xl">
-                    {totalJobs >= 10 ? '💼' : '📋'}
-                  </span>
+                <div className="w-28 h-28 flex items-center justify-center group-hover:scale-105 transition-transform duration-200">
+                  <img 
+                    src="/sprites/jobs.png" 
+                    alt="Jobs" 
+                    className="w-20 h-20"
+                  />
                 </div>
                 <div className="flex-1">
                   <p className="text-sm font-medium text-[var(--foreground-secondary)] mb-1">Job Apps</p>
@@ -167,17 +159,22 @@ export default function DashboardPage() {
             </div>
 
             {/* Upcoming Exams */}
-            <div className="group bg-[var(--background-secondary)] border border-[var(--border)] rounded-xl p-5 hover:border-[var(--border-hover)] hover:shadow-md transition-all duration-200">
+            <div 
+              className="group bg-[var(--background-secondary)] border border-[var(--border)] rounded-xl p-5 hover:border-[var(--border-hover)] hover:shadow-md transition-all duration-200 cursor-pointer"
+              onClick={() => router.push('/exams')}
+            >
               <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-gradient-to-br from-orange-400 to-orange-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform duration-200">
-                  <span className="text-2xl">
-                    {upcomingExams === 0 ? '✅' : '📚'}
-                  </span>
+                <div className="w-28 h-28 flex items-center justify-center group-hover:scale-105 transition-transform duration-200">
+                  <img 
+                    src="/sprites/exam.png" 
+                    alt="Exams" 
+                    className="w-20 h-20"
+                  />
                 </div>
                 <div className="flex-1">
                   <p className="text-sm font-medium text-[var(--foreground-secondary)] mb-1">Exams</p>
                   <p className="text-2xl font-bold text-[var(--foreground)]">{upcomingExams}</p>
-                  <p className="text-xs text-[var(--foreground-tertiary)]">
+                  <p className="text-xs text-[var(--foreground-secondary)]">
                     {upcomingExams === 0 ? 'All clear' : 'Study time'}
                   </p>
                 </div>

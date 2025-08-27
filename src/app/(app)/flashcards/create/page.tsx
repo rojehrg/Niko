@@ -14,6 +14,8 @@ export default function CreateFlashcardPage() {
   const { addFlashcard, sets, fetchSets, addSet } = useFlashcardStore();
   const [front, setFront] = useState("");
   const [back, setBack] = useState("");
+  const [questionImage, setQuestionImage] = useState<File | null>(null);
+  const [answerImage, setAnswerImage] = useState<File | null>(null);
   const [selectedSetId, setSelectedSetId] = useState("");
   const [isFlipped, setIsFlipped] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -23,6 +25,16 @@ export default function CreateFlashcardPage() {
     description: "",
     color: "bg-blue-500"
   });
+
+  // Helper function to convert File to base64
+  const convertFileToBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  };
 
   useEffect(() => {
     fetchSets();
@@ -51,14 +63,35 @@ export default function CreateFlashcardPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!front.trim() || !back.trim() || !selectedSetId) {
+    // Check if we have either text or images for both question and answer
+    const hasQuestionContent = front.trim() || questionImage;
+    const hasAnswerContent = back.trim() || answerImage;
+    
+    if (!hasQuestionContent || !hasAnswerContent || !selectedSetId) {
+      alert("Please provide either text or an image for both question and answer, and select a study set.");
       return;
     }
 
     setIsSubmitting(true);
     
     try {
-      await addFlashcard(front.trim(), back.trim(), selectedSetId);
+      // Convert File objects to base64 data URLs for storage
+      let questionImageUrl: string | undefined;
+      let answerImageUrl: string | undefined;
+      
+      if (questionImage) {
+        questionImageUrl = await convertFileToBase64(questionImage);
+        console.log('Question image converted to base64, length:', questionImageUrl?.length);
+        console.log('Question image starts with:', questionImageUrl?.substring(0, 50));
+      }
+      
+      if (answerImage) {
+        answerImageUrl = await convertFileToBase64(answerImage);
+        console.log('Answer image converted to base64, length:', answerImageUrl?.length);
+        console.log('Answer image starts with:', answerImageUrl?.substring(0, 50));
+      }
+      
+      await addFlashcard(front.trim(), back.trim(), selectedSetId, questionImageUrl, answerImageUrl);
       window.location.href = '/flashcards';
     } catch (error) {
       console.error("Failed to create flashcard:", error);
@@ -102,7 +135,7 @@ export default function CreateFlashcardPage() {
                 
                 {/* Flashcard Set Selection */}
                 <div className="space-y-3">
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-4">
                     <Label htmlFor="set" className="text-sm font-semibold text-[var(--foreground)] flex items-center gap-2">
                       <FolderOpen className="h-4 w-4 text-[var(--primary)]" />
                       Study Set
@@ -151,37 +184,103 @@ export default function CreateFlashcardPage() {
                 {/* Question Input */}
                 <div className="space-y-3">
                   <Label htmlFor="front" className="text-sm font-semibold text-[var(--foreground)]">
-                    Question
+                    Question <span className="text-[var(--foreground-tertiary)] font-normal">(Optional if image is uploaded)</span>
                   </Label>
                   <Textarea
                     id="front"
-                    placeholder="What would you like to learn?"
+                    placeholder="What would you like to learn? (Optional if you upload an image)"
                     value={front}
                     onChange={(e) => setFront(e.target.value)}
                     className="min-h-[120px] px-3 py-2.5 border border-[var(--border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent transition-all duration-200 bg-[var(--background)] text-[var(--foreground)] placeholder:text-[var(--foreground-tertiary)] resize-none"
                   />
+                  
+                  {/* Question Image Upload */}
+                  <div className="space-y-2">
+                    <Label className="text-sm text-[var(--foreground-secondary)]">Question Image (Optional)</Label>
+                    <div className="flex items-center gap-3">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => setQuestionImage(e.target.files?.[0] || null)}
+                        className="flex-1 text-sm text-[var(--foreground-secondary)] file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-[var(--primary)] file:text-white hover:file:bg-[var(--primary-hover)]"
+                      />
+                      {questionImage && (
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setQuestionImage(null)}
+                          className="text-red-500 hover:text-red-400 border-red-300 hover:border-red-400 dark:text-red-400 dark:hover:text-red-300 dark:border-red-600 dark:hover:border-red-500"
+                        >
+                          Remove
+                        </Button>
+                      )}
+                    </div>
+                    {questionImage && (
+                      <div className="mt-2">
+                        <img 
+                          src={URL.createObjectURL(questionImage)} 
+                          alt="Question preview" 
+                          className="max-w-full h-32 object-contain rounded-lg border border-[var(--border)]"
+                        />
+                      </div>
+                    )}
+                  </div>
                 </div>
 
                 {/* Answer Input */}
                 <div className="space-y-3">
                   <Label htmlFor="back" className="text-sm font-semibold text-[var(--foreground)]">
-                    Answer
+                    Answer <span className="text-[var(--foreground-tertiary)] font-normal">(Optional if image is uploaded)</span>
                   </Label>
                   <Textarea
                     id="back"
-                    placeholder="What's the answer or explanation?"
+                    placeholder="What's the answer or explanation? (Optional if you upload an image)"
                     value={back}
                     onChange={(e) => setBack(e.target.value)}
                     className="min-h-[120px] px-3 py-2.5 border border-[var(--border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent transition-all duration-200 bg-[var(--background)] text-[var(--foreground)] placeholder:text-[var(--foreground-tertiary)] resize-none"
                   />
+                  
+                  {/* Answer Image Upload */}
+                  <div className="space-y-2">
+                    <Label className="text-sm text-[var(--foreground-secondary)]">Answer Image (Optional)</Label>
+                    <div className="flex items-center gap-3">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => setAnswerImage(e.target.files?.[0] || null)}
+                        className="flex-1 text-sm text-[var(--foreground-secondary)] file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-[var(--primary)] file:text-white hover:file:bg-[var(--primary-hover)]"
+                      />
+                      {answerImage && (
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setAnswerImage(null)}
+                          className="text-red-500 hover:text-red-400 border-red-300 hover:border-red-400 dark:text-red-400 dark:hover:text-red-300 dark:border-red-600 dark:hover:border-red-500"
+                        >
+                          Remove
+                        </Button>
+                      )}
+                    </div>
+                    {answerImage && (
+                      <div className="mt-2">
+                        <img 
+                          src={URL.createObjectURL(answerImage)} 
+                          alt="Answer preview" 
+                          className="max-w-full h-32 object-contain rounded-lg border border-[var(--border)]"
+                        />
+                      </div>
+                    )}
+                  </div>
                 </div>
 
                 {/* Submit Buttons */}
                 <div className="flex flex-col sm:flex-row gap-4 pt-4">
                   <Button
                     type="submit"
-                    disabled={!front.trim() || !back.trim() || !selectedSetId || isSubmitting}
-                    className="flex-1 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white px-6 py-3"
+                    disabled={(!front.trim() && !questionImage) || (!back.trim() && !answerImage) || !selectedSetId || isSubmitting}
+                    className="flex-1 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white px-6 py-3 h-12"
                   >
                     {isSubmitting ? (
                       <>
@@ -197,7 +296,7 @@ export default function CreateFlashcardPage() {
                   </Button>
                   <Link
                     href="/flashcards"
-                    className="inline-flex items-center justify-center rounded-lg text-sm font-medium border border-[var(--border)] bg-[var(--background)] hover:bg-[var(--hover)] text-[var(--foreground)] h-12 px-6 transition-colors"
+                    className="inline-flex items-center justify-center rounded-lg text-sm font-medium bg-[var(--background-secondary)] hover:bg-[var(--hover)] text-[var(--foreground)] border border-[var(--border)] px-6 py-3 transition-all duration-200 h-12"
                   >
                     Cancel
                   </Link>
@@ -243,11 +342,11 @@ export default function CreateFlashcardPage() {
               </div>
             )}
             
-            {!front.trim() && !back.trim() ? (
+            {!front.trim() && !back.trim() && !questionImage && !answerImage ? (
               <div className="aspect-[3/2] border-2 border-dashed border-[var(--border)] rounded-lg flex items-center justify-center">
                 <div className="text-center">
                   <BookOpen className="h-8 w-8 text-[var(--foreground-tertiary)] mx-auto mb-2" />
-                  <p className="text-sm text-[var(--foreground-tertiary)]">Start typing to see preview</p>
+                  <p className="text-sm text-[var(--foreground-tertiary)]">Start typing or upload images to see preview</p>
                 </div>
               </div>
             ) : (
@@ -262,8 +361,15 @@ export default function CreateFlashcardPage() {
                       <div className="absolute top-4 left-4">
                         <div className="w-3 h-3 bg-[var(--primary)] rounded-full"></div>
                       </div>
-                      <div className="flex items-center justify-center h-full p-6">
-                        <p className="text-center text-[var(--foreground)] font-medium">
+                      <div className="flex flex-col items-center justify-center h-full p-6 w-full space-y-3">
+                        {questionImage && (
+                          <img 
+                            src={URL.createObjectURL(questionImage)} 
+                            alt="Question" 
+                            className="max-w-full max-h-24 object-contain rounded"
+                          />
+                        )}
+                        <p className="text-center text-[var(--foreground)] font-medium break-words overflow-hidden w-full leading-relaxed">
                           {front.trim() || "Your question will appear here..."}
                         </p>
                       </div>
@@ -274,8 +380,15 @@ export default function CreateFlashcardPage() {
                       <div className="absolute top-4 left-4">
                         <div className="w-3 h-3 bg-green-500 rounded-full"></div>
                       </div>
-                      <div className="flex items-center justify-center h-full p-6">
-                        <p className="text-center text-[var(--foreground)] font-medium">
+                      <div className="flex flex-col items-center justify-center h-full p-6 w-full space-y-3">
+                        {answerImage && (
+                          <img 
+                            src={URL.createObjectURL(answerImage)} 
+                            alt="Answer" 
+                            className="max-w-full max-h-24 object-contain rounded"
+                          />
+                        )}
+                        <p className="text-center text-[var(--foreground)] font-medium break-words overflow-hidden w-full leading-relaxed">
                           {back.trim() || "Your answer will appear here..."}
                         </p>
                       </div>
@@ -285,7 +398,7 @@ export default function CreateFlashcardPage() {
               </div>
             )}
             
-            {(front.trim() || back.trim()) && (
+            {(front.trim() || back.trim() || questionImage || answerImage) && (
               <p className="text-xs text-[var(--foreground-tertiary)] text-center mt-4">
                 Click the card to flip between question and answer
               </p>
@@ -365,7 +478,7 @@ export default function CreateFlashcardPage() {
                 <Button
                   variant="outline"
                   onClick={() => setShowSetCreator(false)}
-                  className="flex-1 border-[var(--border)] text-[var(--foreground)] hover:bg-[var(--hover)]"
+                  className="flex-1 border-[var(--border)] text-[var(--foreground)] hover:bg-[var(--hover)] h-12"
                 >
                   Cancel
                 </Button>

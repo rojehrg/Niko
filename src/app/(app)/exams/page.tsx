@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Plus, Calendar, Clock, Bell, Edit3, Trash2, CheckCircle, AlertTriangle, BookOpen, GraduationCap, Search, Filter, MoreHorizontal, Star, Target, Zap } from 'lucide-react'
+import { Plus, Calendar, Clock, Bell, Edit3, Trash2, AlertTriangle, BookOpen, GraduationCap, Search, Filter, MoreHorizontal, Star, Target, Zap } from 'lucide-react'
 import { useExamsStore, Exam } from '@/lib/stores/exams-store'
 
 export default function ExamsPage() {
@@ -76,13 +76,13 @@ export default function ExamsPage() {
   }
 
   const getStatusIcon = (exam: Exam) => {
-    if (exam.completed) return <CheckCircle className="w-4 h-4 text-green-600" />
+    if (exam.completed) return <img src="/sprites/check.png" alt="Completed" className="w-4 h-4" />
     
     const daysUntil = getDaysUntil(exam.date)
-    if (daysUntil.text.includes('Overdue')) return <AlertTriangle className="w-4 h-4 text-red-600" />
-    if (daysUntil.text.includes('Today') || daysUntil.text.includes('Tomorrow')) return <Bell className="w-4 h-4 text-orange-600" />
+    if (daysUntil.text.includes('Overdue')) return <AlertTriangle className="w-4 h-4 text-red-500 dark:text-red-400" />
+    if (daysUntil.text.includes('Today') || daysUntil.text.includes('Tomorrow')) return <Bell className="w-4 h-4 text-orange-500 dark:text-orange-400" />
     
-    return <Calendar className="w-4 h-4 text-blue-600" />
+    return <Calendar className="w-4 h-4 text-blue-500 dark:text-blue-400" />
   }
 
   const stats = {
@@ -279,7 +279,11 @@ export default function ExamsPage() {
                             }`}
                             title={exam.completed ? 'Mark incomplete' : 'Mark complete'}
                           >
-                            <CheckCircle className="w-4 h-4" />
+                            <img 
+                              src="/sprites/check.png" 
+                              alt="Toggle Complete" 
+                              className="w-4 h-4"
+                            />
                           </button>
                           <button
                             onClick={() => deleteExam(exam.id)}

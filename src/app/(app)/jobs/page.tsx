@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { 
@@ -10,12 +10,11 @@ import {
   Filter, 
   SortAsc, 
   SortDesc, 
-  X, 
   Building, 
-  CheckCircle, 
   MapPin, 
   Edit as EditIcon,
-  Trash2 as TrashIcon
+  Trash2 as TrashIcon,
+  CheckCircle
 } from 'lucide-react'
 import { useJobsStore, Job } from '@/lib/stores/jobs-store'
 import JobForm from '@/components/jobs/job-form'
@@ -25,8 +24,14 @@ export default function JobsPage() {
     jobs, 
     addJob, 
     updateJob, 
-    deleteJob
+    deleteJob,
+    fetchJobs
   } = useJobsStore()
+
+  // Fetch jobs from Supabase on component mount
+  useEffect(() => {
+    fetchJobs();
+  }, [fetchJobs]);
 
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [editingJob, setEditingJob] = useState<Job | null>(null)
@@ -138,7 +143,11 @@ export default function JobsPage() {
                     onClick={() => setShowSearch(false)}
                     className="text-[var(--foreground-secondary)] hover:text-[var(--foreground)]"
                   >
-                    <X className="w-4 h-4" />
+                    <img 
+                      src="/sprites/x.png" 
+                      alt="Close" 
+                      className="w-4 h-4"
+                    />
                   </Button>
                 </div>
               )}
