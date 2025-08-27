@@ -59,7 +59,50 @@ export default function DashboardPage() {
         {/* Welcome Header */}
         <div className="mb-8">
           <h1 className="text-4xl font-bold text-[var(--foreground)] mb-2">
-            Welcome back, Niko! 👋
+            <span className="inline-block">
+              {'Welcome back, Niko!'.split('').map((char, index) => (
+                <span
+                  key={index}
+                  className="inline-block"
+                  style={{
+                    animationDelay: `${index * 0.15}s`,
+                    animationDuration: '2s',
+                    animationIterationCount: 'infinite',
+                    animationName: 'gentleBounce'
+                  }}
+                >
+                  {char === ' ' ? '\u00A0' : char}
+                </span>
+              ))}
+              <span
+                className="inline-block ml-2"
+                style={{
+                  animationDelay: '2.7s',
+                  animationDuration: '2s',
+                  animationIterationCount: 'infinite',
+                  animationName: 'gentleBounce'
+                }}
+              >
+                👋
+              </span>
+            </span>
+            
+            <style jsx>{`
+              @keyframes gentleBounce {
+                0%, 100% {
+                  transform: translateY(0);
+                }
+                25% {
+                  transform: translateY(-8px);
+                }
+                50% {
+                  transform: translateY(-4px);
+                }
+                75% {
+                  transform: translateY(-6px);
+                }
+              }
+            `}</style>
           </h1>
           <p className="text-lg text-[var(--foreground-secondary)]">
             Here's what's happening with your studies today

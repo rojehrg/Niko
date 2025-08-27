@@ -9,7 +9,7 @@ export default function ExamsPage() {
   const [editingExam, setEditingExam] = useState<Exam | null>(null)
   const [filter, setFilter] = useState<'all' | 'upcoming' | 'overdue' | 'completed'>('all')
   const [searchTerm, setSearchTerm] = useState('')
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('list')
+
   
   const {
     exams,
@@ -150,29 +150,7 @@ export default function ExamsPage() {
         </div>
 
         <div className="flex gap-3">
-          {/* View Mode Toggle */}
-          <div className="flex bg-[var(--background-secondary)] border border-[var(--border)] rounded-lg p-1">
-            <button
-              onClick={() => setViewMode('list')}
-              className={`px-3 py-1.5 rounded-md text-sm font-medium transition-all duration-200 ${
-                viewMode === 'list'
-                  ? 'bg-[var(--primary)] text-white shadow-sm'
-                  : 'text-[var(--foreground-secondary)] hover:text-[var(--foreground)]'
-              }`}
-            >
-              List
-            </button>
-            <button
-              onClick={() => setViewMode('grid')}
-              className={`px-3 py-1.5 rounded-md text-sm font-medium transition-all duration-200 ${
-                viewMode === 'grid'
-                  ? 'bg-[var(--primary)] text-white shadow-sm'
-                  : 'text-[var(--foreground-secondary)] hover:text-[var(--foreground)]'
-              }`}
-            >
-              Grid
-            </button>
-          </div>
+
 
           {/* Add New Button */}
           <button

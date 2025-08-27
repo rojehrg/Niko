@@ -7,18 +7,22 @@ export default function HomePage() {
   const router = useRouter();
 
   useEffect(() => {
-    // Redirect directly to dashboard for Niko
-    router.push('/dashboard');
+    // Show the message for 3 seconds before redirecting
+    const timer = setTimeout(() => {
+      router.push('/dashboard');
+    }, 3000);
+
+    return () => clearTimeout(timer);
   }, [router]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-[var(--background)]">
       <div className="text-center">
         <div className="text-4xl font-bold text-[var(--foreground)] mb-4">
-          🚀 Redirecting to StudyBuddy...
+          LETS GET THESE GRADES!!!!!
         </div>
         <div className="text-[var(--foreground-secondary)]">
-          Taking you to your personal learning hub
+          Made by Mr.Slime himself, to Niko
         </div>
       </div>
     </div>
