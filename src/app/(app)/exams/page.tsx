@@ -104,7 +104,7 @@ export default function ExamsPage() {
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-4xl font-bold text-[var(--foreground)] tracking-tight mb-3">
-          Exams & Deadlines
+          Deadlines
         </h1>
         <p className="text-lg text-[var(--foreground-secondary)] font-medium">
           Track your academic deadlines and stay organized
@@ -119,7 +119,7 @@ export default function ExamsPage() {
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-[var(--foreground-tertiary)]" />
             <input
               type="text"
-              placeholder="Search exams..."
+              placeholder="Search deadlines..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pl-10 pr-4 py-2 bg-[var(--background-secondary)] border border-[var(--border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent transition-all duration-200"
@@ -169,10 +169,10 @@ export default function ExamsPage() {
           <div className="text-center py-16">
             <button
               onClick={() => setIsAddModalOpen(true)}
-              className="inline-flex items-center gap-2 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white px-6 py-3 rounded-lg font-medium transition-all duration-200 shadow-sm hover:shadow-md"
+              className="inline-flex items-center gap-2 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200 shadow-sm hover:shadow-md"
             >
               <Plus className="w-4 h-4" />
-              Add Your First Exam
+              Add Your First Deadline
             </button>
           </div>
         ) : (

@@ -13,7 +13,7 @@ import { cn } from '@/lib/utils'
 const navigation = [
   { name: "Dashboard", href: "/dashboard", icon: Home },
   { name: "Flashcards", href: "/flashcards", icon: BookOpen },
-  { name: "Exams", href: "/exams", icon: Calendar },
+  { name: "Deadlines", href: "/exams", icon: Calendar },
   { name: "Jobs", href: "/jobs", icon: Briefcase },
 ];
 
@@ -64,10 +64,10 @@ export function Navigation({ isCollapsed = false }: NavigationProps) {
                     isActive && "brightness-125"
                   )}
                 />
-              ) : item.name === "Exams" ? (
+              ) : item.name === "Deadlines" ? (
                 <img 
                   src="/sprites/exam.png" 
-                  alt="Exams" 
+                  alt="Deadlines" 
                   className={cn(
                     "w-8 h-8 transition-all duration-200",
                     isActive && "brightness-125"

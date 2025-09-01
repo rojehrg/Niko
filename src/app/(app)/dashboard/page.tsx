@@ -158,7 +158,7 @@ export default function DashboardPage() {
               </div>
             </div>
 
-            {/* Upcoming Exams */}
+            {/* Upcoming Deadlines */}
             <div 
               className="group bg-[var(--background-secondary)] border border-[var(--border)] rounded-xl p-5 hover:border-[var(--border-hover)] hover:shadow-md transition-all duration-200 cursor-pointer"
               onClick={() => router.push('/exams')}
@@ -167,15 +167,15 @@ export default function DashboardPage() {
                 <div className="w-28 h-28 flex items-center justify-center group-hover:scale-105 transition-transform duration-200">
                   <img 
                     src="/sprites/exam.png" 
-                    alt="Exams" 
+                    alt="Deadlines" 
                     className="w-20 h-20"
                   />
                 </div>
                 <div className="flex-1">
-                  <p className="text-sm font-medium text-[var(--foreground-secondary)] mb-1">Exams</p>
+                  <p className="text-sm font-medium text-[var(--foreground-secondary)] mb-1">Deadlines</p>
                   <p className="text-2xl font-bold text-[var(--foreground)]">{upcomingExams}</p>
                   <p className="text-xs text-[var(--foreground-secondary)]">
-                    {upcomingExams === 0 ? 'All clear' : 'Study time'}
+                    {upcomingExams === 0 ? 'No deadlines to worry about' : 'Stay on track'}
                   </p>
                 </div>
               </div>
@@ -193,13 +193,13 @@ export default function DashboardPage() {
 
           {/* Right Column */}
           <div className="space-y-8">
-            {/* Exams Overview */}
+            {/* Upcoming Deadlines */}
             <div className="bg-[var(--background-secondary)] border border-[var(--border)] rounded-xl p-6">
-              <h3 className="text-lg font-semibold text-[var(--foreground)] mb-4">Exams Overview</h3>
+              <h3 className="text-lg font-semibold text-[var(--foreground)] mb-4">Upcoming Deadlines</h3>
               {exams.length === 0 ? (
                 <div className="text-center py-6">
                   <Clock className="w-12 h-12 text-[var(--foreground-tertiary)] mx-auto mb-3" />
-                  <p className="text-[var(--foreground-secondary)] mb-3">No exams scheduled yet</p>
+                  <p className="text-[var(--foreground-secondary)] mb-3">No deadlines scheduled yet</p>
                 </div>
               ) : (
                 <div className="space-y-3">
@@ -224,7 +224,7 @@ export default function DashboardPage() {
                    ))}
                  {exams.filter(exam => !exam.completed).length > 3 && (
                    <button className="w-full text-sm text-[var(--primary)] hover:underline py-2">
-                     View all {exams.filter(exam => !exam.completed).length} exams
+                     View all {exams.filter(exam => !exam.completed).length} deadlines
                    </button>
                  )}
                 </div>
