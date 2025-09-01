@@ -2,7 +2,6 @@
 
 import { Navigation } from "@/components/ui/navigation";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
-import { FloatingEmojis } from "@/components/ui/floating-emojis";
 import { BunnyEnvironment } from "@/components/ui/bunny-environment";
 import { useState, useEffect } from "react";
 
@@ -57,9 +56,6 @@ export default function AppLayout({
         {children}
       </div>
 
-      {/* Floating Emojis */}
-      <FloatingEmojis />
-      
       {/* Bunny Environment */}
       <BunnyEnvironment />
     </div>

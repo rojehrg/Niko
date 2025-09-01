@@ -1,8 +1,8 @@
 "use client";
 
-import { 
-  BookOpen, 
-  Briefcase, 
+import {
+  BookOpen,
+  Briefcase,
   Home,
   Calendar
 } from 'lucide-react'
@@ -73,7 +73,16 @@ export function Navigation({ isCollapsed = false }: NavigationProps) {
                     isActive && "brightness-125"
                   )}
                 />
-              ) : item.name === "Jobs" ? (
+              ) : item.name === "Coloring" ? (
+                <img 
+                  src="/sprites/coloring.svg" 
+                  alt="Coloring" 
+                  className={cn(
+                    "w-8 h-8 transition-all duration-200",
+                    isActive && "brightness-125"
+                  )}
+                />
+                                   ) : item.name === "Jobs" ? (
                 <img 
                   src="/sprites/jobs.png" 
                   alt="Jobs" 
