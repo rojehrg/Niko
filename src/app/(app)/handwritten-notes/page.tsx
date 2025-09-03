@@ -93,14 +93,13 @@ export default function HandwrittenNotesPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)]">
+    <div className="min-h-screen py-8">
       {/* Header */}
-      <div className="bg-[var(--background-secondary)] border-b border-[var(--border)]">
-        <div className="max-w-7xl mx-auto px-4 py-6">
+      <div className="mb-6">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-[var(--foreground)]">Handwritten Notes</h1>
-              <p className="text-[var(--foreground-secondary)] mt-2">
+              <h1 className="text-3xl font-bold text-[var(--foreground)] mb-2">Handwritten Notes</h1>
+              <p className="text-[var(--foreground-secondary)] text-sm">
                 Upload, organize, and access your handwritten notes from anywhere
               </p>
             </div>
@@ -108,14 +107,14 @@ export default function HandwrittenNotesPage() {
             <div className="flex items-center gap-3">
               <button
                 onClick={() => setIsCreateSetModalOpen(true)}
-                className="bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white px-4 py-2 rounded-lg transition-colors flex items-center gap-2"
+                className="bg-[var(--background-secondary)] hover:bg-[var(--hover)] text-[var(--foreground)] border border-[var(--border)] px-4 py-2 h-10 rounded-md transition-all duration-150 flex items-center gap-2 text-sm font-medium"
               >
                 <Folder className="w-4 h-4" />
                 New Set
               </button>
               <button
                 onClick={() => setIsUploadModalOpen(true)}
-                className="bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white px-4 py-2 rounded-lg transition-colors flex items-center gap-2"
+                className="bg-[var(--background-secondary)] hover:bg-[var(--hover)] text-[var(--foreground)] border border-[var(--border)] px-4 py-2 h-10 rounded-md transition-all duration-150 flex items-center gap-2 text-sm font-medium"
               >
                 <Upload className="w-4 h-4" />
                 Upload Notes
@@ -127,7 +126,7 @@ export default function HandwrittenNotesPage() {
 
       <div className="max-w-7xl mx-auto px-4 py-6">
         {/* Controls Bar */}
-        <div className="bg-[var(--background-secondary)] rounded-xl border border-[var(--border)] p-4 mb-6">
+        <div className="bg-[var(--background-secondary)] rounded-md border border-[var(--border)] p-4 mb-6">
           <div className="flex flex-col lg:flex-row gap-4 items-center justify-between">
             {/* Search and Filters */}
             <div className="flex items-center gap-4 flex-1">
@@ -163,7 +162,7 @@ export default function HandwrittenNotesPage() {
                   </span>
                   <button
                     onClick={handleBulkDelete}
-                    className="bg-red-1000 hover:bg-red-600 text-white px-3 py-1 rounded text-sm transition-colors flex items-center gap-1"
+                    className="bg-red-1000 hover:bg-red-600 text-white px-3 py-2 h-8 rounded text-sm transition-colors flex items-center gap-1"
                   >
                     <Trash2 className="w-3 h-3" />
                     Delete
@@ -232,7 +231,7 @@ export default function HandwrittenNotesPage() {
           <p className="text-[var(--foreground-secondary)] mb-4">
             Or click to browse files. Supports JPG, PNG, and HEIC formats.
           </p>
-          <button className="bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white px-6 py-2 rounded-lg transition-colors">
+          <button className="bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white px-6 py-3 h-12 rounded-lg transition-colors">
             Choose Files
           </button>
         </div>
@@ -386,13 +385,13 @@ export default function HandwrittenNotesPage() {
               <div className="flex gap-3 mt-6">
                                   <button
                     onClick={() => setIsUploadModalOpen(false)}
-                    className="flex-1 bg-red-500 hover:bg-red-600 text-white py-2.5 px-4 rounded-lg transition-all duration-200 font-medium"
+                    className="flex-1 bg-red-500 hover:bg-red-600 text-white py-3 px-4 h-12 rounded-lg transition-all duration-200 font-medium"
                   >
                     Cancel
                   </button>
                 <button
                   onClick={() => setIsUploadModalOpen(false)}
-                  className="flex-1 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white px-4 py-2 rounded-lg transition-colors"
+                  className="flex-1 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white px-4 py-3 h-12 rounded-lg transition-colors"
                 >
                   Upload
                 </button>
@@ -438,13 +437,13 @@ export default function HandwrittenNotesPage() {
               <div className="flex gap-3 mt-6">
                                   <button
                     onClick={() => setIsCreateSetModalOpen(false)}
-                    className="flex-1 bg-red-500 hover:bg-red-600 text-white py-2.5 px-4 rounded-lg transition-all duration-200 font-medium"
+                    className="flex-1 bg-red-500 hover:bg-red-600 text-white py-3 px-4 h-12 rounded-lg transition-all duration-200 font-medium"
                   >
                     Cancel
                   </button>
                 <button
                   onClick={() => setIsCreateSetModalOpen(false)}
-                  className="flex-1 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white px-4 py-2 rounded-lg transition-colors"
+                  className="flex-1 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white px-4 py-3 h-12 rounded-lg transition-colors"
                 >
                   Create Set
                 </button>

@@ -71,7 +71,7 @@ export default function JobForm({ onSubmit, onCancel, initialData }: JobFormProp
               value={formData.company}
               onChange={(e) => handleChange('company', e.target.value)}
               placeholder="Enter company name"
-              className="w-full px-3 py-2.5 border border-[var(--border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent transition-all duration-200 bg-[var(--background-secondary)]"
+              className="w-full"
             />
           </div>
           
@@ -84,7 +84,7 @@ export default function JobForm({ onSubmit, onCancel, initialData }: JobFormProp
               value={formData.position}
               onChange={(e) => handleChange('position', e.target.value)}
               placeholder="Enter job title"
-              className="w-full px-3 py-2.5 border border-[var(--border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent transition-all duration-200 bg-[var(--background-secondary)]"
+              className="w-full"
             />
           </div>
         </div>
@@ -100,7 +100,7 @@ export default function JobForm({ onSubmit, onCancel, initialData }: JobFormProp
               value={formData.location}
               onChange={(e) => handleChange('location', e.target.value)}
               placeholder="City, State or Remote"
-              className="w-full px-3 py-2.5 border border-[var(--border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent transition-all duration-200 bg-[var(--background-secondary)]"
+              className="w-full"
             />
           </div>
           
@@ -146,7 +146,7 @@ export default function JobForm({ onSubmit, onCancel, initialData }: JobFormProp
             value={formData.notes}
             onChange={(e) => handleChange('notes', e.target.value)}
             placeholder="Add any notes about the company, role, or your application process..."
-            className="w-full px-3 py-2.5 border border-[var(--border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent resize-none transition-all duration-200 bg-[var(--background-secondary)] min-h-[100px]"
+            className="w-full"
           />
         </div>
 
@@ -155,13 +155,14 @@ export default function JobForm({ onSubmit, onCancel, initialData }: JobFormProp
           <Button
             type="button"
             onClick={onCancel}
-            className="flex-1 bg-red-500 hover:bg-red-600 text-white py-2.5 px-4 rounded-lg transition-all duration-200 font-medium"
+            variant="outline"
+            className="flex-1"
           >
             Cancel
           </Button>
           <Button
             type="submit"
-            className="flex-1 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white py-2.5 px-4 rounded-lg transition-all duration-200 font-medium shadow-sm hover:shadow-md"
+            className="flex-1"
           >
             {initialData ? 'Update Job' : 'Add Job'}
           </Button>

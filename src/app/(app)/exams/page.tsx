@@ -59,19 +59,19 @@ export default function ExamsPage() {
     const diffTime = examDate.getTime() - now.getTime()
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
     
-    if (diffDays < 0) return { text: `Overdue by ${Math.abs(diffDays)} days`, color: 'text-red-600', bg: 'bg-red-100 dark:bg-red-900/20' }
-    if (diffDays === 0) return { text: 'Today!', color: 'text-orange-600', bg: 'bg-orange-50 dark:bg-orange-900/20' }
-    if (diffDays === 1) return { text: 'Tomorrow', color: 'text-orange-600', bg: 'bg-orange-50 dark:bg-orange-900/20' }
-    if (diffDays <= 7) return { text: `${diffDays} days`, color: 'text-blue-600', bg: 'bg-blue-50 dark:bg-blue-900/20' }
-    return { text: `${diffDays} days`, color: 'text-gray-600', bg: 'bg-gray-50 dark:bg-gray-900/20' }
+    if (diffDays < 0) return { text: `Overdue by ${Math.abs(diffDays)} days`, color: 'text-[var(--foreground)]', bg: 'bg-red-50/50 dark:bg-red-950/20' }
+    if (diffDays === 0) return { text: 'Today!', color: 'text-[var(--foreground)]', bg: 'bg-orange-50/50 dark:bg-orange-950/20' }
+    if (diffDays === 1) return { text: 'Tomorrow', color: 'text-[var(--foreground)]', bg: 'bg-yellow-50/50 dark:bg-yellow-950/20' }
+    if (diffDays <= 7) return { text: `${diffDays} days`, color: 'text-[var(--foreground)]', bg: 'bg-blue-50/50 dark:bg-blue-950/20' }
+    return { text: `${diffDays} days`, color: 'text-[var(--foreground-secondary)]', bg: 'bg-[var(--background-secondary)]' }
   }
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
-      case 'high': return 'text-red-600 bg-red-100 dark:bg-red-900/20 border-red-300 dark:border-red-700'
-      case 'medium': return 'text-orange-600 bg-orange-50 dark:bg-orange-900/20 border-orange-200 dark:border-orange-800'
-      case 'low': return 'text-green-600 bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800'
-      default: return 'text-gray-600 bg-gray-50 dark:bg-gray-900/20 border-gray-200 dark:border-gray-800'
+      case 'high': return 'text-[var(--foreground)] bg-red-50/50 dark:bg-red-950/20 border-[var(--border)]'
+      case 'medium': return 'text-[var(--foreground)] bg-yellow-50/50 dark:bg-yellow-950/20 border-[var(--border)]'
+      case 'low': return 'text-[var(--foreground)] bg-green-50/50 dark:bg-green-950/20 border-[var(--border)]'
+      default: return 'text-[var(--foreground-secondary)] bg-[var(--background-secondary)] border-[var(--border)]'
     }
   }
 
@@ -79,10 +79,10 @@ export default function ExamsPage() {
     if (exam.completed) return <img src="/sprites/check.png" alt="Completed" className="w-4 h-4" />
     
     const daysUntil = getDaysUntil(exam.date)
-    if (daysUntil.text.includes('Overdue')) return <AlertTriangle className="w-4 h-4 text-red-500 dark:text-red-400" />
-    if (daysUntil.text.includes('Today') || daysUntil.text.includes('Tomorrow')) return <Bell className="w-4 h-4 text-orange-500 dark:text-orange-400" />
+    if (daysUntil.text.includes('Overdue')) return <AlertTriangle className="w-4 h-4 text-[var(--foreground-secondary)]" />
+    if (daysUntil.text.includes('Today') || daysUntil.text.includes('Tomorrow')) return <Bell className="w-4 h-4 text-[var(--foreground-secondary)]" />
     
-    return <Calendar className="w-4 h-4 text-blue-500 dark:text-blue-400" />
+    return <Calendar className="w-4 h-4 text-[var(--foreground-secondary)]" />
   }
 
   const stats = {
@@ -100,10 +100,10 @@ export default function ExamsPage() {
   }
 
   return (
-    <div className="min-h-screen p-6 max-w-7xl mx-auto">
+    <div className="min-h-screen py-8">
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-4xl font-bold text-[var(--foreground)] tracking-tight mb-3">
+      <div className="mb-6">
+        <h1 className="text-3xl font-bold text-[var(--foreground)] tracking-tight mb-2">
           Deadlines
         </h1>
         <p className="text-lg text-[var(--foreground-secondary)] font-medium">
@@ -122,7 +122,7 @@ export default function ExamsPage() {
               placeholder="Search deadlines..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 pr-4 py-2 bg-[var(--background-secondary)] border border-[var(--border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent transition-all duration-200"
+              className="pl-10 pr-3 py-2 bg-[var(--background)] border border-[var(--border)] rounded-md focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent transition-all duration-150 text-sm"
             />
           </div>
 
@@ -137,10 +137,10 @@ export default function ExamsPage() {
               <button
                 key={key}
                 onClick={() => setFilter(key as any)}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                className={`px-3 py-2 rounded-md text-sm font-medium transition-all duration-150 ${
                   filter === key
-                    ? 'bg-[var(--primary)] text-white shadow-sm'
-                    : 'bg-[var(--background-secondary)] text-[var(--foreground-secondary)] hover:bg-[var(--hover)]'
+                    ? 'bg-[var(--background-secondary)] text-[var(--foreground)] border border-[var(--border)]'
+                    : 'bg-transparent text-[var(--foreground-secondary)] hover:bg-[var(--hover)]'
                 }`}
               >
                 {label} ({count})
@@ -155,7 +155,7 @@ export default function ExamsPage() {
           {/* Add New Button */}
           <button
             onClick={() => setIsAddModalOpen(true)}
-            className="inline-flex items-center gap-2 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white px-4 py-2 rounded-lg font-medium transition-all duration-200 shadow-sm hover:shadow-md"
+            className="inline-flex items-center gap-2 bg-[var(--background-secondary)] hover:bg-[var(--hover)] text-[var(--foreground)] border border-[var(--border)] px-4 py-2 h-10 rounded-md text-sm font-medium transition-all duration-150 shadow-sm"
           >
             <Plus className="w-4 h-4" />
             Add New
@@ -248,8 +248,8 @@ export default function ExamsPage() {
                       <td className="py-3 px-4">
                         <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${
                           exam.completed 
-                            ? 'bg-green-100 text-green-800 border-green-200 dark:bg-green-900/20 dark:text-green-300 dark:border-green-700'
-                            : 'bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900/20 dark:text-blue-300 dark:border-blue-700'
+                            ? 'text-[var(--foreground)] bg-green-50/50 dark:bg-green-950/20 border-[var(--border)]'
+                            : 'text-[var(--foreground)] bg-blue-50/50 dark:bg-blue-950/20 border-[var(--border)]'
                         }`}>
                           {exam.completed ? 'Completed' : 'Active'}
                         </span>

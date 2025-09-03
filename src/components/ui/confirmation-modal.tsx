@@ -58,15 +58,15 @@ export function ConfirmationModal({
 
   return (
     <div className="fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-in fade-in duration-200">
-      <div className="bg-[var(--background)] rounded-xl shadow-2xl border border-[var(--border)] w-full max-w-md animate-in slide-in-from-bottom-4 duration-300">
-        <div className="p-6">
+      <div className="bg-[var(--background)] rounded-md shadow-lg border border-[var(--border)] w-full max-w-md animate-in slide-in-from-bottom-4 duration-150">
+        <div className="p-4">
           {/* Header */}
-          <div className="flex items-start gap-4 mb-4">
-            <div className={`flex-shrink-0 w-12 h-12 ${styles.iconBg} rounded-full flex items-center justify-center`}>
-              <AlertTriangle className={`w-6 h-6 ${styles.icon}`} />
+          <div className="flex items-start gap-3 mb-4">
+            <div className={`flex-shrink-0 w-10 h-10 ${styles.iconBg} rounded-full flex items-center justify-center`}>
+              <AlertTriangle className={`w-5 h-5 ${styles.icon}`} />
             </div>
             <div className="flex-1">
-              <h3 className="text-lg font-semibold text-[var(--foreground)] mb-1">
+              <h3 className="text-base font-semibold text-[var(--foreground)] mb-1">
                 {title}
               </h3>
               <p className="text-sm text-[var(--foreground-secondary)] leading-relaxed">
@@ -90,7 +90,7 @@ export function ConfirmationModal({
           <div className="flex gap-3 justify-end">
             <button
               onClick={onClose}
-              className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-all duration-200 font-medium"
+              className="px-3 py-2 bg-[var(--background-secondary)] hover:bg-[var(--hover)] text-[var(--foreground)] border border-[var(--border)] rounded-md transition-all duration-150 font-medium text-sm"
             >
               {cancelText}
             </button>
@@ -99,7 +99,7 @@ export function ConfirmationModal({
                 onConfirm();
                 onClose();
               }}
-              className={`px-4 py-2 rounded-lg transition-all duration-200 font-medium shadow-sm hover:shadow-md transform hover:scale-105 ${styles.confirmButton}`}
+              className={`px-3 py-2 rounded-md transition-all duration-150 font-medium text-sm ${styles.confirmButton}`}
             >
               {confirmText}
             </button>

@@ -93,12 +93,12 @@ export function JobCard({ job, onEdit, onDelete }: JobCardProps) {
 
       {/* Simplified Progress */}
       <div className="flex items-center justify-between mb-3">
-        <span className={`px-2 py-1 text-xs font-medium rounded-full ${
-          job.status === 'saved' ? 'bg-gray-100 text-gray-700' :
-          job.status === 'applied' ? 'bg-blue-100 text-blue-700' :
-          job.status === 'interview' ? 'bg-orange-100 text-orange-700' :
-          job.status === 'offer' ? 'bg-green-100 text-green-700' :
-          'bg-red-100 text-red-700'
+        <span className={`px-2 py-1 text-xs font-medium rounded-full text-[var(--foreground)] border border-[var(--border)] ${
+          job.status === 'saved' ? 'bg-gray-50/50 dark:bg-gray-950/20' :
+          job.status === 'applied' ? 'bg-blue-50/50 dark:bg-blue-950/20' :
+          job.status === 'interview' ? 'bg-yellow-50/50 dark:bg-yellow-950/20' :
+          job.status === 'offer' ? 'bg-green-50/50 dark:bg-green-950/20' :
+          'bg-red-50/50 dark:bg-red-950/20'
         }`}>
           {job.status.charAt(0).toUpperCase() + job.status.slice(1)}
         </span>

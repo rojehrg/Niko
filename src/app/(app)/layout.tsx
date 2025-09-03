@@ -41,7 +41,7 @@ export default function AppLayout({
       {/* Beautiful Hover-based Sidebar */}
       <div 
         className="fixed left-0 top-0 h-full bg-[var(--background-secondary)] border-r border-[var(--border)] transition-all duration-300 ease-out z-50 group/sidebar"
-        style={{ width: isSidebarCollapsed ? '64px' : '240px' }}
+        style={{ width: isSidebarCollapsed ? '64px' : '224px' }}
         onMouseEnter={() => setIsSidebarCollapsed(false)}
         onMouseLeave={() => setIsSidebarCollapsed(true)}
       >
@@ -51,9 +51,11 @@ export default function AppLayout({
       {/* Main Content */}
       <div 
         className="min-h-screen transition-all duration-300 ease-out"
-        style={{ marginLeft: isSidebarCollapsed ? '64px' : '240px' }}
+        style={{ marginLeft: isSidebarCollapsed ? '64px' : '224px' }}
       >
-        {children}
+        <div className="max-w-4xl mx-auto px-6">
+          {children}
+        </div>
       </div>
 
       {/* Bunny Environment */}

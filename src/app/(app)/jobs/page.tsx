@@ -113,10 +113,10 @@ export default function JobsPage() {
 
 
   return (
-    <div className="min-h-screen p-6 max-w-7xl mx-auto">
+    <div className="min-h-screen py-8">
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-4xl font-bold text-[var(--foreground)] tracking-tight mb-3">
+      <div className="mb-6">
+        <h1 className="text-3xl font-bold text-[var(--foreground)] tracking-tight mb-2">
           Job Application Tracker
         </h1>
         <p className="text-lg text-[var(--foreground-secondary)] font-medium">
@@ -242,7 +242,7 @@ export default function JobsPage() {
               </Button>
               <Button 
                 onClick={() => setIsFormOpen(true)}
-                className="bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white px-6 py-2 shadow-sm hover:shadow-md transition-all duration-200 transform hover:scale-105"
+                className="bg-[var(--background-secondary)] hover:bg-[var(--hover)] text-[var(--foreground)] border border-[var(--border)] px-4 py-2 h-10 text-sm font-medium transition-all duration-150"
               >
                 <Plus className="w-4 h-4 mr-2" />
                 New Application
@@ -251,16 +251,16 @@ export default function JobsPage() {
         </div>
 
       {/* Notion-style Table */}
-      <div className="bg-[var(--background)] rounded-xl border border-[var(--border)] overflow-hidden shadow-sm">
+      <div className="bg-[var(--background)] rounded-md border border-[var(--border)] overflow-hidden shadow-sm">
         {sortedJobs.length === 0 ? (
-          <div className="max-w-md mx-auto text-center py-24">
-            <h3 className="text-3xl font-bold text-[var(--foreground)] mb-6">No applications yet</h3>
-            <p className="text-[var(--foreground-secondary)] mb-10 text-lg">Start building your career path by tracking your first job application</p>
+          <div className="max-w-md mx-auto text-center py-16">
+            <h3 className="text-xl font-bold text-[var(--foreground)] mb-4">No applications yet</h3>
+            <p className="text-[var(--foreground-secondary)] mb-6 text-sm">Start building your career path by tracking your first job application</p>
             <Button 
               onClick={() => setIsFormOpen(true)} 
-              className="bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white px-10 py-4 text-lg font-medium shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 rounded-xl"
+              className="bg-[var(--background-secondary)] hover:bg-[var(--hover)] text-[var(--foreground)] border border-[var(--border)] px-6 py-3 text-sm font-medium transition-all duration-150 rounded-md"
             >
-              <Plus className="mr-3 h-6 w-6" />
+              <Plus className="mr-2 h-4 w-4" />
               Add your first application
             </Button>
           </div>
@@ -343,7 +343,7 @@ export default function JobsPage() {
       {/* Job Form Modal */}
       {isFormOpen && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50 overflow-y-auto">
-          <div className="w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+          <div className="w-full max-w-lg max-h-[90vh] overflow-y-auto">
             <div className="bg-[var(--background)] rounded-2xl shadow-2xl border border-[var(--border)] p-6">
               <JobForm
                 onSubmit={handleSaveJob}

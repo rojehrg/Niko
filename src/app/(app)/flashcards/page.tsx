@@ -90,73 +90,73 @@ export default function FlashcardsPage() {
   };
   
   return (
-    <div className="min-h-screen p-6 max-w-7xl mx-auto">
-      {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-4xl font-bold text-[var(--foreground)] tracking-tight mb-2">
-          Flashcards
-        </h1>
-        <p className="text-[var(--foreground-secondary)] text-lg">
-          {isLoading ? 'Loading...' : `${sets.length} set${sets.length !== 1 ? 's' : ''}`}
-        </p>
-      </div>
+    <div className="min-h-screen py-8">
+        {/* Header */}
+        <div className="mb-6">
+          <h1 className="text-3xl font-bold text-[var(--foreground)] tracking-tight mb-2">
+            Flashcards
+          </h1>
+          <p className="text-[var(--foreground-secondary)] text-lg">
+            {isLoading ? 'Loading...' : `${sets.length} set${sets.length !== 1 ? 's' : ''}`}
+          </p>
+        </div>
 
-      {/* Action Buttons */}
-      <div className="flex flex-col sm:flex-row gap-4 mb-8">
+        {/* Action Buttons */}
+        <div className="flex flex-col sm:flex-row mb-6 gap-3">
         <Link href="/flashcards/create">
-          <Button className="bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white px-6 py-3">
-            <Plus className="mr-2 h-5 w-5" />
-            Create Flashcardr
+          <Button className="bg-[var(--background-secondary)] hover:bg-[var(--hover)] text-[var(--foreground)] border border-[var(--border)]">
+            <Plus className="mr-2 h-4 w-4" />
+            Create Flashcard
           </Button>
         </Link>
         <Link href="/flashcards/study">
-          <Button className="bg-green-600 hover:bg-green-700 text-white px-6 py-3">
-            <img src="/sprites/notes.png" alt="Study" className="mr-2 h-5 w-5" />
+          <Button className="bg-[var(--background-secondary)] hover:bg-[var(--hover)] text-[var(--foreground)] border border-[var(--border)]">
+            <img src="/sprites/notes.png" alt="Study" className="mr-2 h-4 w-4" />
             Study Mode
           </Button>
         </Link>
         <Link href="/flashcards/sets">
-          <Button variant="outline" className="border-[var(--border)] text-[var(--foreground)] hover:bg-[var(--hover)] px-6 py-3">
-            <BookOpen className="mr-2 h-5 w-5" />
+          <Button variant="outline" className="border-[var(--border)] text-[var(--foreground)] hover:bg-[var(--hover)]">
+            <BookOpen className="mr-2 h-4 w-4" />
             Manage Sets
           </Button>
         </Link>
       </div>
 
-      {/* Content Display */}
-      <div className="space-y-6">
+        {/* Content Display */}
+        <div className="space-y-6">
         {isLoading ? (
-          <Card className="border-[var(--border)] bg-white dark:bg-[var(--background)]">
-            <CardContent className="text-center py-16">
-              <div className="inline-flex items-center justify-center w-20 h-20 bg-gray-100 dark:bg-[var(--background-secondary)] border border-[var(--border)] rounded-full mb-6">
-                <div className="w-10 h-10 border-4 border-[var(--border)] border-t-[var(--primary)] rounded-full animate-spin"></div>
+          <Card className="border-[var(--border)] bg-[var(--background)]">
+            <CardContent className="text-center py-12">
+              <div className="inline-flex items-center justify-center w-16 h-16 bg-[var(--background-secondary)] border border-[var(--border)] rounded-full mb-4">
+                <div className="w-8 h-8 border-4 border-[var(--border)] border-t-[var(--primary)] rounded-full animate-spin"></div>
               </div>
-              <h3 className="text-2xl font-semibold text-[var(--foreground)] mb-3">
+              <h3 className="text-lg font-semibold text-[var(--foreground)] mb-2">
                 Loading flashcards...
               </h3>
-              <p className="text-[var(--foreground-secondary)] text-lg">
+              <p className="text-[var(--foreground-secondary)] text-sm">
                 Please wait while we fetch your flashcard sets
               </p>
             </CardContent>
           </Card>
         ) : sets.length === 0 ? (
-          <Card className="border-[var(--border)] bg-white dark:bg-[var(--background)]">
-            <CardContent className="text-center py-16">
-              <div className="inline-flex items-center justify-center mb-6">
-                <img src="/sprites/flashcards.png" alt="Flashcards" className="h-16 w-16" />
+          <Card className="border-[var(--border)] bg-[var(--background)]">
+            <CardContent className="text-center py-12">
+              <div className="inline-flex items-center justify-center mb-4">
+                <img src="/sprites/flashcards.png" alt="Flashcards" className="h-12 w-12" />
               </div>
-              <h3 className="text-2xl font-semibold text-[var(--foreground)] mb-3">
+              <h3 className="text-lg font-semibold text-[var(--foreground)] mb-2">
                 No flashcard sets yet
               </h3>
-              <p className="text-[var(--foreground-secondary)] mb-6 text-lg">
+              <p className="text-[var(--foreground-secondary)] mb-4 text-sm">
                 Create your first set to start organizing flashcards
               </p>
-              <div className="flex gap-4 justify-center">
+              <div className="flex gap-3 justify-center">
                 <Button 
                   onClick={() => setShowCreateSetModal(true)}
-                  className="bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white px-6 py-3"
+                  className="bg-[var(--background-secondary)] hover:bg-[var(--hover)] text-[var(--foreground)] border border-[var(--border)] px-4 py-2"
                 >
-                  <Plus className="mr-2 h-5 w-5" />
+                  <Plus className="mr-2 h-4 w-4" />
                   Create First Set
                 </Button>
               </div>
@@ -164,8 +164,8 @@ export default function FlashcardsPage() {
           </Card>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            {sets.map((set) => {
-                  const cardCount = flashcards.filter(card => card.setId === set.id).length;
+            {sets.map((set) => {
+              const cardCount = flashcards.filter(card => card.setId === set.id).length;
               return (
                 <Card 
                   key={set.id} 
@@ -176,23 +176,23 @@ export default function FlashcardsPage() {
                     window.history.pushState({}, '', url);
                   }}
                 >
-                  <CardContent className="p-4">
-                    <div className="flex items-start justify-between mb-2">
-                      <div className="text-xs text-[var(--foreground-secondary)] bg-gray-100 dark:bg-[var(--background-secondary)] px-2 py-0.5 rounded-full">
+                  <CardContent className="p-6">
+                    <div className="flex items-start justify-between mb-3">
+                      <div className="text-xs text-[var(--foreground-secondary)] bg-gray-100 dark:bg-[var(--background-secondary)] px-3 py-1 rounded-full">
                         {cardCount} card{cardCount !== 1 ? 's' : ''}
                       </div>
                     </div>
                     
-                    <div className="space-y-1">
-                      <h3 className="text-base font-semibold text-[var(--foreground)] group-hover:text-[var(--primary)] transition-colors">
+                    <div className="space-y-2">
+                      <h3 className="text-lg font-semibold text-[var(--foreground)] group-hover:text-[var(--primary)] transition-colors">
                         {set.name}
                       </h3>
                       {set.description && (
-                        <p className="text-xs text-[var(--foreground-secondary)] line-clamp-2">
+                        <p className="text-sm text-[var(--foreground-secondary)] line-clamp-2">
                           {set.description}
                         </p>
                       )}
-                      <div className="flex items-center justify-between pt-1">
+                      <div className="flex items-center justify-between pt-2">
                         <span className="text-xs text-[var(--foreground-secondary)]">
                           Created {formatDate(set.createdAt)}
                         </span>
@@ -216,7 +216,7 @@ export default function FlashcardsPage() {
             })}
           </div>
         )}
-      </div>
+    </div>
 
       {/* Delete Confirmation Modal */}
       {showDeleteModal && (
@@ -233,13 +233,13 @@ export default function FlashcardsPage() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex gap-3 pt-2">
-                                  <Button
-                    onClick={() => {
-                      setShowDeleteModal(false);
-                      setCardToDelete(null);
-                    }}
-                    className="flex-1 bg-red-500 hover:bg-red-600 text-white py-2.5 px-4 rounded-lg transition-all duration-200 font-medium"
-                  >
+                <Button
+                  onClick={() => {
+                    setShowDeleteModal(false);
+                    setCardToDelete(null);
+                  }}
+                  className="flex-1 bg-red-500 hover:bg-red-600 text-white"
+                >
                   Cancel
                 </Button>
                 <Button

@@ -3,7 +3,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, RotateCcw, Check, ChevronLeft, ChevronRight, Brain, Target, Sparkles, BookOpen, Shuffle, Timer, BarChart3 } from "lucide-react";
+import { ArrowLeft, RotateCcw, Check, ChevronLeft, ChevronRight, Brain, Target, Sparkles, BookOpen, Shuffle, Timer, BarChart3, X } from "lucide-react";
 import Link from "next/link";
 import { useFlashcardStore } from "@/lib/stores/flashcard-store";
 import { useSearchParams } from "next/navigation";
@@ -21,6 +21,9 @@ export default function StudyPage() {
   const [shuffledCards, setShuffledCards] = useState<typeof cardsToStudy>([]);
   const [isShuffled, setIsShuffled] = useState(false);
   const [studyStartTime, setStudyStartTime] = useState<Date | null>(null);
+  const [studyEndTime, setStudyEndTime] = useState<Date | null>(null);
+  const [currentTime, setCurrentTime] = useState<Date>(new Date());
+  const [studySessionKey, setStudySessionKey] = useState(0);
   const [showStats, setShowStats] = useState(false);
 
   // Get cards to study based on set filter
@@ -35,13 +38,48 @@ export default function StudyPage() {
   // Initialize shuffled cards and start timer
   useEffect(() => {
     setShuffledCards([...cardsToStudy]);
-    if (!studyStartTime) {
-      setStudyStartTime(new Date());
-    }
-  }, [cardsToStudy, studyStartTime]);
+    setIsFlipped(false); // Ensure card starts unflipped
+    // Reset timer and study progress for new study session
+    setStudyStartTime(new Date());
+    setStudyEndTime(null);
+    setCurrentTime(new Date());
+    setCurrentCardIndex(0);
+    setStudiedCards(new Set());
+    setCorrectCards(new Set());
+    setIncorrectCards(new Set());
+  }, [cardsToStudy, studySessionKey]);
 
   // Get current cards (shuffled or original)
   const currentCards = isShuffled ? shuffledCards : cardsToStudy;
+
+  const currentCard = currentCards[currentCardIndex];
+  const isLastCard = currentCardIndex === currentCards.length - 1;
+  const isStudyComplete = isLastCard && studiedCards.has(currentCard.id);
+  
+  // Set end time when study is complete
+  useEffect(() => {
+    if (isStudyComplete && !studyEndTime) {
+      setStudyEndTime(new Date());
+    }
+  }, [isStudyComplete, studyEndTime]);
+
+  // Timer that updates every second
+  useEffect(() => {
+    if (!studyStartTime || isStudyComplete) return;
+    
+    const interval = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [studyStartTime, isStudyComplete]);
+
+  // Ensure card is unflipped when card index changes
+  useEffect(() => {
+    setIsFlipped(false);
+  }, [currentCardIndex]);
+  
+  const studyTime = studyStartTime ? Math.max(0, Math.floor(((studyEndTime || currentTime) - studyStartTime.getTime()) / 1000)) : 0;
 
   if (currentCards.length === 0) {
     return (
@@ -109,10 +147,6 @@ export default function StudyPage() {
     );
   }
 
-  const currentCard = currentCards[currentCardIndex];
-  const isLastCard = currentCardIndex === currentCards.length - 1;
-  const studyTime = studyStartTime ? Math.floor((Date.now() - studyStartTime.getTime()) / 1000) : 0;
-
   const handleNext = () => {
     if (currentCardIndex < currentCards.length - 1) {
       setCurrentCardIndex(currentCardIndex + 1);
@@ -128,12 +162,7 @@ export default function StudyPage() {
   };
 
   const handleRestart = () => {
-    setCurrentCardIndex(0);
-    setIsFlipped(false);
-    setStudiedCards(new Set());
-    setCorrectCards(new Set());
-    setIncorrectCards(new Set());
-    setStudyStartTime(new Date());
+    setStudySessionKey(prev => prev + 1); // Trigger new study session
     setShowStats(false);
   };
 
@@ -176,7 +205,7 @@ export default function StudyPage() {
 
   return (
     <div className="min-h-screen bg-[var(--background-secondary)] p-6">
-      <div className="max-w-5xl mx-auto">
+      <div className="max-w-5xl mx-auto relative">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-4">
@@ -238,7 +267,7 @@ export default function StudyPage() {
           </div>
           <div className="w-full h-3 bg-[var(--border)] rounded-full overflow-hidden">
             <div 
-              className="h-full bg-gradient-to-r from-blue-500 via-purple-500 to-green-500 transition-all duration-500 ease-out"
+              className="h-full bg-[var(--primary)] transition-all duration-500 ease-out"
               style={{ width: `${(studiedCards.size / currentCards.length) * 100}%` }}
             />
           </div>
@@ -282,13 +311,13 @@ export default function StudyPage() {
                                 className="max-w-full max-h-48 object-contain rounded-lg border border-[var(--border)]"
                               />
                               {currentCard.front && (
-                                <p className="text-[var(--foreground)] text-lg font-medium leading-relaxed max-w-lg">
+                                <p className="text-[var(--foreground)] text-2xl font-medium leading-relaxed max-w-lg">
                                   {currentCard.front}
                                 </p>
                               )}
                             </div>
                           ) : (
-                            <p className="text-[var(--foreground)] text-xl font-medium leading-relaxed max-w-lg">
+                            <p className="text-[var(--foreground)] text-3xl font-medium leading-relaxed max-w-lg">
                               {currentCard.front}
                             </p>
                           )}
@@ -312,7 +341,7 @@ export default function StudyPage() {
                         {/* Header */}
                         <div className="flex items-center justify-between mb-6">
                           <div className="flex items-center gap-3">
-                            <div className="w-4 h-4 bg-green-500 rounded-full"></div>
+                            <div className="w-4 h-4 bg-[var(--primary)] rounded-full"></div>
                             <span className="text-sm font-semibold text-[var(--foreground-secondary)] uppercase tracking-wide">Answer</span>
                           </div>
                           <div className="text-xs text-[var(--foreground-tertiary)] bg-[var(--background)] px-2 py-1 rounded-full">
@@ -330,13 +359,13 @@ export default function StudyPage() {
                                 className="max-w-full max-h-48 object-contain rounded-lg border border-[var(--border)]"
                               />
                               {currentCard.back && (
-                                <p className="text-[var(--foreground)] text-lg font-medium leading-relaxed max-w-lg">
+                                <p className="text-[var(--foreground)] text-2xl font-medium leading-relaxed max-w-lg">
                                   {currentCard.back}
                                 </p>
                               )}
                             </div>
                           ) : (
-                            <p className="text-[var(--foreground)] text-xl font-medium leading-relaxed max-w-lg">
+                            <p className="text-[var(--foreground)] text-3xl font-medium leading-relaxed max-w-lg">
                               {currentCard.back}
                             </p>
                           )}
@@ -345,8 +374,8 @@ export default function StudyPage() {
                         {/* Footer */}
                         <div className="text-center mt-4">
                           <div className="inline-flex items-center gap-2 bg-[var(--background)] px-4 py-1 rounded-full border border-[var(--border)]">
-                            <Check className="w-4 h-4 text-green-600" />
-                            <span className="text-sm text-green-600 font-medium">Answer revealed</span>
+                            <Check className="w-4 h-4 text-[var(--foreground)]" />
+                            <span className="text-sm text-[var(--foreground)] font-medium">Answer revealed</span>
                           </div>
                         </div>
                       </CardContent>
@@ -367,14 +396,10 @@ export default function StudyPage() {
                   markAsIncorrect();
                   setTimeout(() => handleNext(), 500);
                 }}
-                className="bg-red-500 hover:bg-red-600 text-white h-12 px-6 transition-all duration-200 font-medium"
+                className="bg-[#FF6961]/80 hover:bg-[#FF6961]/70 text-white border border-[#FF6961]/60 h-12 px-6 transition-all duration-200 font-medium"
                 disabled={studiedCards.has(currentCard.id)}
               >
-                <img 
-                  src="/sprites/x.png" 
-                  alt="Need Review" 
-                  className="mr-2 h-5 w-5"
-                />
+                <X className="mr-2 h-5 w-5" />
                 Need Review
               </Button>
               <Button
@@ -382,7 +407,7 @@ export default function StudyPage() {
                   markAsCorrect();
                   setTimeout(() => handleNext(), 500);
                 }}
-                className="bg-green-600 hover:bg-green-700 text-white h-12 px-6 transition-all duration-200"
+                className="bg-[#487CA5] dark:bg-[#447ACB] hover:bg-[#3D6B8A] dark:hover:bg-[#3A6BB8] text-white h-12 px-6 transition-all duration-200"
                 disabled={studiedCards.has(currentCard.id)}
               >
                 <Check className="mr-2 h-5 w-5" />
@@ -398,7 +423,7 @@ export default function StudyPage() {
             variant="outline"
             onClick={handlePrevious}
             disabled={currentCardIndex === 0}
-            className="border-[var(--border)] text-[var(--foreground)] hover:bg-[var(--hover)] h-11 px-4 transition-all duration-200"
+            className="bg-[#FF6961]/80 hover:bg-[#FF6961]/70 text-white border border-[#FF6961]/60 h-11 px-4 transition-all duration-200"
           >
             <ChevronLeft className="mr-2 h-4 w-4" />
             Previous
@@ -408,15 +433,15 @@ export default function StudyPage() {
             <div className="text-sm text-[var(--foreground-secondary)] mb-2">
               {studiedCards.size} of {currentCards.length} cards studied
             </div>
-            <div className="flex items-center gap-6 text-xs">
-              <span className="flex items-center gap-2 text-green-600">
-                <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                {correctCards.size} correct
-              </span>
-              <span className="flex items-center gap-2 text-red-600">
-                <div className="w-3 h-3 bg-red-1000 rounded-full"></div>
-                {incorrectCards.size} to review
-              </span>
+            <div className="flex items-center justify-center gap-4 text-xs">
+              <div className="inline-flex items-center gap-2 bg-[var(--background)] px-3 py-1 rounded-full border border-[var(--border)]">
+                <Check className="w-3 h-3 text-[var(--foreground)]" />
+                <span className="text-[var(--foreground)] font-medium">{correctCards.size} correct</span>
+              </div>
+              <div className="inline-flex items-center gap-2 bg-[var(--background)] px-3 py-1 rounded-full border border-[var(--border)]">
+                <X className="w-3 h-3 text-[var(--foreground)]" />
+                <span className="text-[var(--foreground)] font-medium">{incorrectCards.size} to review</span>
+              </div>
             </div>
           </div>
           
@@ -432,55 +457,51 @@ export default function StudyPage() {
 
                 {/* Completion Overlay */}
         {isLastCard && studiedCards.has(currentCard.id) && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-            <div className="w-full max-w-2xl mx-4">
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 p-8">
+            <div className="w-full max-w-md">
               <Card className="bg-[var(--background)] border-[var(--border)] shadow-xl">
-                <CardContent className="py-8">
-                  <div className="flex justify-center mb-6">
-                    <div className="w-16 h-16 bg-[var(--primary)] rounded-full flex items-center justify-center">
-                      <Check className="h-8 w-8 text-white" />
+                <CardContent className="py-3 px-4">
+                  <div className="flex justify-center mb-4">
+                    <div className="w-12 h-12 bg-[var(--primary)] rounded-full flex items-center justify-center">
+                      <Check className="h-6 w-6 text-white" />
                     </div>
                   </div>
                   
-                  <h3 className="text-2xl font-bold text-[var(--foreground)] mb-2 text-center">
-                    Study Session Complete! 🎉
+                  <h3 className="text-xl font-bold text-[var(--foreground)] mb-1 text-center">
+                    Study Complete! 🎉
                   </h3>
-                  <p className="text-[var(--foreground-secondary)] mb-6 text-center">
+                  <p className="text-[var(--foreground-secondary)] mb-4 text-center text-sm">
                     Great work! Here's your performance summary.
                   </p>
                   
                   {/* Stats Grid */}
-                  <div className="grid grid-cols-2 gap-4 mb-6">
-                    <div className="bg-[var(--background-secondary)] rounded-lg p-4 border border-[var(--border)]">
-                      <div className="text-2xl font-bold text-green-600">{correctCards.size}</div>
-                      <div className="text-sm text-[var(--foreground-secondary)]">Correct</div>
+                  <div className="flex items-center justify-center gap-4 mb-4">
+                    <div className="bg-[var(--background-secondary)] rounded-md px-3 py-1 border border-[var(--border)]">
+                      <div className="text-sm font-bold text-[var(--foreground)]">{correctCards.size} correct</div>
                     </div>
-                    <div className="bg-[var(--background-secondary)] rounded-lg p-4 border border-[var(--border)]">
-                      <div className="text-2xl font-bold text-red-600">{incorrectCards.size}</div>
-                      <div className="text-sm text-[var(--foreground-secondary)]">Need Review</div>
+                    <div className="bg-[var(--background-secondary)] rounded-md px-3 py-1 border border-[var(--border)]">
+                      <div className="text-sm font-bold text-[var(--foreground)]">{incorrectCards.size} review</div>
                     </div>
-                    <div className="bg-[var(--background-secondary)] rounded-lg p-4 border border-[var(--border)]">
-                      <div className="text-2xl font-bold text-blue-600">{Math.round((correctCards.size / currentCards.length) * 100)}%</div>
-                      <div className="text-sm text-[var(--foreground-secondary)]">Success Rate</div>
+                    <div className="bg-[var(--background-secondary)] rounded-md px-3 py-1 border border-[var(--border)]">
+                      <div className="text-sm font-bold text-[var(--foreground)]">{Math.round((correctCards.size / currentCards.length) * 100)}%</div>
                     </div>
-                    <div className="bg-[var(--background-secondary)] rounded-lg p-4 border border-[var(--border)]">
-                      <div className="text-2xl font-bold text-[var(--primary)]">{formatTime(studyTime)}</div>
-                      <div className="text-sm text-[var(--foreground-secondary)]">Study Time</div>
+                    <div className="bg-[var(--background-secondary)] rounded-md px-3 py-1 border border-[var(--border)]">
+                      <div className="text-sm font-bold text-[var(--foreground)]">{formatTime(studyTime)}</div>
                     </div>
                   </div>
                   
                   {/* Action Buttons */}
-                  <div className="flex items-center justify-center gap-4">
+                  <div className="flex items-center justify-center gap-3">
                     <Button
                       onClick={handleRestart}
                       variant="outline"
-                      className="border-[var(--border)] text-[var(--foreground)] hover:bg-[var(--hover)] h-11 px-6"
+                      className="bg-[#77dd77]/80 dark:bg-[#77dd77]/80 hover:bg-[#77dd77]/90 dark:hover:bg-[#77dd77]/90 text-white dark:text-white border border-[#77dd77]/60 dark:border-[#77dd77]/60 h-11 px-6"
                     >
                       <RotateCcw className="mr-2 h-4 w-4" />
                       Study Again
                     </Button>
                     <Link href="/flashcards">
-                      <Button className="bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white h-11 px-6">
+                      <Button className="bg-[#487CA5] dark:bg-[#447ACB] hover:bg-[#3D6B8A] dark:hover:bg-[#3A6BB8] text-white h-11 px-6">
                         Back to Flashcards
                       </Button>
                     </Link>

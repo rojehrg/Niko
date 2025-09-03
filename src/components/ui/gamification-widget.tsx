@@ -46,22 +46,22 @@ export function GamificationWidget() {
   const totalGoals = goals.length
 
   return (
-    <div className="bg-[var(--background-secondary)] rounded-xl border border-[var(--border)] p-6">
+    <div className="bg-[var(--background-secondary)] rounded-md border border-[var(--border)] p-4">
       {/* Simple Header */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
-          <div className="w-28 h-28 flex items-center justify-center">
+          <div className="w-10 h-10 flex items-center justify-center">
             <img 
               src="/sprites/trophy.png" 
               alt="Trophy" 
-              className="w-20 h-20"
+              className="w-6 h-6"
             />
           </div>
-          <h3 className="text-2xl font-semibold text-[var(--foreground)]">Weekly Goals</h3>
+          <h3 className="text-lg font-semibold text-[var(--foreground)]">Weekly Goals</h3>
         </div>
         <button
           onClick={() => setIsAddingGoal(!isAddingGoal)}
-          className="p-1.5 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white rounded-lg transition-colors"
+          className="p-2 bg-[var(--background-secondary)] hover:bg-[var(--hover)] text-[var(--foreground)] border border-[var(--border)] rounded-md transition-all duration-150"
         >
           <Plus className="w-4 h-4" />
         </button>
@@ -69,7 +69,7 @@ export function GamificationWidget() {
 
       {/* Error Display */}
       {error && (
-        <div className="mb-4 p-3 bg-red-100 dark:bg-red-900/20 border border-red-300 dark:border-red-700 rounded-lg">
+        <div className="mb-3 p-3 bg-red-100 dark:bg-red-900/20 border border-red-300 dark:border-red-700 rounded-md">
           <p className="text-sm text-red-700 dark:text-red-300">{error}</p>
         </div>
       )}
@@ -122,10 +122,10 @@ export function GamificationWidget() {
         {goals.map((goal) => (
           <div
             key={goal.id}
-            className={`group flex items-center gap-3 p-3 rounded-lg border transition-all duration-200 ${
+            className={`group flex items-center gap-3 p-3 rounded-md border transition-all duration-150 ${
               goal.completed
-                ? 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-700'
-                : 'bg-[var(--background)] border-[var(--border)] hover:border-[var(--primary)]'
+                ? 'bg-[var(--background-secondary)] border-[var(--border)]'
+                : 'bg-[var(--background)] border-[var(--border)] hover:border-[var(--border-hover)]'
             }`}
           >
             <button
@@ -139,13 +139,13 @@ export function GamificationWidget() {
                   className="w-5 h-5"
                 />
               ) : (
-                <div className="w-5 h-5 border-2 border-[var(--border)] hover:border-[var(--primary)] rounded transition-colors flex items-center justify-center" />
+                <div className="w-5 h-5 border-2 border-[var(--border)] hover:border-[var(--foreground-secondary)] rounded transition-colors flex items-center justify-center" />
               )}
             </button>
             <span
-              className={`flex-1 text-sm transition-all duration-200 ${
+              className={`flex-1 text-sm transition-all duration-150 ${
                 goal.completed
-                  ? 'text-green-700 dark:text-green-300 line-through'
+                  ? 'text-[var(--foreground-secondary)] line-through'
                   : 'text-[var(--foreground)]'
               }`}
             >

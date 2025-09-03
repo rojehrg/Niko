@@ -197,32 +197,26 @@ export default function CreateFlashcardPage() {
                   {/* Question Image Upload */}
                   <div className="space-y-2">
                     <Label className="text-sm text-[var(--foreground-secondary)]">Question Image (Optional)</Label>
-                    <div className="flex items-center gap-3">
-                      <input
-                        type="file"
-                        accept="image/*"
-                        onChange={(e) => setQuestionImage(e.target.files?.[0] || null)}
-                        className="flex-1 text-sm text-[var(--foreground-secondary)] file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-[var(--primary)] file:text-white hover:file:bg-[var(--primary-hover)]"
-                      />
-                      {questionImage && (
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          onClick={() => setQuestionImage(null)}
-                          className="text-red-500 hover:text-red-400 border-red-300 hover:border-red-400 dark:text-red-400 dark:hover:text-red-300 dark:border-red-600 dark:hover:border-red-500"
-                        >
-                          Remove
-                        </Button>
-                      )}
-                    </div>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => setQuestionImage(e.target.files?.[0] || null)}
+                      className="w-full text-sm text-[var(--foreground-secondary)] file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-[var(--primary)] file:text-white hover:file:bg-[var(--primary-hover)]"
+                    />
                     {questionImage && (
-                      <div className="mt-2">
+                      <div className="mt-2 relative inline-block">
                         <img 
                           src={URL.createObjectURL(questionImage)} 
                           alt="Question preview" 
                           className="max-w-full h-32 object-contain rounded-lg border border-[var(--border)]"
                         />
+                        <button
+                          type="button"
+                          onClick={() => setQuestionImage(null)}
+                          className="absolute -top-2 -right-2 p-1 bg-[var(--background)] border border-[var(--border)] rounded-full hover:bg-[var(--hover)] shadow-sm"
+                        >
+                          <img src="/sprites/x.png" alt="Remove" className="w-4 h-4" />
+                        </button>
                       </div>
                     )}
                   </div>
@@ -244,32 +238,26 @@ export default function CreateFlashcardPage() {
                   {/* Answer Image Upload */}
                   <div className="space-y-2">
                     <Label className="text-sm text-[var(--foreground-secondary)]">Answer Image (Optional)</Label>
-                    <div className="flex items-center gap-3">
-                      <input
-                        type="file"
-                        accept="image/*"
-                        onChange={(e) => setAnswerImage(e.target.files?.[0] || null)}
-                        className="flex-1 text-sm text-[var(--foreground-secondary)] file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-[var(--primary)] file:text-white hover:file:bg-[var(--primary-hover)]"
-                      />
-                      {answerImage && (
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          onClick={() => setAnswerImage(null)}
-                          className="text-red-500 hover:text-red-400 border-red-300 hover:border-red-400 dark:text-red-400 dark:hover:text-red-300 dark:border-red-600 dark:hover:border-red-500"
-                        >
-                          Remove
-                        </Button>
-                      )}
-                    </div>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => setAnswerImage(e.target.files?.[0] || null)}
+                      className="w-full text-sm text-[var(--foreground-secondary)] file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-[var(--primary)] file:text-white hover:file:bg-[var(--primary-hover)]"
+                    />
                     {answerImage && (
-                      <div className="mt-2">
+                      <div className="mt-2 relative inline-block">
                         <img 
                           src={URL.createObjectURL(answerImage)} 
                           alt="Answer preview" 
                           className="max-w-full h-32 object-contain rounded-lg border border-[var(--border)]"
                         />
+                        <button
+                          type="button"
+                          onClick={() => setAnswerImage(null)}
+                          className="absolute -top-2 -right-2 p-1 bg-[var(--background)] border border-[var(--border)] rounded-full hover:bg-[var(--hover)] shadow-sm"
+                        >
+                          <img src="/sprites/x.png" alt="Remove" className="w-4 h-4" />
+                        </button>
                       </div>
                     )}
                   </div>
