@@ -79,7 +79,7 @@ export default function StudyPage() {
     setIsFlipped(false);
   }, [currentCardIndex]);
   
-  const studyTime = studyStartTime ? Math.max(0, Math.floor(((studyEndTime || currentTime) - studyStartTime.getTime()) / 1000)) : 0;
+  const studyTime = studyStartTime ? Math.max(0, Math.floor(((studyEndTime || currentTime).getTime() - studyStartTime.getTime()) / 1000)) : 0;
 
   if (currentCards.length === 0) {
     return (
